@@ -605,13 +605,13 @@ const Karyawan = () => {
           transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); 
           border: 1px solid transparent;
         }
-        .icon-btn-view { color: var(--primary); background: rgba(37,99,235,0.08); }
+        .icon-btn-view { color: var(--primary); background: var(--background); border: 1px solid var(--border) !important; }
         .icon-btn-view:hover { background: var(--primary); color: white; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(37,99,235,0.2); }
         
-        .icon-btn-edit { color: #f59e0b; background: rgba(245,158,11,0.08); }
+        .icon-btn-edit { color: #f59e0b; background: var(--background); border: 1px solid var(--border) !important; }
         .icon-btn-edit:hover { background: #f59e0b; color: white; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(245,158,11,0.2); }
         
-        .icon-btn-delete { color: #ef4444; background: rgba(239,68,68,0.08); }
+        .icon-btn-delete { color: #ef4444; background: var(--background); border: 1px solid var(--border) !important; }
         .icon-btn-delete:hover { background: #ef4444; color: white; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(239,68,68,0.2); }
         
         .modal-body-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; padding: 2rem 0; }

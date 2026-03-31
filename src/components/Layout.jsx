@@ -291,7 +291,7 @@ const Layout = ({ children }) => {
           display: flex;
           flex-direction: column;
           border-right: 1px solid var(--border);
-          background: white; /* Brighter Sidebar */
+          background: var(--surface); /* Theme Aware Sidebar */
           box-shadow: 4px 0 24px rgba(0,0,0,0.05);
         }
 
@@ -352,7 +352,7 @@ const Layout = ({ children }) => {
         }
 
         .menu-link:hover {
-          background: #f1f5f9;
+          background: var(--background);
           color: var(--primary);
           transform: translateX(4px);
         }
@@ -408,10 +408,17 @@ const Layout = ({ children }) => {
 
         .submenu-link:hover, .submenu-link.active {
           color: var(--primary);
-          background: rgba(37, 99, 235, 0.05);
+          background: var(--background);
         }
 
-        .sidebar-footer { padding: 1rem 1.15rem; border-top: 1px solid var(--border); background: #f8fafc; display: flex; align-items: center; justify-content: space-between; }
+        .sidebar-footer { 
+          padding: 1rem 1.15rem; 
+          border-top: 1px solid var(--border); 
+          background: var(--surface); 
+          display: flex; 
+          align-items: center; 
+          justify-content: space-between; 
+        }
 
         .user-profile {
           display: flex;
@@ -465,7 +472,7 @@ const Layout = ({ children }) => {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          background: white !important;
+          background: var(--surface);
           border-bottom: 1px solid var(--border);
           box-shadow: 0 4px 12px rgba(0,0,0,0.03);
           position: sticky;
@@ -559,8 +566,8 @@ const Layout = ({ children }) => {
         .user-dropdown {
           position: absolute; top: calc(100% + 12px); right: 0; 
           width: 210px; padding: 0.75rem; border-radius: 16px;
-          background: white;
-          border: 1px solid #e2e8f0;
+          background: var(--surface);
+          border: 1px solid var(--border);
           box-shadow: 0 10px 25px rgba(0,0,0,0.1);
           transform-origin: top right;
           z-index: 1001;
@@ -581,9 +588,9 @@ const Layout = ({ children }) => {
           border-radius: 10px; font-weight: 700; font-size: 0.85rem; color: #475569;
           transition: all 0.2s; border: none; background: none; width: 100%; cursor: pointer;
         }
-        .dropdown-item:hover { background: #f8fafc; color: var(--primary); transform: translateX(2px); }
-        .dropdown-item.text-danger:hover { background: #fef2f2; color: #ef4444; }
-        .item-icon { width: 28px; height: 28px; background: #f1f5f9; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: inherit; }
+        .dropdown-item:hover { background: var(--background); color: var(--primary); transform: translateX(2px); }
+        .dropdown-item.text-danger:hover { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+        .item-icon { width: 28px; height: 28px; background: var(--background); border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: inherit; }
         .dropdown-item:hover .item-icon { background: rgba(37,99,235,0.1); }
         .dropdown-item.text-danger .item-icon { color: #ef4444; }
         .dropdown-item.text-danger:hover .item-icon { background: #fee2e2; }

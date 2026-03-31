@@ -26,6 +26,7 @@
   --text-main: #f8fafc;
   --text-muted: #94a3b8;
   --border: #334155;
+  --glass-bg: rgba(30, 41, 59, 0.7);
 }
 
 * {
@@ -78,13 +79,23 @@ ul {
 }
 
 [data-theme='dark'] .glass {
-  background: rgba(30, 41, 59, 0.85);
+  background: var(--glass-bg);
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-[data-theme='dark'] .glass-card {
+[data-theme='dark'] .glass-card,
+[data-theme='dark'] .glass-premium,
+[data-theme='dark'] .timeline-content,
+[data-theme='dark'] .vibrant-stat-card,
+[data-theme='dark'] .vibrant-icon-wrapper {
+  background: var(--surface) !important;
+  color: var(--text-main) !important;
+  border-color: var(--border) !important;
+}
+
+[data-theme='dark'] select option {
   background: var(--surface);
-  border-color: var(--border);
+  color: var(--text-main);
 }
 
 /* Clear View Form Global Reset */
@@ -102,7 +113,7 @@ input, select, textarea {
   width: 100%;
   padding: 0.8rem 1rem;
   border: 2px solid var(--border);
-  background: white !important;
+  background: var(--surface);
   color: var(--text-main);
   border-radius: var(--radius-md);
   font-size: 0.85rem;
@@ -189,7 +200,7 @@ input::placeholder {
 }
 
 .premium-modal-content {
-  background: white;
+  background: var(--surface);
   width: 100%;
   max-width: 720px;
   max-height: 90vh;
@@ -207,7 +218,7 @@ input::placeholder {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--border);
 }
 
 .premium-modal-title {
@@ -228,8 +239,8 @@ input::placeholder {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #94a3b8;
-  border: 2px solid #f1f5f9;
+  color: var(--text-muted);
+  border: 2px solid var(--border);
   transition: all 0.2s;
 }
 
@@ -279,9 +290,9 @@ input::placeholder {
   flex-direction: column;
   gap: 0.4rem;
   padding: 1.2rem;
-  background: #f8fafc;
+  background: var(--background);
   border-radius: 16px;
-  border: 1px solid #f1f5f9;
+  border: 1px solid var(--border);
   transition: all 0.2s;
 }
 
@@ -313,10 +324,10 @@ input::placeholder {
 
 .premium-modal-footer {
   padding: 1rem 1.75rem;
-  background: #f8fafc;
+  background: var(--surface);
   display: flex;
   justify-content: flex-end;
-  border-top: 1px solid #f1f5f9;
+  border-top: 1px solid var(--border);
 }
 
 @keyframes modalScaleUp {

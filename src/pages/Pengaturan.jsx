@@ -383,8 +383,8 @@ const Pengaturan = () => {
             </div>
           ) : (
             <>
-              <div style={{ background: '#fff1f2', padding: '1.5rem', borderRadius: '16px', border: '1px solid #fecaca', marginBottom: '2rem' }}>
-                <p style={{ color: '#991b1b', fontWeight: 600, fontSize: '0.95rem', lineHeight: 1.6 }}>
+              <div style={{ background: 'rgba(239, 68, 68, 0.1)', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(239, 68, 68, 0.2)', marginBottom: '2rem' }}>
+                <p style={{ color: '#ef4444', fontWeight: 600, fontSize: '0.95rem', lineHeight: 1.6 }}>
                   Tindakan ini bersifat permanen dan **tidak dapat dibatalkan**. Semua catatan administrasi akan dihapus dari cloud.
                 </p>
               </div>
@@ -394,7 +394,7 @@ const Pengaturan = () => {
                 <input 
                   type="text" 
                   className="confirm-input"
-                  style={{ border: '2px solid #ef4444', background: 'white' }}
+                  style={{ border: '2px solid #ef4444', background: 'var(--background)', color: 'var(--text-main)' }}
                   placeholder="Ketik disini..."
                   value={resetConfirmText}
                   onChange={(e) => setResetConfirmText(e.target.value.toUpperCase())}
@@ -435,7 +435,7 @@ const Pengaturan = () => {
           transition: all 0.2s; margin-bottom: 0.25rem; background: transparent; border: none; cursor: pointer;
         }
         .settings-menu-item:hover { background: var(--background); color: var(--primary); }
-        .settings-menu-item.active { background: rgba(37,99,235,0.1); color: var(--primary); font-weight: 700; }
+        .settings-menu-item.active { background: var(--background); color: var(--primary); border: 1px solid var(--border); font-weight: 700; }
         
         .item-left { display: flex; align-items: center; gap: 0.75rem; }
         .item-label { font-size: 0.9rem; }

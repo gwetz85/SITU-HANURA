@@ -235,8 +235,8 @@ const Dashboard = () => {
         .vibrant-icon-wrapper { 
           width: 40px; height: 40px; border-radius: 10px; 
           display: flex; align-items: center; justify-content: center; 
-          background: white; color: var(--accent-color); 
-          box-shadow: 0 6px 12px rgba(0,0,0,0.05);
+          background: var(--background); color: var(--accent-color); 
+          box-shadow: 0 4px 8px rgba(0,0,0,0.05);
         }
         .stat-trend-chip { 
           padding: 0.3rem 0.6rem; background: #ecfdf5; color: #10b981; 
@@ -245,30 +245,30 @@ const Dashboard = () => {
         }
         .stat-label { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); }
         .stat-main-value { font-size: 1.45rem; font-weight: 900; color: var(--text-main); letter-spacing: -0.01em; }
-        .stat-progress-bg { height: 4px; background: #f1f5f9; border-radius: 100px; overflow: hidden; }
+        .stat-progress-bg { height: 4px; background: var(--background); border-radius: 100px; overflow: hidden; opacity: 0.5; }
         .stat-progress-bar { height: 100%; border-radius: 100px; opacity: 0.8; }
 
         .dashboard-layout-grids { display: grid; grid-template-columns: 1.5fr 1fr; gap: 1.15rem; }
         .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; }
         .title-with-icon { display: flex; align-items: center; gap: 0.6rem; }
-        .title-with-icon h3 { font-size: 1rem; font-weight: 800; color: #0f172a; }
+        .title-with-icon h3 { font-size: 1rem; font-weight: 800; color: var(--text-main); }
         .btn-link { color: var(--primary); font-weight: 700; font-size: 0.75rem; }
 
         .activity-timeline { display: flex; flex-direction: column; gap: 0.25rem; }
         .timeline-item { display: flex; gap: 1rem; }
         .timeline-marker { display: flex; flex-direction: column; align-items: center; }
         .marker-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--primary); box-shadow: 0 0 0 4px rgba(37,99,235,0.15); flex-shrink: 0; margin-top: 0.75rem; }
-        .marker-line { width: 2px; height: 100%; background: #f1f5f9; }
+        .marker-line { width: 2px; height: 100%; background: var(--border); opacity: 0.5; }
         
         .timeline-content { 
-          flex: 1; padding: 0.85rem 1.15rem; border-radius: 12px; background: #f8fafc; 
-          margin-bottom: 1.15rem; transition: all 0.2s; border: 1px solid transparent; 
+          flex: 1; padding: 0.85rem 1.15rem; border-radius: 12px; background: var(--background); 
+          margin-bottom: 1.15rem; transition: all 0.2s; border: 1px solid var(--border); 
         }
-        .timeline-content:hover { background: white; border-color: rgba(37,99,235,0.1); box-shadow: 0 4px 8px rgba(0,0,0,0.02); }
+        .timeline-content:hover { background: var(--surface); border-color: var(--primary); }
         .content-header { display: flex; justify-content: space-between; margin-bottom: 0.5rem; }
-        .letter-type-tag { padding: 0.2rem 0.5rem; background: white; border-radius: 6px; font-size: 0.65rem; font-weight: 800; color: var(--primary); text-transform: uppercase; border: 1px solid #e2e8f0; }
+        .letter-type-tag { padding: 0.2rem 0.5rem; background: var(--surface); border-radius: 6px; font-size: 0.65rem; font-weight: 800; color: var(--primary); text-transform: uppercase; border: 1px solid var(--border); }
         .letter-date { font-size: 0.65rem; color: var(--text-muted); font-weight: 600; }
-        .letter-summary { font-size: 0.85rem; color: #334155; line-height: 1.4; }
+        .letter-summary { font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; }
 
         .premium-chart { height: 160px; margin: 1.5rem 0; }
         .chart-bars-wrapper { display: flex; align-items: flex-end; gap: 0.75rem; height: 100%; justify-content: space-between; }
@@ -281,7 +281,7 @@ const Dashboard = () => {
         .bar-glow { position: absolute; top: -8px; left: 0; right: 0; height: 16px; background: var(--primary); filter: blur(12px); opacity: 0.3; }
         .bar-label { font-size: 0.65rem; font-weight: 700; color: var(--text-muted); }
         
-        .chart-legend { display: flex; flex-direction: column; gap: 0.75rem; padding-top: 1.15rem; border-top: 1px solid #f1f5f9; }
+        .chart-legend { display: flex; flex-direction: column; gap: 0.75rem; padding-top: 1.15rem; border-top: 1px solid var(--border); }
         .legend-item { display: flex; align-items: center; gap: 0.6rem; font-weight: 700; font-size: 0.75rem; }
         .legend-item .dot { width: 8px; height: 8px; border-radius: 50%; }
         .legend-note { font-size: 0.7rem; color: var(--text-muted); line-height: 1.5; }
