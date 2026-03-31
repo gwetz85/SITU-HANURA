@@ -27,6 +27,8 @@ import {
 import { db } from '../firebase';
 import { ref, onValue, push, remove, update } from 'firebase/database';
 import Modal from '../components/Modal';
+import { formatTerbilang } from '../utils/terbilang';
+import SlipGaji from '../components/SlipGaji';
 
 const Karyawan = () => {
   const [activeTab, setActiveTab] = useState('data');
@@ -37,12 +39,15 @@ const Karyawan = () => {
   const [showKasbonForm, setShowKasbonForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [empForm, setEmpForm] = useState({
-    nama: '', jabatan: '', nik: '', ponsel: '', bank: 'BNI', norek: '', gaji: ''
+    nama: '', jabatan: '', nik: '', ponsel: '', bank: 'BNI', norek: '', gaji: '',
+    tunjangan_jabatan: 0, tunjangan_makan: 0, bonus_kinerja: 0,
+    bpjs_kesehatan: 0, bpjs_ketenagakerjaan: 0
   });
   const [kasbonForm, setKasbonForm] = useState({
     employeeId: '', tanggal: new Date().toISOString().split('T')[0], jumlah: ''
   });
   const [viewingDetail, setViewingDetail] = useState(null);
+  const [printingEmployee, setPrintingEmployee] = useState(null);
 
   useEffect(() => {
     const empRef = ref(db, 'employees');
@@ -70,7 +75,16 @@ const Karyawan = () => {
 
   const handleEmpSubmit = async (e) => {
     e.preventDefault();
-    const data = { ...empForm, gaji: parseInt(empForm.gaji || 0), createdAt: new Date().toISOString() };
+    const data = { 
+      ...empForm, 
+      gaji: parseInt(empForm.gaji || 0),
+      tunjangan_jabatan: parseInt(empForm.tunjangan_jabatan || 0),
+      tunjangan_makan: parseInt(empForm.tunjangan_makan || 0),
+      bonus_kinerja: parseInt(empForm.bonus_kinerja || 0),
+      bpjs_kesehatan: parseInt(empForm.bpjs_kesehatan || 0),
+      bpjs_ketenagakerjaan: parseInt(empForm.bpjs_ketenagakerjaan || 0),
+      createdAt: new Date().toISOString() 
+    };
     try {
       if (editingId) {
         await update(ref(db, `employees/${editingId}`), data);
@@ -84,7 +98,11 @@ const Karyawan = () => {
   };
 
   const resetEmpForm = () => {
-    setEmpForm({ nama: '', jabatan: '', nik: '', ponsel: '', bank: 'BNI', norek: '', gaji: '' });
+    setEmpForm({ 
+      nama: '', jabatan: '', nik: '', ponsel: '', bank: 'BNI', norek: '', gaji: '',
+      tunjangan_jabatan: 0, tunjangan_makan: 0, bonus_kinerja: 0,
+      bpjs_kesehatan: 0, bpjs_ketenagakerjaan: 0
+    });
     setEditingId(null);
     setShowEmpForm(false);
   };
@@ -93,7 +111,12 @@ const Karyawan = () => {
     setEditingId(emp.id);
     setEmpForm({
       nama: emp.nama, jabatan: emp.jabatan, nik: emp.nik, 
-      ponsel: emp.ponsel, bank: emp.bank, norek: emp.norek, gaji: emp.gaji
+      ponsel: emp.ponsel, bank: emp.bank, norek: emp.norek, gaji: emp.gaji,
+      tunjangan_jabatan: emp.tunjangan_jabatan || 0,
+      tunjangan_makan: emp.tunjangan_makan || 0,
+      bonus_kinerja: emp.bonus_kinerja || 0,
+      bpjs_kesehatan: emp.bpjs_kesehatan || 0,
+      bpjs_ketenagakerjaan: emp.bpjs_ketenagakerjaan || 0
     });
     setShowEmpForm(true);
   };
@@ -190,6 +213,38 @@ const Karyawan = () => {
               <div className="form-group" style={{ gridColumn: '1 / -1' }}>
                 <label>Gaji Pokok (Rp)</label>
                 <input required type="number" value={empForm.gaji} onChange={e => setEmpForm({...empForm, gaji: e.target.value})} placeholder="Contoh: 3000000" />
+              </div>
+            </div>
+          </div>
+
+          <div className="premium-modal-section">
+            <h4 className="premium-section-title"><Banknote size={18} /> Tunjangan & Bonus</h4>
+            <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+              <div className="form-group">
+                <label>Tunjangan Jabatan</label>
+                <input type="number" value={empForm.tunjangan_jabatan} onChange={e => setEmpForm({...empForm, tunjangan_jabatan: e.target.value})} />
+              </div>
+              <div className="form-group">
+                <label>Tunjangan Makan</label>
+                <input type="number" value={empForm.tunjangan_makan} onChange={e => setEmpForm({...empForm, tunjangan_makan: e.target.value})} />
+              </div>
+              <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                <label>Bonus Kinerja</label>
+                <input type="number" value={empForm.bonus_kinerja} onChange={e => setEmpForm({...empForm, bonus_kinerja: e.target.value})} />
+              </div>
+            </div>
+          </div>
+
+          <div className="premium-modal-section">
+            <h4 className="premium-section-title"><AlertCircle size={18} /> Potongan (BPJS)</h4>
+            <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+              <div className="form-group">
+                <label>BPJS Kesehatan</label>
+                <input type="number" value={empForm.bpjs_kesehatan} onChange={e => setEmpForm({...empForm, bpjs_kesehatan: e.target.value})} />
+              </div>
+              <div className="form-group">
+                <label>BPJS Ketenagakerjaan</label>
+                <input type="number" value={empForm.bpjs_ketenagakerjaan} onChange={e => setEmpForm({...empForm, bpjs_ketenagakerjaan: e.target.value})} />
               </div>
             </div>
           </div>
@@ -350,7 +405,9 @@ const Karyawan = () => {
                 <tbody>
                   {employees.map(e => {
                     const totalKasbon = getOutstandingKasbon(e.id);
-                    const takeHomePay = e.gaji - totalKasbon;
+                    const totalPenghasilan = (e.gaji || 0) + (e.tunjangan_jabatan || 0) + (e.tunjangan_makan || 0) + (e.bonus_kinerja || 0);
+                    const totalPotongan = (totalKasbon || 0) + (e.bpjs_kesehatan || 0) + (e.bpjs_ketenagakerjaan || 0);
+                    const takeHomePay = totalPenghasilan - totalPotongan;
                     return (
                       <tr key={e.id}>
                         <td>
@@ -363,7 +420,18 @@ const Karyawan = () => {
                         <td className="text-red">-{formatCurrency(totalKasbon)}</td>
                         <td className="text-right">
                           <span className="font-bold" style={{ fontSize: '1.1rem', color: 'var(--primary)' }}>{formatCurrency(takeHomePay)}</span>
-                          <button className="icon-btn-ghost ml-2" title="Cetak Slip"><Printer size={16} /></button>
+                          <button 
+                            className="icon-btn-ghost ml-2" 
+                            title="Cetak Slip"
+                            onClick={() => setPrintingEmployee({
+                              ...e,
+                              totalKasbon: totalKasbon,
+                              penerimaanBersih: takeHomePay,
+                              terbilang: formatTerbilang(takeHomePay)
+                            })}
+                          >
+                            <Printer size={16} />
+                          </button>
                         </td>
                       </tr>
                     );
@@ -447,6 +515,24 @@ const Karyawan = () => {
             </div>
           </>
         )}
+      </Modal>
+
+      <Modal
+        isOpen={!!printingEmployee}
+        onClose={() => setPrintingEmployee(null)}
+        title="Pratinjau Slip Gaji"
+        icon={<Printer size={24} />}
+        maxWidth="800px"
+        footer={
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <button className="btn btn-ghost" onClick={() => setPrintingEmployee(null)}>Batal</button>
+            <button className="btn btn-primary" onClick={() => window.print()}>
+              <Printer size={18} /> Cetak Sekarang
+            </button>
+          </div>
+        }
+      >
+        {printingEmployee && <SlipGaji data={printingEmployee} />}
       </Modal>
 
       <style dangerouslySetInnerHTML={{ __html: `
