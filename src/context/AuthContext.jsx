@@ -179,6 +179,22 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const updateProfile = async (userId, newData) => {
+    if (!db) return false;
+    try {
+      await update(ref(db, `users/${userId}`), newData);
+      
+      // Update local state
+      const updatedUser = { ...user, ...newData };
+      setUser(updatedUser);
+      localStorage.setItem('situ_hanura_user', JSON.stringify(updatedUser));
+      return true;
+    } catch (err) {
+      console.error("Update Profile Error:", err);
+      return false;
+    }
+  };
+
   const updateUserRole = async (userId, role) => {
     if (!db) return;
     try {
@@ -219,7 +235,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, register, updateUserRole, logout, loading, error, setError }}>
+    <AuthContext.Provider value={{ user, login, register, updateProfile, updateUserRole, logout, loading, error, setError }}>
       {loading ? (
         <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0f172a', color: 'white', fontFamily: 'sans-serif' }}>
           <div style={{ textAlign: 'center' }}>

@@ -1,19 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Settings, Lock, Palette, Smartphone, Globe, Bell, Save, ChevronRight, User, 
-  Trash2, AlertTriangle, RefreshCw, CheckCircle2 
+  Trash2, AlertTriangle, RefreshCw, CheckCircle2, Loader2 
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { db } from '../firebase';
 import { ref, remove } from 'firebase/database';
 
 const Pengaturan = () => {
-  const { user } = useAuth();
+  const { user, updateProfile } = useAuth();
   const [activeSub, setActiveSub] = useState('profil');
+  
+  // Profile State
+  const [profileName, setProfileName] = useState('');
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+
+  // Reset State
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
   const [resetConfirmText, setResetConfirmText] = useState('');
   const [isResetting, setIsResetting] = useState(false);
   const [resetSuccess, setResetSuccess] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      setProfileName(user.name || user.username);
+    }
+  }, [user]);
 
   const isAdmin = user?.role === 'Admin';
 
@@ -25,12 +38,26 @@ const Pengaturan = () => {
     ...(isAdmin ? [{ id: 'sistem', label: 'Sistem & Data', icon: <Settings size={18} /> }] : []),
   ];
 
+  const handleSaveProfile = async () => {
+    if (!user || !profileName.trim()) return;
+    
+    setIsSavingProfile(true);
+    const success = await updateProfile(user.id, { name: profileName });
+    setIsSavingProfile(false);
+    
+    if (success) {
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
+    } else {
+      alert("Gagal memperbarui profil. Periksa koneksi atau izin database.");
+    }
+  };
+
   const handleResetDatabase = async () => {
     if (resetConfirmText !== 'RESET' || !db) return;
     
     setIsResetting(true);
     try {
-      // Standardized paths across all dynamic modules
       const nodes = ['surat', 'cashbook', 'employees', 'pustaka', 'stats'];
       await Promise.all(nodes.map(node => remove(ref(db, node))));
       
@@ -83,7 +110,12 @@ const Pengaturan = () => {
               <div className="settings-form">
                 <div className="form-group">
                   <label>Nama Lengkap</label>
-                  <input type="text" defaultValue={user?.name || user?.username} />
+                  <input 
+                    type="text" 
+                    value={profileName} 
+                    onChange={(e) => setProfileName(e.target.value)}
+                    disabled={isSavingProfile}
+                  />
                 </div>
                 <div className="form-group">
                   <label>Jabatan / Peran</label>
@@ -94,9 +126,24 @@ const Pengaturan = () => {
                   <label>Username</label>
                   <input type="text" defaultValue={user?.username} disabled />
                 </div>
-                <button className="btn btn-primary mt-2">
-                  <Save size={18} /> <span>Simpan Perubahan</span>
-                </button>
+                
+                <div className="action-area">
+                  <button 
+                    className={`btn btn-primary mt-2 ${saveSuccess ? 'btn-success' : ''}`}
+                    onClick={handleSaveProfile}
+                    disabled={isSavingProfile || profileName === (user?.name || user?.username)}
+                  >
+                    {isSavingProfile ? (
+                      <Loader2 size={18} className="spinner" />
+                    ) : saveSuccess ? (
+                      <CheckCircle2 size={18} />
+                    ) : (
+                      <Save size={18} />
+                    )}
+                    <span>{isSavingProfile ? 'Menyimpan...' : saveSuccess ? 'Tersimpan!' : 'Simpan Perubahan'}</span>
+                  </button>
+                  {saveSuccess && <span className="success-msg animate-fade-in">Data berhasil diperbarui ke cloud.</span>}
+                </div>
               </div>
             </div>
           )}
@@ -292,6 +339,12 @@ const Pengaturan = () => {
         }
         .form-group input:focus { outline: none; border-color: var(--primary); }
         .input-info { font-size: 0.75rem; color: var(--text-muted); opacity: 0.8; }
+
+        .action-area { display: flex; align-items: center; gap: 1rem; margin-top: 0.5rem; }
+        .success-msg { font-size: 0.8rem; color: #10b981; font-weight: 600; }
+        .btn-success { background: #10b981 !important; }
+
+        .animate-fade-in { animation: fadeIn 0.3s ease-out; }
 
         .appearance-options { display: flex; flex-direction: column; gap: 1.5rem; }
         .option-item { display: flex; justify-content: space-between; align-items: center; }
