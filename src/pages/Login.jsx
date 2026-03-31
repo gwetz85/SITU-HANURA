@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { LogIn, User, Lock, ShieldCheck, UserPlus, ArrowLeft, CheckCircle } from 'lucide-react';
+import { LogIn, User, Lock, ShieldCheck, UserPlus, ArrowLeft, CheckCircle, Loader2 } from 'lucide-react';
 
 const Login = () => {
   const [isRegister, setIsRegister] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     username: '',
@@ -20,7 +21,12 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    await login(formData.username, formData.password);
+    setIsLoading(true);
+    try {
+      await login(formData.username, formData.password);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleRegister = async (e) => {
@@ -29,14 +35,19 @@ const Login = () => {
       setError('Password konfirmasi tidak cocok.');
       return;
     }
-    const res = await register(formData.name, formData.username, formData.password);
-    if (res) {
-      setSuccess(true);
-      setFormData({ name: '', username: '', password: '', confirmPassword: '' });
-      setTimeout(() => {
-        setSuccess(false);
-        setIsRegister(false);
-      }, 5000);
+    setIsLoading(true);
+    try {
+      const res = await register(formData.name, formData.username, formData.password);
+      if (res) {
+        setSuccess(true);
+        setFormData({ name: '', username: '', password: '', confirmPassword: '' });
+        setTimeout(() => {
+          setSuccess(false);
+          setIsRegister(false);
+        }, 5000);
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -79,6 +90,7 @@ const Login = () => {
                   placeholder="Nama Lengkap"
                   value={formData.name}
                   onChange={handleInputChange}
+                  disabled={isLoading}
                   required
                 />
               </div>
@@ -92,6 +104,7 @@ const Login = () => {
                 placeholder="Username"
                 value={formData.username}
                 onChange={handleInputChange}
+                disabled={isLoading}
                 required
               />
             </div>
@@ -104,6 +117,7 @@ const Login = () => {
                 placeholder="Password"
                 value={formData.password}
                 onChange={handleInputChange}
+                disabled={isLoading}
                 required
               />
             </div>
@@ -117,20 +131,26 @@ const Login = () => {
                   placeholder="Konfirmasi Password"
                   value={formData.confirmPassword}
                   onChange={handleInputChange}
+                  disabled={isLoading}
                   required
                 />
               </div>
             )}
 
-            <button type="submit" className="btn btn-primary login-btn">
-              {isRegister ? (
+            <button type="submit" className="btn btn-primary login-btn" disabled={isLoading}>
+              {isLoading ? (
+                <>
+                  <Loader2 size={18} className="spinner" />
+                  <span>Sedang Proses...</span>
+                </>
+              ) : isRegister ? (
                 <>Daftar Akun <UserPlus size={18} style={{ marginLeft: '8px' }} /></>
               ) : (
                 <>Masuk <LogIn size={18} style={{ marginLeft: '8px' }} /></>
               )}
             </button>
 
-            <button type="button" className="mode-toggle-btn" onClick={toggleMode}>
+            <button type="button" className="mode-toggle-btn" onClick={toggleMode} disabled={isLoading}>
               {isRegister ? (
                 <><ArrowLeft size={16} /> Sudah punya akun? Login</>
               ) : (
@@ -266,6 +286,11 @@ const Login = () => {
           box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
         }
 
+        .input-group input:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+
         .login-btn {
           width: 100%;
           padding: 0.9rem;
@@ -274,6 +299,22 @@ const Login = () => {
           display: flex;
           align-items: center;
           justify-content: center;
+          gap: 10px;
+        }
+
+        .login-btn:disabled {
+          background: var(--text-muted);
+          opacity: 0.7;
+          cursor: not-allowed;
+        }
+
+        .spinner {
+          animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
         }
 
         .mode-toggle-btn {
@@ -295,6 +336,11 @@ const Login = () => {
         .mode-toggle-btn:hover {
           opacity: 1;
           text-decoration: underline;
+        }
+
+        .mode-toggle-btn:disabled {
+          opacity: 0.4;
+          cursor: not-allowed;
         }
 
         .login-footer {

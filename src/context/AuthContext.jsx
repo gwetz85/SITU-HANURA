@@ -44,7 +44,10 @@ export const AuthProvider = ({ children }) => {
           }
           setLoading(false);
         }, (err) => {
-          console.error("Firebase Listener Error:", err);
+          console.error("Firebase Auth Listener Error:", err);
+          if (err.message?.includes('permission_denied')) {
+             setError('Firebase Database Permission Denied. Harap buka akses (Rules) di Firebase Console.');
+          }
           setLoading(false);
         });
         return () => unsubscribe();
@@ -58,9 +61,23 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (username, password) => {
     if (!db) return false;
+    setError('');
     try {
       const usersRef = ref(db, 'users');
-      const snapshot = await get(usersRef);
+      
+      // Attempting to fetch users
+      let snapshot;
+      try {
+        snapshot = await get(usersRef);
+      } catch (err) {
+        console.error("Firebase Fetch Error:", err);
+        if (err.message?.includes('permission_denied')) {
+          setError('Izin database ditolak (Permission Denied). Silakan cek Rules di Firebase Console Anda.');
+        } else {
+          setError('Gagal mengambil data dari database cloud.');
+        }
+        return false;
+      }
       
       let foundUser = null;
       if (snapshot.exists()) {
@@ -75,8 +92,13 @@ export const AuthProvider = ({ children }) => {
         const defaults = {
           admin_01: { username: 'admin', password: 'admin', role: 'Admin', name: 'ADMIN DPC HANURA' },
         };
-        await set(ref(db, 'users'), defaults);
-        return login(username, password);
+        try {
+          await set(ref(db, 'users'), defaults);
+          return login(username, password);
+        } catch (err) {
+          setError('Database kosong dan gagal inisialisasi awal (Cek Izin Menulis).');
+          return false;
+        }
       }
 
       if (foundUser) {
@@ -86,7 +108,18 @@ export const AuthProvider = ({ children }) => {
         }
 
         const devId = getDeviceId();
-        await update(ref(db, `users/${foundUser.id}`), { activeDevId: devId });
+        try {
+          await update(ref(db, `users/${foundUser.id}`), { activeDevId: devId });
+        } catch (err) {
+          console.error("Firebase Update Error:", err);
+          if (err.message?.includes('permission_denied')) {
+            setError('Gagal mencatat sesi login (Izin Menulis database ditolak).');
+          } else {
+            setError('Gangguan saat memperbarui sesi login.');
+          }
+          return false;
+        }
+
         localStorage.setItem('situ_hanura_user', JSON.stringify(foundUser));
         setUser(foundUser);
         setError('');
@@ -96,16 +129,16 @@ export const AuthProvider = ({ children }) => {
         return false;
       }
     } catch (err) {
-      console.error(err);
-      setError('Kesalahan koneksi database.');
+      console.error("General Login Error:", err);
+      setError('Kesalahan sistem saat mencoba login.');
       return false;
     }
   };
 
   const register = async (name, username, password) => {
     if (!db) return false;
+    setError('');
     try {
-      // Check if username already exists
       const usersRef = ref(db, 'users');
       const snapshot = await get(usersRef);
       
@@ -136,8 +169,12 @@ export const AuthProvider = ({ children }) => {
       setError('');
       return true;
     } catch (err) {
-      console.error(err);
-      setError('Gagal mendaftarkan akun.');
+      console.error("Registration Error:", err);
+      if (err.message?.includes('permission_denied')) {
+        setError('Gagal mendaftar: Izin Menulis database ditolak.');
+      } else {
+        setError('Terjadi kesalahan saat pendaftaran.');
+      }
       return false;
     }
   };
