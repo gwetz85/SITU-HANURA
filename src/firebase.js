@@ -1,8 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getDatabase } from "firebase/database";
 
-// Firebase configuration using environment variables for security
-// Ensure you have these VITE_FIREBASE_* variables in your .env file
+// Firebase configuration with resilience for Vercel
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -13,6 +12,19 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-export const db = getDatabase(app);
+// Fail-safe initialization
+let app;
+let db;
+
+try {
+  if (!firebaseConfig.apiKey || firebaseConfig.apiKey === "YOUR_API_KEY") {
+    console.error("Firebase Configuration is missing or using placeholders. Please set VITE_FIREBASE_* environment variables.");
+  } else {
+    app = initializeApp(firebaseConfig);
+    db = getDatabase(app);
+  }
+} catch (error) {
+  console.error("Firebase Initialization Error:", error);
+}
+
+export { db };
