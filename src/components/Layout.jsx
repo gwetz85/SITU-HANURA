@@ -130,7 +130,7 @@ const Layout = ({ children }) => {
 
       {/* Main Content Area */}
       <main className="main-container">
-        <header className="top-navbar glass">
+        <header className="top-navbar glass sticky-nav">
           <div className="header-left">
             <button className="toggle-btn" onClick={toggleSidebar}>
               <Menu size={24} />
@@ -172,7 +172,8 @@ const Layout = ({ children }) => {
           display: flex;
           flex-direction: column;
           border-right: 1px solid var(--border);
-          background: var(--surface);
+          background: white; /* Brighter Sidebar */
+          box-shadow: 4px 0 24px rgba(0,0,0,0.05);
         }
 
         .sidebar-closed .sidebar {
@@ -180,7 +181,7 @@ const Layout = ({ children }) => {
         }
 
         .sidebar-header {
-          padding: 1.5rem;
+          padding: 2rem 1.5rem;
           display: flex;
           align-items: center;
           justify-content: space-between;
@@ -194,16 +195,14 @@ const Layout = ({ children }) => {
         }
 
         .brand-logo {
-          width: 32px;
-          height: 32px;
+          width: 40px;
+          height: 40px;
           background: var(--primary);
           color: white;
-          border-radius: 8px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-weight: 800;
-          font-size: 1.2rem;
+          border-radius: 10px;
+          display: flex; align-items: center; justify-content: center;
+          font-weight: 800; font-size: 1.4rem;
+          box-shadow: 0 4px 12px rgba(37,99,235,0.3);
         }
 
         .brand-info {
@@ -211,12 +210,7 @@ const Layout = ({ children }) => {
           flex-direction: column;
         }
 
-        .brand-name {
-          font-weight: 800;
-          font-size: 0.95rem;
-          letter-spacing: 0.5px;
-          color: var(--primary);
-        }
+        .brand-name { font-weight: 800; font-size: 1.1rem; color: var(--text-main); }
 
         .brand-tag {
           font-size: 0.65rem;
@@ -224,33 +218,30 @@ const Layout = ({ children }) => {
           color: var(--text-muted);
         }
 
-        .sidebar-nav {
-          flex: 1;
-          padding: 1rem;
-          overflow-y: auto;
-        }
+        .sidebar-nav { padding: 1.5rem 1rem; }
 
         .menu-link {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 0.8rem 1rem;
-          border-radius: var(--radius-md);
+          padding: 0.9rem 1.25rem;
+          border-radius: 14px;
           color: var(--text-muted);
-          font-weight: 500;
-          margin-bottom: 0.25rem;
+          font-weight: 600;
+          margin-bottom: 0.5rem;
           transition: all 0.2s;
         }
 
         .menu-link:hover {
-          background: rgba(37, 99, 235, 0.05);
+          background: #f1f5f9;
           color: var(--primary);
+          transform: translateX(4px);
         }
 
         .menu-link.active {
           background: var(--primary);
           color: white;
-          box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+          box-shadow: 0 8px 16px -4px rgba(37, 99, 235, 0.4);
         }
 
         .link-content {
@@ -288,10 +279,11 @@ const Layout = ({ children }) => {
           display: flex;
           align-items: center;
           gap: 0.75rem;
-          padding: 0.6rem 0.8rem;
+          padding: 0.75rem 1rem;
+          font-weight: 600;
           font-size: 0.85rem;
           color: var(--text-muted);
-          border-radius: var(--radius-sm);
+          border-radius: 10px;
           transition: all 0.2s;
         }
 
@@ -300,13 +292,7 @@ const Layout = ({ children }) => {
           background: rgba(37, 99, 235, 0.05);
         }
 
-        .sidebar-footer {
-          padding: 1rem;
-          border-top: 1px solid var(--border);
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-        }
+        .sidebar-footer { padding: 1.5rem; border-top: 1px solid var(--border); background: #f8fafc; display: flex; align-items: center; justify-content: space-between; }
 
         .user-profile {
           display: flex;
@@ -331,11 +317,7 @@ const Layout = ({ children }) => {
           flex-direction: column;
         }
 
-        .user-name {
-          font-size: 0.85rem;
-          font-weight: 700;
-          color: var(--text-main);
-        }
+        .user-name { font-size: 0.95rem; font-weight: 800; color: var(--text-main); }
 
         .user-role {
           font-size: 0.7rem;
@@ -357,14 +339,16 @@ const Layout = ({ children }) => {
           margin-left: 0;
         }
 
+        /* Navbar Brightness */
         .top-navbar {
           height: var(--navbar-height);
           padding: 0 1.5rem;
           display: flex;
           align-items: center;
           justify-content: space-between;
+          background: white !important;
           border-bottom: 1px solid var(--border);
-          background: var(--surface);
+          box-shadow: 0 4px 12px rgba(0,0,0,0.03);
           position: sticky;
           top: 0;
           z-index: 900;
@@ -376,13 +360,7 @@ const Layout = ({ children }) => {
           gap: 1rem;
         }
 
-        .page-title {
-          font-size: 0.9rem;
-          font-weight: 700;
-          color: var(--text-muted);
-          letter-spacing: 1px;
-          text-transform: uppercase;
-        }
+        .page-title { font-weight: 800; color: var(--text-main); font-size: 1rem; letter-spacing: 0.5px; }
 
         .header-right {
           display: flex;
@@ -428,8 +406,10 @@ const Layout = ({ children }) => {
           box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
         }
 
+        /* Content Area */
         .content-viewport {
-          padding: 2rem;
+          padding: 2.5rem;
+          background: var(--background);
           flex: 1;
         }
 
@@ -448,8 +428,8 @@ const Layout = ({ children }) => {
           .sidebar-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(15, 23, 42, 0.4);
-            backdrop-filter: blur(4px);
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(8px);
             z-index: 999;
           }
         }

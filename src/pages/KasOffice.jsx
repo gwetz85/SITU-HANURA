@@ -168,8 +168,8 @@ const KasOffice = () => {
       </div>
 
       {showAddForm && (
-        <div className="add-transaction-card glass-card fadeIn shadow-lg">
-          <div className="card-header">
+        <div className="add-transaction-card glass fadeIn shadow-lg">
+          <div className="card-header border-b">
             <h3>{editingId ? <Edit2 size={20} /> : <Plus size={20} />} {editingId ? 'Edit Transaksi' : 'Form Transaksi Baru'}</h3>
             <p>{editingId ? 'Perbarui detail transaksi yang dipilih.' : 'Silahkan lengkapi detail transaksi di bawah ini.'}</p>
           </div>
@@ -338,8 +338,8 @@ const KasOffice = () => {
 
       {showDetail && (
         <div className="modal-overlay" onClick={() => setShowDetail(null)}>
-          <div className="modal-content glass-card fadeIn" onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
+          <div className="modal-content glass fadeIn" onClick={e => e.stopPropagation()}>
+            <div className="modal-header border-b">
               <h3>Detail Transaksi</h3>
               <button className="close-btn" onClick={() => setShowDetail(null)}><X size={20} /></button>
             </div>
@@ -412,47 +412,23 @@ const KasOffice = () => {
         .text-right { text-align: right; }
         .font-bold { font-weight: 800; }
         
-        /* Add Transaction Card Styles */
-        .add-transaction-card { padding: 1.5rem; border: 1px solid var(--primary); margin-bottom: 0.5rem; }
-        .card-header { margin-bottom: 1.5rem; }
-        .card-header h3 { display: flex; align-items: center; gap: 0.5rem; font-weight: 700; color: var(--primary); }
-        .card-header p { font-size: 0.85rem; color: var(--text-muted); }
+        /* Clear View Updates */
+        .add-transaction-card { width: 100%; border: 1px solid var(--border); margin-bottom: 2rem; padding: 2.5rem; }
+        .card-header { margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .border-b { border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; margin-bottom: 2rem; }
         
-        .transaction-form .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem; }
+        .transaction-form .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; }
         .transaction-form .full-width { grid-column: 1 / -1; }
         .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
-        .form-group label { font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; color: var(--text-muted); }
-        .form-group input, .form-group select, .form-group textarea { 
-          padding: 0.75rem; 
-          border-radius: 8px; 
-          border: 1px solid var(--border); 
-          background: rgba(255,255,255,0.5); 
-          font-family: inherit; 
-          font-size: 0.9rem;
-          transition: all 0.2s;
-        }
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-          border-color: var(--primary);
-          outline: none;
-          box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-        .form-group textarea { min-height: 80px; resize: vertical; }
-        .form-actions { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border); }
-        .btn-ghost { background: transparent; color: var(--text-muted); }
-        .btn-ghost:hover { background: var(--background); color: var(--text-main); }
+        .form-group textarea { min-height: 100px; resize: vertical; }
+        .form-actions { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+        .btn-ghost { background: transparent; color: var(--text-muted); font-weight: 600; }
+        .btn-ghost:hover { background: #f1f5f9; color: var(--text-main); }
         .btn-secondary { background: var(--secondary); color: white; }
 
         .actions-cell { text-align: right; }
         .action-group { display: flex; gap: 0.5rem; justify-content: flex-end; }
-        .action-group button { 
-          width: 32px; 
-          height: 32px; 
-          border-radius: 8px; 
-          display: flex; 
-          align-items: center; 
-          justify-content: center; 
-          transition: all 0.2s; 
-        }
+        .action-group button { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
         .icon-btn-view { color: var(--primary); background: rgba(37, 99, 235, 0.1); }
         .icon-btn-view:hover { background: var(--primary); color: white; }
         .icon-btn-edit { color: var(--accent); background: rgba(245, 158, 11, 0.1); }
@@ -462,37 +438,32 @@ const KasOffice = () => {
 
         /* Modal Styles */
         .modal-overlay { 
-          position: fixed; 
-          top: 0; left: 0; right: 0; bottom: 0; 
-          background: rgba(0,0,0,0.5); 
-          backdrop-filter: blur(4px); 
-          display: flex; 
-          align-items: center; 
-          justify-content: center; 
-          z-index: 1000; 
-          padding: 1.5rem;
+          position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
+          background: rgba(15, 23, 42, 0.65); 
+          backdrop-filter: blur(10px); 
+          display: flex; align-items: center; justify-content: center; 
+          z-index: 1000; padding: 1.5rem;
         }
-        .modal-content { width: 100%; max-width: 500px; padding: 2rem; border: 1px solid rgba(255,255,255,0.2); }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
-        .modal-header h3 { font-size: 1.25rem; font-weight: 700; color: var(--primary); }
-        .close-btn { color: var(--text-muted); }
-        .close-btn:hover { color: #ef4444; }
-        .modal-body { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        .modal-content { width: 100%; max-width: 550px; padding: 2.5rem; border: 1px solid var(--border); box-shadow: var(--shadow-lg); }
+        .modal-header h3 { font-size: 1.4rem; font-weight: 800; color: var(--primary); }
+        .close-btn { color: var(--text-muted); padding: 8px; border-radius: 50%; transition: all 0.2s; }
+        .close-btn:hover { background: #fee2e2; color: #ef4444; }
+        .modal-body { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
         .modal-body .full { grid-column: 1 / -1; }
-        .detail-item { display: flex; flex-direction: column; gap: 0.25rem; }
-        .detail-item .label { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
-        .detail-item .value { font-size: 1rem; font-weight: 600; }
+        .detail-item { display: flex; flex-direction: column; gap: 0.5rem; }
+        .detail-item .label { font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; }
+        .detail-item .value { font-size: 1.1rem; font-weight: 700; color: var(--text-main); }
         .detail-item .value.highlight { color: var(--primary); }
-        .detail-item .value.amount { font-size: 1.25rem; font-weight: 800; }
-        .detail-item p.value { line-height: 1.6; font-weight: 400; color: var(--text-main); }
-        .small-text { font-size: 0.8rem; color: var(--text-muted); }
-        .modal-footer { margin-top: 2rem; display: flex; justify-content: flex-end; }
+        .detail-item .value.amount { font-size: 1.5rem; font-weight: 900; }
+        .detail-item p.value { line-height: 1.7; font-weight: 500; color: var(--text-main); background: #f8fafc; padding: 1rem; border-radius: 12px; border: 1px solid var(--border); }
+        .small-text { font-size: 0.85rem; color: var(--text-muted); }
+        .modal-footer { margin-top: 2.5rem; display: flex; justify-content: flex-end; padding-top: 1.5rem; border-top: 1px solid var(--border); }
 
         @media (max-width: 768px) { 
           .toolbar { flex-direction: column; align-items: stretch; } 
           .kas-summary { grid-template-columns: 1fr; } 
           .transaction-form .form-grid { grid-template-columns: 1fr; }
-          .modal-body { grid-template-columns: 1fr; }
+          .modal-body { grid-template-columns: 1fr; gap: 1.5rem; }
         }
       ` }} />
     </div>
