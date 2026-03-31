@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Settings, Lock, Palette, Smartphone, Globe, Bell, Save, ChevronRight, User, 
-  Trash2, AlertTriangle, RefreshCw, CheckCircle2, Loader2, Info, Mail, MessageCircle, ShieldCheck, Zap, Cpu
+  Trash2, AlertTriangle, RefreshCw, CheckCircle2, Loader2, ShieldCheck, Zap
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { db } from '../firebase';
@@ -52,10 +52,7 @@ const Pengaturan = () => {
       label_dark: 'Mode Gelap (Dark Mode)',
       desc_dark: 'Ubah tema aplikasi menjadi gelap untuk penggunaan malam hari.',
       label_lang: 'Bahasa Aplikasi',
-      desc_lang: 'Pilih bahasa yang digunakan di seluruh interface.',
-      m_about: 'Tentang Aplikasi',
-      s_about_title: 'SITU HANURA',
-      s_about_desc: 'Sistem Informasi Terpadu DPC HANURA Kota Tanjungpinang'
+      desc_lang: 'Pilih bahasa yang digunakan di seluruh interface.'
     },
     en: {
       p_title: 'Settings',
@@ -78,10 +75,7 @@ const Pengaturan = () => {
       label_dark: 'Dark Mode',
       desc_dark: 'Change the application theme to dark for night use.',
       label_lang: 'Application Language',
-      desc_lang: 'Choose the language used throughout the interface.',
-      m_about: 'About Application',
-      s_about_title: 'SITU HANURA',
-      s_about_desc: 'Integrated Information System DPC HANURA Tanjungpinang City'
+      desc_lang: 'Choose the language used throughout the interface.'
     }
   }[language || 'id'];
 
@@ -98,7 +92,6 @@ const Pengaturan = () => {
     { id: 'keamanan', label: t.m_security, icon: <Lock size={18} /> },
     { id: 'tampilan', label: t.m_appearance, icon: <Palette size={18} /> },
     { id: 'perangkat', label: t.m_device, icon: <Smartphone size={18} /> },
-    { id: 'tentang', label: t.m_about, icon: <Info size={18} /> },
     ...(isAdmin ? [{ id: 'sistem', label: t.m_system, icon: <Settings size={18} /> }] : []),
   ];
 
@@ -346,60 +339,6 @@ const Pengaturan = () => {
             </div>
           )}
 
-          {activeSub === 'tentang' && (
-            <div className="settings-section glass-card animate-slide-up about-page">
-              <div className="section-header text-center">
-                <div className="about-logo animate-pulse-slow">
-                   <ShieldCheck size={48} color="var(--primary)" />
-                </div>
-                <h3>{t.s_about_title}</h3>
-                <p>{t.s_about_desc}</p>
-              </div>
-
-              <div className="about-content">
-                <div className="about-card primary-border">
-                  <h4 className="about-subtitle"><Info size={16} /> Tentang Aplikasi</h4>
-                  <p className="about-text">
-                    SITU HANURA adalah platform manajemen terpadu yang dirancang khusus untuk meningkatkan efisiensi administrasi kantor di lingkungan DPC HANURA Kota Tanjungpinang. Aplikasi ini mencakup modul korespondensi, pengelolaan kas, data karyawan, hingga pengarsipan digital dalam satu sistem yang aman.
-                  </p>
-                </div>
-
-                <div className="features-grid">
-                   <div className="feature-tag"><Smartphone size={14} /> 1 User 1 Perangkat</div>
-                   <div className="feature-tag"><Zap size={14} /> Role-Based Access</div>
-                   <div className="feature-tag"><Globe size={14} /> Mobile Responsive</div>
-                </div>
-
-                <div className="developer-card glass-card">
-                  <div className="dev-header">
-                    <div className="dev-avatar">AS</div>
-                    <div className="dev-name">
-                      <h4>AGUS SURIYADI</h4>
-                      <p>Lead Developer SITU HANURA</p>
-                    </div>
-                  </div>
-                  <div className="dev-links">
-                    <a href="mailto:agussuriyadipunya@gmail.com" className="dev-link">
-                      <Mail size={16} /> agussuriyadipunya@gmail.com
-                    </a>
-                    <a href="https://wa.me/62817319885" target="_blank" rel="noreferrer" className="dev-link">
-                      <MessageCircle size={16} /> 0817319885
-                    </a>
-                  </div>
-                </div>
-
-                <div className="about-footer">
-                  <p className="powered-by"><Cpu size={14} /> Powered by Google Deepmind Technology</p>
-                  <div className="version-info">
-                    <span>Versi: 2.1.5-stable</span>
-                    <span className="dot"></span>
-                    <span>Terakhir Update: 31 Maret 2026</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
           {activeSub === 'sistem' && isAdmin && (
             <div className="settings-section glass-card animate-slide-up danger-section">
               <div className="section-header">
@@ -575,42 +514,6 @@ const Pengaturan = () => {
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @keyframes scaleUp { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
         .animate-scale-up { animation: scaleUp 0.3s cubic-bezier(0.165, 0.84, 0.44, 1); }
-
-        /* About Section Styles */
-        .about-page { max-width: 650px; margin: 0 auto; }
-        .about-logo { width: 80px; height: 80px; background: rgba(37,99,235,0.08); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; }
-        .about-subtitle { color: var(--primary); font-size: 0.95rem; font-weight: 800; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 8px; }
-        .about-text { font-size: 0.9rem; line-height: 1.7; color: var(--text-muted); text-align: justify; }
-        .about-card { padding: 1.5rem; border-radius: 12px; background: var(--background); margin-bottom: 1.5rem; }
-        .primary-border { border-left: 4px solid var(--primary); }
-        
-        .features-grid { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 2rem; justify-content: center; }
-        .feature-tag { 
-          padding: 0.5rem 1rem; background: var(--background); border: 1px solid var(--border); 
-          border-radius: 100px; font-size: 0.75rem; font-weight: 700; color: var(--text-main); 
-          display: flex; align-items: center; gap: 6px; 
-        }
-
-        .developer-card { padding: 1.5rem; }
-        .dev-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem; }
-        .dev-avatar { 
-          width: 50px; height: 50px; border-radius: 50%; background: var(--primary); 
-          color: white; display: flex; align-items: center; justify-content: center; 
-          font-weight: 800; font-size: 1.2rem; 
-        }
-        .dev-name h4 { font-weight: 800; font-size: 1rem; margin: 0; color: var(--text-main); }
-        .dev-name p { font-size: 0.75rem; color: var(--text-muted); margin: 0; font-weight: 600; }
-        .dev-links { display: flex; flex-direction: column; gap: 0.65rem; }
-        .dev-link { 
-          display: flex; align-items: center; gap: 10px; font-size: 0.85rem; 
-          color: var(--text-muted); text-decoration: none; transition: color 0.2s; 
-        }
-        .dev-link:hover { color: var(--primary); }
-
-        .about-footer { margin-top: 3rem; text-align: center; border-top: 1px solid var(--border); padding-top: 1.5rem; }
-        .powered-by { font-size: 0.75rem; color: var(--text-muted); font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 10px; }
-        .version-info { display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 0.7rem; color: var(--text-muted); opacity: 0.6; font-weight: 600; }
-        .version-info .dot { width: 4px; height: 4px; border-radius: 50%; background: currentColor; }
 
         @media (max-width: 768px) {
           .settings-layout { flex-direction: column; }
