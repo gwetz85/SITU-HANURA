@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { 
   UserPlus, Shield, UserCheck, MoreVertical, ShieldAlert, UserX, Check, Edit, 
-  Eye, Trash2, X, Save, ShieldCheck, CheckCircle, AlertCircle, Calendar, Hash, Smartphone, RotateCcw
+  Eye, Trash2, X, Save, ShieldCheck, CheckCircle, AlertCircle, Calendar, Hash, Smartphone, RotateCcw,
+  AtSign, Activity, Settings, User
 } from 'lucide-react';
 import { db } from '../firebase';
 import { ref, onValue, update, remove } from 'firebase/database';
@@ -141,11 +142,11 @@ const ManajemenUser = () => {
           <table className="data-table">
             <thead>
               <tr>
-                <th>Nama Pengguna</th>
-                <th>Username</th>
-                <th>Peran / Role</th>
-                <th>Status</th>
-                <th>Aksi</th>
+                <th><User size={13} style={{ marginBottom: '-2px', marginRight: '6px' }} /> NAMA PENGGUNA</th>
+                <th><AtSign size={13} style={{ marginBottom: '-2px', marginRight: '6px' }} /> USERNAME</th>
+                <th><Shield size={13} style={{ marginBottom: '-2px', marginRight: '6px' }} /> PERAN / ROLE</th>
+                <th><Activity size={13} style={{ marginBottom: '-2px', marginRight: '6px' }} /> STATUS</th>
+                <th className="text-center"><Settings size={13} style={{ marginBottom: '-2px', marginRight: '6px' }} /> AKSI</th>
               </tr>
             </thead>
             <tbody>
@@ -155,7 +156,9 @@ const ManajemenUser = () => {
                     {u.name}
                     {!u.role && <span className="new-badge">BARU</span>}
                   </td>
-                  <td className="text-muted">@{u.username}</td>
+                  <td className="text-muted">
+                    <span className="badge-outline">@{u.username}</span>
+                  </td>
                   <td>
                     <span className={`role-badge ${u.role ? u.role.toLowerCase() : 'pending'}`}>
                       {u.role || 'Belum Aktif'}
@@ -300,6 +303,19 @@ const ManajemenUser = () => {
         .role-desc { font-size: 0.7rem; opacity: 0.6; }
         .vibrant-stat-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem; }
 
+        /* Table Styling Refresh */
+        .data-table thead tr { background: #f8fafc; border-bottom: 2px solid #e2e8f0; }
+        .data-table th { 
+          color: #64748b; font-size: 0.7rem; font-weight: 800; 
+          text-transform: uppercase; letter-spacing: 0.05em; padding: 0.85rem 1.25rem;
+        }
+        .data-table td { padding: 0.75rem 1.25rem; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+        .badge-outline { 
+          background: rgba(37, 99, 235, 0.05); color: var(--primary); 
+          padding: 0.4rem 0.8rem; border-radius: 8px; font-weight: 800; font-size: 0.75rem;
+          border: 1px solid rgba(37, 99, 235, 0.2); text-transform: uppercase;
+        }
+
         .role-badge { padding: 0.35rem 0.75rem; border-radius: 6px; font-size: 0.7rem; font-weight: 800; display: inline-block; }
         .role-badge.admin { background: #fee2e2; color: #ef4444; }
         .role-badge.petugas { background: #dcfce7; color: #10b981; }
@@ -322,7 +338,7 @@ const ManajemenUser = () => {
         .text-success { color: #10b981; font-weight: 700; }
         .text-danger { color: #ef4444; font-weight: 700; }
 
-        .action-group { display: flex; gap: 0.4rem; justify-content: center; }
+        .action-group { display: flex; gap: 0.4rem; justify-content: flex-end; }
         .action-group button { width: 30px !important; height: 30px !important; border-radius: 8px !important; border: 1px solid transparent !important; display: flex; align-items: center; justify-content: center; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
         .icon-btn-view { color: var(--primary); background: rgba(37,99,235,0.06); }
         .icon-btn-view:hover { background: var(--primary); color: white; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(37,99,235,0.2); }
