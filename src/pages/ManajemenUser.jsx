@@ -279,28 +279,28 @@ const ManajemenUser = () => {
       </Modal>
 
       <style dangerouslySetInnerHTML={{ __html: `
-        .users-page { display: flex; flex-direction: column; gap: 2rem; }
+        .users-page { display: flex; flex-direction: column; gap: 1.25rem; }
         
         .dashboard-hero { 
-          padding: 2.5rem; border-radius: 24px; color: white; 
+          padding: 1.25rem 1.75rem; border-radius: 16px; color: white; 
           display: flex; justify-content: space-between; align-items: center; 
-          box-shadow: 0 15px 35px rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.05);
+          box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.05);
         }
-        .welcome-tag { font-size: 0.7rem; font-weight: 800; letter-spacing: 0.15rem; background: rgba(255,255,255,0.1); padding: 0.35rem 0.8rem; border-radius: 100px; width: fit-content; margin-bottom: 1rem; }
-        .hero-content h1 { font-size: 1.75rem; font-weight: 900; margin-bottom: 0.5rem; letter-spacing: -0.01em; }
-        .hero-content p { font-size: 1rem; opacity: 0.8; }
+        .welcome-tag { font-size: 0.65rem; font-weight: 800; letter-spacing: 0.1rem; background: rgba(255,255,255,0.1); padding: 0.25rem 0.65rem; border-radius: 100px; width: fit-content; margin-bottom: 0.75rem; }
+        .hero-content h1 { font-size: 1.4rem; font-weight: 900; margin-bottom: 0.35rem; letter-spacing: -0.01em; }
+        .hero-content p { font-size: 0.9rem; opacity: 0.8; }
         
-        .date-badge-premium { display: flex; align-items: center; gap: 1rem; padding: 1.25rem 2rem; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); }
-        .date-text .day { font-weight: 800; font-size: 1rem; color: #3b82f6; }
-        .date-text .full-date { opacity: 0.7; font-size: 0.75rem; }
+        .date-badge-premium { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1.25rem; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1); }
+        .date-text .day { font-weight: 800; font-size: 0.85rem; color: #3b82f6; }
+        .date-text .full-date { opacity: 0.7; font-size: 0.65rem; }
 
-        .vibrant-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem; }
-        .vibrant-stat-card { padding: 1.5rem; transition: all 0.3s; border: 1px solid transparent; }
-        .vibrant-stat-card:hover { transform: translateY(-5px); border-color: var(--accent-color); opacity: 1 !important; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
-        .vibrant-icon-wrapper { width: 44px; height: 44px; background: rgba(0,0,0,0.04); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--accent-color); }
-        .stat-label { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
-        .stat-main-value { font-size: 1.75rem; font-weight: 900; margin: 0.5rem 0 0.25rem 0; color: #0f172a; }
-        .vibrant-stat-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem; }
+        .vibrant-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
+        .vibrant-stat-card { padding: 1.15rem; transition: all 0.3s; border: 1px solid transparent; }
+        .vibrant-stat-card:hover { transform: translateY(-3px); border-color: var(--accent-color); opacity: 1 !important; box-shadow: 0 8px 16px rgba(0,0,0,0.05); }
+        .vibrant-icon-wrapper { width: 36px; height: 36px; background: rgba(0,0,0,0.04); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--accent-color); }
+        .stat-label { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+        .stat-main-value { font-size: 1.45rem; font-weight: 900; margin: 0.35rem 0 0.15rem 0; color: #0f172a; }
+        .vibrant-stat-header { display: flex; align-items: center; gap: 0.65rem; margin-bottom: 0.35rem; }
 
         .role-badge { padding: 0.35rem 0.75rem; border-radius: 6px; font-size: 0.7rem; font-weight: 800; display: inline-block; }
         .role-badge.admin { background: #fee2e2; color: #ef4444; }

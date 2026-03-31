@@ -277,25 +277,25 @@ const SuratMenyurat = ({ type }) => {
       </Modal>
 
       <style dangerouslySetInnerHTML={{ __html: `
-        .mail-page { display: flex; flex-direction: column; gap: 1.5rem; }
+        .mail-page { display: flex; flex-direction: column; gap: 1rem; }
         .page-header { display: flex; justify-content: space-between; align-items: center; }
-        .header-info h1 { font-size: 1.5rem; font-weight: 800; color: var(--text-main); }
-        .header-info p { color: var(--text-muted); font-size: 0.9rem; }
-        .p-10 { padding: 2.5rem; }
-        .toolbar { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; gap: 1rem; }
-        .search-box { flex: 1; display: flex; align-items: center; gap: 0.75rem; background: var(--background); padding: 0.6rem 1rem; border-radius: var(--radius-md); border: 1px solid var(--border); max-width: 400px; }
-        .search-box input { border: none; background: none; outline: none; width: 100%; font-size: 0.9rem; color: var(--text-main); }
+        .header-info h1 { font-size: 1.25rem; font-weight: 800; color: var(--text-main); }
+        .header-info p { color: var(--text-muted); font-size: 0.8rem; }
+        .p-10 { padding: 1.5rem; }
+        .toolbar { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1.25rem; gap: 0.75rem; }
+        .search-box { flex: 1; display: flex; align-items: center; gap: 0.65rem; background: var(--background); padding: 0.5rem 0.85rem; border-radius: var(--radius-md); border: 1px solid var(--border); max-width: 400px; }
+        .search-box input { border: none; background: none; outline: none; width: 100%; font-size: 0.85rem; color: var(--text-main); }
         .toolbar-actions { display: flex; align-items: center; gap: 1rem; }
-        .icon-btn-outline { padding: 0.6rem; border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-muted); transition: all 0.2s; }
+        .icon-btn-outline { padding: 0.5rem; border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-muted); transition: all 0.2s; }
         .icon-btn-outline:hover { border-color: var(--primary); color: var(--primary); background: rgba(37, 99, 235, 0.05); }
-        .divider { width: 1px; height: 24px; background: var(--border); }
-        .total-label { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); }
+        .divider { width: 1px; height: 20px; background: var(--border); }
+        .total-label { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); }
         .table-responsive { padding: 0; overflow-x: auto; }
         .data-table { width: 100%; border-collapse: separate; border-spacing: 0; text-align: left; }
         .data-table th { 
-          padding: 1.5rem 1.5rem; 
+          padding: 0.85rem 1.25rem; 
           background: var(--background); 
-          font-size: 0.75rem; 
+          font-size: 0.7rem; 
           font-weight: 800; 
           text-transform: uppercase; 
           letter-spacing: 0.05em; 
@@ -304,8 +304,8 @@ const SuratMenyurat = ({ type }) => {
         }
         .data-table th svg { vertical-align: middle; margin-bottom: 2px; margin-right: 4px; }
         .data-table td { 
-          padding: 1.25rem 1.5rem; 
-          font-size: 0.95rem; 
+          padding: 0.75rem 1.25rem; 
+          font-size: 0.85rem; 
           border-bottom: 1px solid var(--background); 
           color: var(--text-main); 
           vertical-align: middle;
@@ -326,10 +326,10 @@ const SuratMenyurat = ({ type }) => {
         }
         .truncate-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: var(--text-muted); line-height: 1.6; }
         .icon-btn-ghost:hover { background: rgba(37, 99, 235, 0.08); color: var(--primary); transform: translateY(-2px); }
-        .action-group { display: flex; gap: 0.75rem; justify-content: flex-end; }
+        .action-group { display: flex; gap: 0.5rem; justify-content: flex-end; }
         .action-group button { 
-          width: 36px; height: 36px; 
-          border-radius: 10px; 
+          width: 32px; height: 32px; 
+          border-radius: 8px; 
           display: flex; align-items: center; justify-content: center; 
           transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); 
           border: 1px solid transparent;

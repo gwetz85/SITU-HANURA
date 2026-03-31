@@ -257,7 +257,7 @@ const Layout = ({ children }) => {
         }
 
         .sidebar-header {
-          padding: 2rem 1.5rem;
+          padding: 1.25rem 1.15rem;
           display: flex;
           align-items: center;
           justify-content: space-between;
@@ -294,30 +294,30 @@ const Layout = ({ children }) => {
           color: var(--text-muted);
         }
 
-        .sidebar-nav { padding: 1.5rem 1rem; }
+        .sidebar-nav { padding: 0.75rem 0.65rem; }
 
         .menu-link {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 0.9rem 1.25rem;
-          border-radius: 14px;
+          padding: 0.6rem 0.85rem;
+          border-radius: 12px;
           color: var(--text-muted);
           font-weight: 600;
-          margin-bottom: 0.5rem;
+          margin-bottom: 0.25rem;
           transition: all 0.2s;
         }
 
         .menu-link:hover {
           background: #f1f5f9;
           color: var(--primary);
-          transform: translateX(4px);
+          transform: translateX(3px);
         }
 
         .menu-link.active {
           background: var(--primary);
           color: white;
-          box-shadow: 0 8px 16px -4px rgba(37, 99, 235, 0.4);
+          box-shadow: 0 4px 12px -2px rgba(37, 99, 235, 0.3);
         }
 
         .link-content {
@@ -354,12 +354,12 @@ const Layout = ({ children }) => {
         .submenu-link {
           display: flex;
           align-items: center;
-          gap: 0.75rem;
-          padding: 0.75rem 1rem;
+          gap: 0.65rem;
+          padding: 0.5rem 0.85rem;
           font-weight: 600;
-          font-size: 0.85rem;
+          font-size: 0.8rem;
           color: var(--text-muted);
-          border-radius: 10px;
+          border-radius: 8px;
           transition: all 0.2s;
         }
 
@@ -368,7 +368,7 @@ const Layout = ({ children }) => {
           background: rgba(37, 99, 235, 0.05);
         }
 
-        .sidebar-footer { padding: 1.5rem; border-top: 1px solid var(--border); background: #f8fafc; display: flex; align-items: center; justify-content: space-between; }
+        .sidebar-footer { padding: 1rem 1.15rem; border-top: 1px solid var(--border); background: #f8fafc; display: flex; align-items: center; justify-content: space-between; }
 
         .user-profile {
           display: flex;
@@ -418,7 +418,7 @@ const Layout = ({ children }) => {
         /* Navbar Brightness */
         .top-navbar {
           height: var(--navbar-height);
-          padding: 0 1.5rem;
+          padding: 0 1.25rem;
           display: flex;
           align-items: center;
           justify-content: space-between;
@@ -433,21 +433,21 @@ const Layout = ({ children }) => {
         .header-left {
           display: flex;
           align-items: center;
-          gap: 1rem;
+          gap: 0.75rem;
         }
 
-        .page-title { font-weight: 800; color: var(--text-main); font-size: 1rem; letter-spacing: 0.5px; }
+        .page-title { font-weight: 800; color: var(--text-main); font-size: 0.85rem; letter-spacing: 0.5px; text-transform: uppercase; }
 
         .header-right {
           display: flex;
           align-items: center;
-          gap: 1rem;
+          gap: 0.75rem;
         }
 
         .icon-btn {
           position: relative;
           color: var(--text-muted);
-          padding: 0.5rem;
+          padding: 0.4rem;
           border-radius: 50%;
           transition: background 0.2s;
         }
@@ -459,10 +459,10 @@ const Layout = ({ children }) => {
 
         .badge {
           position: absolute;
-          top: 8px;
-          right: 8px;
-          width: 8px;
-          height: 8px;
+          top: 6px;
+          right: 6px;
+          width: 6px;
+          height: 6px;
           background: #ef4444;
           border: 2px solid white;
           border-radius: 50%;
@@ -470,7 +470,7 @@ const Layout = ({ children }) => {
 
         /* Content Area */
         .content-viewport {
-          padding: 2.5rem;
+          padding: 1.25rem 1.5rem;
           background: var(--background);
           flex: 1;
         }

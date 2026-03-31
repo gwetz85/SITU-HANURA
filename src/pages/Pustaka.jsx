@@ -226,25 +226,27 @@ const Pustaka = () => {
       </Modal>
 
       <style dangerouslySetInnerHTML={{ __html: `
-        .pustaka-page { display: flex; flex-direction: column; gap: 1.5rem; }
+        .pustaka-page { display: flex; flex-direction: column; gap: 1rem; }
         .page-header { display: flex; justify-content: space-between; align-items: center; }
-        .full-search { padding: 1.25rem; }
+        .header-info h1 { font-size: 1.25rem; font-weight: 800; color: var(--text-main); }
+        .header-info p { color: var(--text-muted); font-size: 0.8rem; }
+        .full-search { padding: 0.85rem 1rem; }
         .full-width { grid-column: 1 / -1; width: 100%; }
         
         .pustaka-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-          gap: 1.5rem;
+          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+          gap: 1rem;
         }
 
         .pustaka-card {
-          padding: 1.5rem;
+          padding: 1.15rem;
           display: flex;
           flex-direction: column;
-          gap: 1.25rem;
+          gap: 0.85rem;
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .pustaka-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); }
+        .pustaka-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-sm); border-color: rgba(37,99,235,0.2); }
 
         .pc-header { display: flex; justify-content: space-between; align-items: flex-start; }
         .pc-category { 
@@ -259,14 +261,14 @@ const Pustaka = () => {
         .pc-actions { display: flex; gap: 0.5rem; }
         .p-sm { width: 30px !important; height: 30px !important; border-radius: 8px !important; }
 
-        .pc-body { flex: 1; display: flex; flex-direction: column; gap: 0.75rem; }
-        .pc-title { color: var(--primary); font-size: 1.15rem; font-weight: 800; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .pc-desc { font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        .pc-body { flex: 1; display: flex; flex-direction: column; gap: 0.5rem; }
+        .pc-title { color: var(--primary); font-size: 1rem; font-weight: 800; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .pc-desc { font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
         
-        .pc-footer-meta { display: flex; align-items: center; gap: 0.5rem; color: #94a3b8; font-size: 0.75rem; font-weight: 600; margin-top: 0.5rem; }
+        .pc-footer-meta { display: flex; align-items: center; gap: 0.4rem; color: #94a3b8; font-size: 0.65rem; font-weight: 600; margin-top: 0.25rem; }
         
-        .pc-btn-drive { width: 100%; justify-content: center; padding: 1rem; border-radius: 12px; font-weight: 700; gap: 0.75rem; box-shadow: 0 4px 12px rgba(37,99,235,0.15); }
-        .pc-btn-drive:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(37,99,235,0.25); }
+        .pc-btn-drive { width: 100%; justify-content: center; padding: 0.75rem; border-radius: 10px; font-weight: 700; gap: 0.6rem; font-size: 0.85rem; box-shadow: 0 4px 8px rgba(37,99,235,0.1); }
+        .pc-btn-drive:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(37,99,235,0.15); }
 
         .action-group button { transition: all 0.2s; }
         .icon-btn-view { color: var(--primary); background: rgba(37,99,235,0.08); }
@@ -276,7 +278,7 @@ const Pustaka = () => {
         .icon-btn-delete { color: #ef4444; background: rgba(239,68,68,0.08); }
         .icon-btn-delete:hover { background: #ef4444; color: white; }
 
-        .p-10 { padding: 2.5rem; }
+        .p-10 { padding: 1.5rem; }
         @media (max-width: 768px) { .pustaka-grid { grid-template-columns: 1fr; } }
       ` }} />
     </div>

@@ -406,24 +406,24 @@ const KasOffice = () => {
       </Modal>
 
       <style dangerouslySetInnerHTML={{ __html: `
-        .kas-page { display: flex; flex-direction: column; gap: 1.5rem; }
+        .kas-page { display: flex; flex-direction: column; gap: 1rem; }
         .page-header { display: flex; justify-content: space-between; align-items: center; }
-        .header-info h1 { font-size: 1.5rem; font-weight: 800; }
-        .header-info p { color: var(--text-muted); font-size: 0.9rem; }
-        .kas-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
-        .summary-card { display: flex; align-items: center; gap: 1.25rem; }
+        .header-info h1 { font-size: 1.25rem; font-weight: 800; }
+        .header-info p { color: var(--text-muted); font-size: 0.8rem; }
+        .kas-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
+        .summary-card { display: flex; align-items: center; gap: 1rem; padding: 1rem 1.25rem; }
         .summary-card.primary-bg { background: var(--primary); color: white; border: none; }
         .summary-card.primary-bg .summary-label { color: rgba(255, 255, 255, 0.8); }
         .summary-card.primary-bg .summary-value { color: white; }
-        .summary-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+        .summary-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
         .summary-icon.in { background: rgba(16, 185, 129, 0.1); color: #10b981; }
         .summary-icon.out { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
         .summary-icon.bal { background: rgba(255, 255, 255, 0.2); color: white; }
-        .summary-label { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); }
-        .summary-value { font-size: 1.4rem; font-weight: 800; margin-top: 2px; }
+        .summary-label { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); }
+        .summary-value { font-size: 1.2rem; font-weight: 800; margin-top: 2px; }
         .text-green { color: #10b981 !important; }
         .text-red { color: #ef4444 !important; }
-        .toolbar { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1.5rem; gap: 1rem; }
+        .toolbar { display: flex; justify-content: space-between; align-items: center; padding: 0.65rem 1.25rem; gap: 0.75rem; }
         .filter-tabs { display: flex; gap: 0.5rem; }
         .filter-tab { padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); transition: all 0.2s; }
         .filter-tab.active { background: var(--primary); color: white; }
@@ -436,9 +436,9 @@ const KasOffice = () => {
 
         .data-table { width: 100%; border-collapse: separate; border-spacing: 0; }
         .data-table th { 
-          padding: 1.5rem 1rem; 
+          padding: 0.85rem 1rem; 
           text-align: left; 
-          font-size: 0.75rem; 
+          font-size: 0.7rem; 
           font-weight: 800; 
           text-transform: uppercase; 
           letter-spacing: 0.05em; 
@@ -446,16 +446,17 @@ const KasOffice = () => {
           border-bottom: 2px solid var(--background);
         }
         .data-table td { 
-          padding: 1.25rem 1rem; 
+          padding: 0.75rem 1rem; 
           vertical-align: middle; 
           border-bottom: 1px solid var(--background);
           transition: all 0.2s;
+          font-size: 0.85rem;
         }
         .data-table tr:last-child td { border-bottom: none; }
         .data-table tr:hover td { background: rgba(37, 99, 235, 0.02); }
         
         /* Clear View Updates */
-        .add-transaction-card { width: 100%; border: 1px solid var(--border); margin-bottom: 2rem; padding: 2.5rem; }
+        .add-transaction-card { width: 100%; border: 1px solid var(--border); margin-bottom: 1.5rem; padding: 1.25rem 1.5rem; }
         .card-header { margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; }
         .border-b { border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; margin-bottom: 2rem; }
         
@@ -469,10 +470,10 @@ const KasOffice = () => {
         .btn-secondary { background: var(--secondary); color: white; }
 
         .actions-cell { text-align: right; }
-        .action-group { display: flex; gap: 0.75rem; justify-content: flex-end; }
+        .action-group { display: flex; gap: 0.5rem; justify-content: flex-end; }
         .action-group button { 
-          width: 36px; height: 36px; 
-          border-radius: 10px; 
+          width: 32px; height: 32px; 
+          border-radius: 8px; 
           display: flex; align-items: center; justify-content: center; 
           transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); 
           border: 1px solid transparent;

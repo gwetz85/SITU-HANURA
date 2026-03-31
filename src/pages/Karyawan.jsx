@@ -536,12 +536,14 @@ const Karyawan = () => {
       </Modal>
 
       <style dangerouslySetInnerHTML={{ __html: `
-        .karyawan-page { display: flex; flex-direction: column; gap: 1.5rem; }
+        .karyawan-page { display: flex; flex-direction: column; gap: 1rem; }
         .page-header { display: flex; justify-content: space-between; align-items: center; }
-        .tab-navigation { display: flex; gap: 1rem; padding: 0.75rem 1.5rem; }
-        .tab-btn { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1.25rem; border-radius: var(--radius-md); font-weight: 600; color: var(--text-muted); transition: all 0.2s; }
+        .header-info h1 { font-size: 1.25rem; font-weight: 800; color: var(--text-main); }
+        .header-info p { color: var(--text-muted); font-size: 0.8rem; }
+        .tab-navigation { display: flex; gap: 0.75rem; padding: 0.5rem 1rem; }
+        .tab-btn { display: flex; align-items: center; gap: 0.65rem; padding: 0.5rem 1rem; border-radius: var(--radius-md); font-weight: 700; font-size: 0.8rem; color: var(--text-muted); transition: all 0.2s; }
         .tab-btn:hover { background: var(--background); }
-        .tab-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(37,99,235,0.2); }
+        .tab-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(37,99,235,0.2); }
         .name-cell { display: flex; flex-direction: column; }
         .text-primary { color: var(--primary); }
         .text-muted { color: var(--text-muted); }
@@ -549,16 +551,16 @@ const Karyawan = () => {
         .kasbon-badge { padding: 0.3rem 0.7rem; border-radius: 100px; font-size: 0.75rem; font-weight: 800; }
         .kasbon-badge.success { background: rgba(16, 185, 129, 0.1); color: #10b981; }
         .kasbon-badge.warning { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
-        .bank-info { display: flex; flex-direction: column; gap: 2px; }
-        .bank-name { font-size: 0.75rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; }
-        .bank-number { font-size: 0.95rem; font-weight: 600; font-family: 'JetBrains Mono', monospace; color: var(--text-main); }
-        .p-10 { padding: 2.5rem; }
+        .bank-info { display: flex; flex-direction: column; gap: 1px; }
+        .bank-name { font-size: 0.65rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; }
+        .bank-number { font-size: 0.85rem; font-weight: 600; font-family: 'JetBrains Mono', monospace; color: var(--text-main); }
+        .p-10 { padding: 1.5rem; }
 
         .data-table { width: 100%; border-collapse: separate; border-spacing: 0; }
         .data-table th { 
-          padding: 1.5rem 1rem; 
+          padding: 0.85rem 1rem; 
           text-align: left; 
-          font-size: 0.75rem; 
+          font-size: 0.7rem; 
           font-weight: 800; 
           text-transform: uppercase; 
           letter-spacing: 0.05em; 
@@ -566,10 +568,11 @@ const Karyawan = () => {
           border-bottom: 2px solid var(--background);
         }
         .data-table td { 
-          padding: 1.25rem 1rem; 
+          padding: 0.75rem 1rem; 
           vertical-align: middle; 
           border-bottom: 1px solid var(--background);
           transition: all 0.2s;
+          font-size: 0.85rem;
         }
         .data-table tr:last-child td { border-bottom: none; }
         .data-table tr:hover td { background: rgba(37, 99, 235, 0.02); }
@@ -594,10 +597,10 @@ const Karyawan = () => {
         .form-actions { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
         .w-full { width: 100%; }
         .ml-2 { margin-left: 0.5rem; }
-        .action-group { display: flex; gap: 0.75rem; justify-content: flex-end; }
+        .action-group { display: flex; gap: 0.5rem; justify-content: flex-end; }
         .action-group button { 
-          width: 36px; height: 36px; 
-          border-radius: 10px; 
+          width: 32px; height: 32px; 
+          border-radius: 8px; 
           display: flex; align-items: center; justify-content: center; 
           transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); 
           border: 1px solid transparent;
@@ -614,11 +617,11 @@ const Karyawan = () => {
         .modal-body-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; padding: 2rem 0; }
         .info-item { display: flex; flex-direction: column; gap: 0.5rem; }
         .info-item label { color: var(--text-muted); font-size: 0.8rem; font-weight: 600; text-transform: uppercase; display: flex; align-items: center; gap: 0.5rem; }
-        .info-item span { font-size: 1.1rem; font-weight: 600; }
+        .info-item span { font-size: 0.95rem; font-weight: 600; }
         .info-item.full { grid-column: 1 / -1; }
-        .profile-img-stub { width: 48px; height: 48px; border-radius: 12px; background: rgba(37,99,235,0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; }
+        .profile-img-stub { width: 40px; height: 40px; border-radius: 10px; background: rgba(37,99,235,0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; }
         .text-red { color: #ef4444; }
-        .summary-banner { padding: 1.5rem; }
+        .summary-banner { padding: 1rem; }
         
         @media (max-width: 768px) { 
           .tab-navigation { flex-direction: column; } 
