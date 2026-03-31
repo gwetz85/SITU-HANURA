@@ -17,7 +17,8 @@ import {
   User as UserIcon,
   Circle,
   Shield,
-  ChevronRight
+  ChevronRight,
+  Clock
 } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import Modal from './Modal';
@@ -28,7 +29,13 @@ const Layout = ({ children }) => {
   const [isSuratOpen, setIsSuratOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   const t = {
     id: {
@@ -167,13 +174,19 @@ const Layout = ({ children }) => {
         </nav>
 
         <div className="sidebar-footer">
-          <div className="user-profile">
-            <div className="user-avatar">
-              <UserIcon size={18} />
-            </div>
-            <div className="user-info">
-              <p className="user-name">{user?.username || 'User'}</p>
-              <p className="user-role">{user?.role || 'Guest'}</p>
+          <div className="clock-container">
+            <Clock size={18} className="clock-icon" />
+            <div className="time-display">
+              <p className="time-now">
+                {currentTime.toLocaleTimeString(language === 'en' ? 'en-US' : 'id-ID', { 
+                  hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false 
+                })}
+              </p>
+              <p className="date-now">
+                {currentTime.toLocaleTimeString(language === 'en' ? 'en-US' : 'id-ID', { 
+                   weekday: 'short', day: 'numeric', month: 'short'
+                })}
+              </p>
             </div>
           </div>
           <button className="logout-btn" onClick={() => { logout(); navigate('/login'); }}>
@@ -420,36 +433,43 @@ const Layout = ({ children }) => {
           justify-content: space-between; 
         }
 
-        .user-profile {
+        .clock-container {
           display: flex;
           align-items: center;
           gap: 0.75rem;
+          color: var(--text-main);
         }
 
-        .user-avatar {
-          width: 36px;
-          height: 36px;
-          background: var(--background);
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
+        .clock-icon {
           color: var(--primary);
-          border: 1px solid var(--border);
+          animation: pulse-soft 2s infinite;
         }
 
-        .user-info {
+        @keyframes pulse-soft {
+          0% { opacity: 1; }
+          50% { opacity: 0.6; }
+          100% { opacity: 1; }
+        }
+
+        .time-display {
           display: flex;
           flex-direction: column;
         }
 
-        .user-name { font-size: 0.95rem; font-weight: 800; color: var(--text-main); }
+        .time-now { 
+          font-size: 1rem; 
+          font-weight: 800; 
+          font-family: 'JetBrains Mono', monospace;
+          line-height: 1;
+        }
 
-        .user-role {
-          font-size: 0.7rem;
+        .date-now {
+          font-size: 0.65rem;
           color: var(--text-muted);
           text-transform: uppercase;
+          font-weight: 700;
           letter-spacing: 0.5px;
+          margin-top: 2px;
         }
 
         /* Main Content */
