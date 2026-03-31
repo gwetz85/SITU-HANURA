@@ -91,8 +91,10 @@ const Pengaturan = () => {
     { id: 'profil', label: t.m_profile, icon: <User size={18} /> },
     { id: 'keamanan', label: t.m_security, icon: <Lock size={18} /> },
     { id: 'tampilan', label: t.m_appearance, icon: <Palette size={18} /> },
-    { id: 'perangkat', label: t.m_device, icon: <Smartphone size={18} /> },
-    ...(isAdmin ? [{ id: 'sistem', label: t.m_system, icon: <Settings size={18} /> }] : []),
+    ...(isAdmin ? [
+      { id: 'perangkat', label: t.m_device, icon: <Smartphone size={18} /> },
+      { id: 'sistem', label: t.m_system, icon: <Settings size={18} /> }
+    ] : []),
   ];
 
   const handleSaveProfile = async () => {

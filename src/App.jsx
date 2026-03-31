@@ -13,9 +13,14 @@ import Pengaturan from './pages/Pengaturan';
 import About from './pages/About';
 import RekapanKas from './pages/RekapanKas';
 
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user } = useAuth();
   if (!user) return <Navigate to="/login" replace />;
+  
+  if (allowedRoles && !allowedRoles.includes(user.role)) {
+    return <Navigate to="/" replace />;
+  }
+  
   return <Layout>{children}</Layout>;
 };
 
@@ -25,15 +30,15 @@ function App() {
       <Route path="/login" element={<Login />} />
       
       <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-      <Route path="/surat/masuk" element={<ProtectedRoute><SuratMenyurat type="masuk" /></ProtectedRoute>} />
-      <Route path="/surat/keluar" element={<ProtectedRoute><SuratMenyurat type="keluar" /></ProtectedRoute>} />
-      <Route path="/kas" element={<ProtectedRoute><KasOffice /></ProtectedRoute>} />
-      <Route path="/kas/rekapan" element={<ProtectedRoute><RekapanKas /></ProtectedRoute>} />
-      <Route path="/karyawan" element={<ProtectedRoute><Karyawan /></ProtectedRoute>} />
-      <Route path="/pustaka" element={<ProtectedRoute><Pustaka /></ProtectedRoute>} />
-      <Route path="/users" element={<ProtectedRoute><ManajemenUser /></ProtectedRoute>} />
-      <Route path="/settings" element={<ProtectedRoute><Pengaturan /></ProtectedRoute>} />
-      <Route path="/about" element={<ProtectedRoute><About /></ProtectedRoute>} />
+      <Route path="/surat/masuk" element={<ProtectedRoute allowedRoles={['Admin', 'Petugas']}><SuratMenyurat type="masuk" /></ProtectedRoute>} />
+      <Route path="/surat/keluar" element={<ProtectedRoute allowedRoles={['Admin', 'Petugas']}><SuratMenyurat type="keluar" /></ProtectedRoute>} />
+      <Route path="/kas" element={<ProtectedRoute allowedRoles={['Admin', 'Petugas']}><KasOffice /></ProtectedRoute>} />
+      <Route path="/kas/rekapan" element={<ProtectedRoute allowedRoles={['Admin', 'Petugas']}><RekapanKas /></ProtectedRoute>} />
+      <Route path="/karyawan" element={<ProtectedRoute allowedRoles={['Admin', 'Petugas']}><Karyawan /></ProtectedRoute>} />
+      <Route path="/pustaka" element={<ProtectedRoute allowedRoles={['Admin', 'Petugas']}><Pustaka /></ProtectedRoute>} />
+      <Route path="/users" element={<ProtectedRoute allowedRoles={['Admin']}><ManajemenUser /></ProtectedRoute>} />
+      <Route path="/settings" element={<ProtectedRoute allowedRoles={['Admin', 'Petugas']}><Pengaturan /></ProtectedRoute>} />
+      <Route path="/about" element={<ProtectedRoute allowedRoles={['Admin', 'Petugas']}><About /></ProtectedRoute>} />
       
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

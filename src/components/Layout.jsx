@@ -139,11 +139,12 @@ const Layout = ({ children }) => {
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
   const menuItems = [
-    { title: t.dashboard, icon: <LayoutDashboard size={20} />, path: '/' },
+    { title: t.dashboard, icon: <LayoutDashboard size={20} />, path: '/', roles: ['Admin', 'Petugas'] },
     { 
       title: t.surat, 
       icon: <Mail size={20} />, 
       path: '/surat',
+      roles: ['Admin', 'Petugas'],
       submenu: [
         { title: t.suratMasuk, path: '/surat/masuk' },
         { title: t.suratKeluar, path: '/surat/keluar' }
@@ -153,17 +154,18 @@ const Layout = ({ children }) => {
       title: t.kas, 
       icon: <Wallet size={20} />, 
       path: '/kas',
+      roles: ['Admin', 'Petugas'],
       submenu: [
         { title: 'Kas Utama', path: '/kas' },
         { title: 'Rekapan Transaksi', path: '/kas/rekapan' }
       ]
     },
-    { title: t.karyawan, icon: <Users size={20} />, path: '/karyawan' },
-    { title: t.pustaka, icon: <Library size={20} />, path: '/pustaka' },
-    { title: t.user, icon: <UserCog size={20} />, path: '/users', role: 'Admin' },
-    { title: t.settings, icon: <Settings size={20} />, path: '/settings' },
-    { title: t.about, icon: <Info size={20} />, path: '/about' },
-  ].filter(item => !item.role || item.role === user?.role);
+    { title: t.karyawan, icon: <Users size={20} />, path: '/karyawan', roles: ['Admin', 'Petugas'] },
+    { title: t.pustaka, icon: <Library size={20} />, path: '/pustaka', roles: ['Admin', 'Petugas'] },
+    { title: t.user, icon: <UserCog size={20} />, path: '/users', roles: ['Admin'] },
+    { title: t.settings, icon: <Settings size={20} />, path: '/settings', roles: ['Admin', 'Petugas'] },
+    { title: t.about, icon: <Info size={20} />, path: '/about', roles: ['Admin', 'Petugas'] },
+  ].filter(item => !item.roles || item.roles.includes(user?.role));
 
   return (
     <div className={`app-layout ${isSidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
