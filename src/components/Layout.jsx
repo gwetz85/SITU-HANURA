@@ -178,14 +178,15 @@ const Layout = ({ children }) => {
             <Clock size={18} className="clock-icon" />
             <div className="time-display">
               <p className="time-now">
-                {currentTime.toLocaleTimeString(language === 'en' ? 'en-US' : 'id-ID', { 
+                {currentTime.toLocaleTimeString('id-ID', { 
                   hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false 
                 })}
               </p>
               <p className="date-now">
-                {currentTime.toLocaleDateString(language === 'en' ? 'en-US' : 'id-ID', { 
-                   weekday: 'short', day: 'numeric', month: 'short'
-                })}
+                {currentTime.toLocaleDateString('id-ID', { weekday: 'long' })}, {currentTime.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+              </p>
+              <p className="device-id-footer">
+                ID: {localStorage.getItem('situ_hanura_device_id')?.split('_')[1] || 'Unknown'}
               </p>
             </div>
           </div>
@@ -470,6 +471,15 @@ const Layout = ({ children }) => {
           font-weight: 700;
           letter-spacing: 0.5px;
           margin-top: 2px;
+        }
+
+        .device-id-footer {
+          font-size: 0.55rem;
+          color: var(--primary);
+          font-weight: 800;
+          opacity: 0.7;
+          margin-top: 1px;
+          font-family: 'JetBrains Mono', monospace;
         }
 
         /* Main Content */
