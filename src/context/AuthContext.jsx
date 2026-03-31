@@ -9,6 +9,8 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [configError, setConfigError] = useState(false);
+  const [theme, setTheme] = useState(localStorage.getItem('situ_hanura_theme') || 'light');
+  const [language, setLanguage] = useState(localStorage.getItem('situ_hanura_language') || 'id');
 
   // Generate or get unique device ID
   const getDeviceId = () => {
@@ -58,6 +60,19 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
     }
   }, []);
+
+  // Theme & Language Persistence
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('situ_hanura_theme', theme);
+  }, [theme]);
+
+  useEffect(() => {
+    localStorage.setItem('situ_hanura_language', language);
+  }, [language]);
+
+  const toggleTheme = () => setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  const updateLanguage = (lang) => setLanguage(lang);
 
   const login = async (username, password) => {
     if (!db) return false;
@@ -235,7 +250,10 @@ export const AuthProvider = ({ children }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, register, updateProfile, updateUserRole, logout, loading, error, setError }}>
+    <AuthContext.Provider value={{ 
+      user, login, register, updateProfile, updateUserRole, logout, 
+      loading, error, setError, theme, toggleTheme, language, updateLanguage 
+    }}>
       {loading ? (
         <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0f172a', color: 'white', fontFamily: 'sans-serif' }}>
           <div style={{ textAlign: 'center' }}>

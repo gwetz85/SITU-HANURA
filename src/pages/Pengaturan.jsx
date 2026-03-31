@@ -9,7 +9,7 @@ import { ref, remove } from 'firebase/database';
 import Modal from '../components/Modal';
 
 const Pengaturan = () => {
-  const { user, updateProfile } = useAuth();
+  const { user, updateProfile, theme, toggleTheme, language, updateLanguage } = useAuth();
   const [activeSub, setActiveSub] = useState('profil');
   
   // Profile State
@@ -17,11 +17,67 @@ const Pengaturan = () => {
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
+  // Security State
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+  const [passwordSuccess, setPasswordSuccess] = useState(false);
+
   // Reset State
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
   const [resetConfirmText, setResetConfirmText] = useState('');
   const [isResetting, setIsResetting] = useState(false);
   const [resetSuccess, setResetSuccess] = useState(false);
+
+  const t = {
+    id: {
+      p_title: 'Pengaturan',
+      p_desc: 'Kelola preferensi akun dan sistem aplikasi Anda.',
+      m_profile: 'Profil Saya',
+      m_security: 'Keamanan & Sandi',
+      m_appearance: 'Tampilan Aplikasi',
+      m_device: 'Manajemen Perangkat',
+      m_system: 'Sistem & Data',
+      s_profile_title: 'Informasi Profil',
+      s_profile_desc: 'Data identitas Anda di sistem SITU HANURA.',
+      s_security_title: 'Ubah Kata Sandi',
+      s_security_desc: 'Gunakan kombinasi sandi yang kuat untuk keamanan akun.',
+      s_appearance_title: 'Personalisasi Tampilan',
+      s_appearance_desc: 'Sesuaikan tampilan aplikasi agar nyaman digunakan.',
+      label_cur_pass: 'Sandi Saat Ini',
+      label_new_pass: 'Sandi Baru',
+      label_conf_pass: 'Konfirmasi Sandi Baru',
+      btn_update_pass: 'Perbarui Kata Sandi',
+      label_dark: 'Mode Gelap (Dark Mode)',
+      desc_dark: 'Ubah tema aplikasi menjadi gelap untuk penggunaan malam hari.',
+      label_lang: 'Bahasa Aplikasi',
+      desc_lang: 'Pilih bahasa yang digunakan di seluruh interface.'
+    },
+    en: {
+      p_title: 'Settings',
+      p_desc: 'Manage your account preferences and application system.',
+      m_profile: 'My Profile',
+      m_security: 'Security & Password',
+      m_appearance: 'App Appearance',
+      m_device: 'Device Management',
+      m_system: 'System & Data',
+      s_profile_title: 'Profile Information',
+      s_profile_desc: 'Your identity data in SITU HANURA system.',
+      s_security_title: 'Change Password',
+      s_security_desc: 'Use a strong password combination for account security.',
+      s_appearance_title: 'Appearance Personalization',
+      s_appearance_desc: 'Adjust the application appearance for comfort.',
+      label_cur_pass: 'Current Password',
+      label_new_pass: 'New Password',
+      label_conf_pass: 'Confirm New Password',
+      btn_update_pass: 'Update Password',
+      label_dark: 'Dark Mode',
+      desc_dark: 'Change the application theme to dark for night use.',
+      label_lang: 'Application Language',
+      desc_lang: 'Choose the language used throughout the interface.'
+    }
+  }[language || 'id'];
 
   useEffect(() => {
     if (user) {
@@ -32,11 +88,11 @@ const Pengaturan = () => {
   const isAdmin = user?.role === 'Admin';
 
   const settingsMenu = [
-    { id: 'profil', label: 'Profil Saya', icon: <User size={18} /> },
-    { id: 'keamanan', label: 'Keamanan & Sandi', icon: <Lock size={18} /> },
-    { id: 'tampilan', label: 'Tampilan Aplikasi', icon: <Palette size={18} /> },
-    { id: 'perangkat', label: 'Manajemen Perangkat', icon: <Smartphone size={18} /> },
-    ...(isAdmin ? [{ id: 'sistem', label: 'Sistem & Data', icon: <Settings size={18} /> }] : []),
+    { id: 'profil', label: t.m_profile, icon: <User size={18} /> },
+    { id: 'keamanan', label: t.m_security, icon: <Lock size={18} /> },
+    { id: 'tampilan', label: t.m_appearance, icon: <Palette size={18} /> },
+    { id: 'perangkat', label: t.m_device, icon: <Smartphone size={18} /> },
+    ...(isAdmin ? [{ id: 'sistem', label: t.m_system, icon: <Settings size={18} /> }] : []),
   ];
 
   const handleSaveProfile = async () => {
@@ -51,6 +107,37 @@ const Pengaturan = () => {
       setTimeout(() => setSaveSuccess(false), 3000);
     } else {
       alert("Gagal memperbarui profil. Periksa koneksi atau izin database.");
+    }
+  };
+
+  const handleUpdatePassword = async () => {
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      alert("Harap isi semua kolom sandi.");
+      return;
+    }
+
+    if (currentPassword !== user.password) {
+      alert("Sandi saat ini salah.");
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      alert("Konfirmasi sandi baru tidak cocok.");
+      return;
+    }
+
+    setIsUpdatingPassword(true);
+    const success = await updateProfile(user.id, { password: newPassword });
+    setIsUpdatingPassword(false);
+
+    if (success) {
+      setPasswordSuccess(true);
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      setTimeout(() => setPasswordSuccess(false), 3000);
+    } else {
+      alert("Gagal memperbarui kata sandi.");
     }
   };
 
@@ -79,8 +166,8 @@ const Pengaturan = () => {
     <div className="settings-page fadeIn">
       <div className="page-header">
         <div className="header-info">
-          <h1>Pengaturan</h1>
-          <p>Kelola preferensi akun dan sistem aplikasi Anda.</p>
+          <h1>{t.p_title}</h1>
+          <p>{t.p_desc}</p>
         </div>
       </div>
 
@@ -105,8 +192,8 @@ const Pengaturan = () => {
           {activeSub === 'profil' && (
             <div className="settings-section glass-card animate-slide-up">
               <div className="section-header">
-                <h3>Informasi Profil</h3>
-                <p>Data identitas Anda di sistem SITU HANURA.</p>
+                <h3>{t.s_profile_title}</h3>
+                <p>{t.s_profile_desc}</p>
               </div>
               <div className="settings-form">
                 <div className="form-group">
@@ -152,24 +239,41 @@ const Pengaturan = () => {
           {activeSub === 'keamanan' && (
             <div className="settings-section glass-card animate-slide-up">
               <div className="section-header">
-                <h3>Ubah Kata Sandi</h3>
-                <p>Gunakan kombinasi sandi yang kuat untuk keamanan akun.</p>
+                <h3>{t.s_security_title}</h3>
+                <p>{t.s_security_desc}</p>
               </div>
               <div className="settings-form">
                 <div className="form-group">
-                  <label>Sandi Saat Ini</label>
-                  <input type="password" />
+                  <label>{t.label_cur_pass}</label>
+                  <input 
+                    type="password" 
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                  />
                 </div>
                 <div className="form-group">
-                  <label>Sandi Baru</label>
-                  <input type="password" />
+                  <label>{t.label_new_pass}</label>
+                  <input 
+                    type="password" 
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                  />
                 </div>
                 <div className="form-group">
-                  <label>Konfirmasi Sandi Baru</label>
-                  <input type="password" />
+                  <label>{t.label_conf_pass}</label>
+                  <input 
+                    type="password" 
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                  />
                 </div>
-                <button className="btn btn-primary mt-2">
-                  <Lock size={18} /> <span>Perbarui Kata Sandi</span>
+                <button 
+                  className={`btn btn-primary mt-2 ${passwordSuccess ? 'btn-success' : ''}`}
+                  onClick={handleUpdatePassword}
+                  disabled={isUpdatingPassword}
+                >
+                  {isUpdatingPassword ? <Loader2 size={18} className="spinner" /> : passwordSuccess ? <CheckCircle2 size={18} /> : <Lock size={18} />}
+                  <span>{isUpdatingPassword ? '...' : passwordSuccess ? 'Updated!' : t.btn_update_pass}</span>
                 </button>
               </div>
             </div>
@@ -178,28 +282,37 @@ const Pengaturan = () => {
           {activeSub === 'tampilan' && (
             <div className="settings-section glass-card animate-slide-up">
               <div className="section-header">
-                <h3>Personalisasi Tampilan</h3>
-                <p>Sesuaikan tampilan aplikasi agar nyaman digunakan.</p>
+                <h3>{t.s_appearance_title}</h3>
+                <p>{t.s_appearance_desc}</p>
               </div>
               <div className="appearance-options">
                 <div className="option-item">
                   <div className="option-info">
-                    <span className="option-label">Mode Gelap (Dark Mode)</span>
-                    <p className="option-desc">Ubah tema aplikasi menjadi gelap untuk penggunaan malam hari.</p>
+                    <span className="option-label">{t.label_dark}</span>
+                    <p className="option-desc">{t.desc_dark}</p>
                   </div>
                   <div className="toggle-switch">
-                    <input type="checkbox" id="dark-mode" />
+                    <input 
+                      type="checkbox" 
+                      id="dark-mode" 
+                      checked={theme === 'dark'}
+                      onChange={toggleTheme}
+                    />
                     <label htmlFor="dark-mode"></label>
                   </div>
                 </div>
                 <div className="option-item">
                   <div className="option-info">
-                    <span className="option-label">Bahasa Aplikasi</span>
-                    <p className="option-desc">Pilih bahasa yang digunakan di seluruh interface.</p>
+                    <span className="option-label">{t.label_lang}</span>
+                    <p className="option-desc">{t.desc_lang}</p>
                   </div>
-                  <select className="settings-select">
-                    <option>Bahasa Indonesia</option>
-                    <option>English</option>
+                  <select 
+                    className="settings-select"
+                    value={language}
+                    onChange={(e) => updateLanguage(e.target.value)}
+                  >
+                    <option value="id">Bahasa Indonesia</option>
+                    <option value="en">English (US)</option>
                   </select>
                 </div>
               </div>

@@ -23,12 +23,51 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import Modal from './Modal';
 
 const Layout = ({ children }) => {
-  const { user, logout } = useAuth();
+  const { user, logout, language } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth > 1024);
   const [isSuratOpen, setIsSuratOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const navigate = useNavigate();
+
+  const t = {
+    id: {
+      dashboard: 'Dashboard',
+      surat: 'Surat Menyurat',
+      suratMasuk: 'Surat Masuk',
+      suratKeluar: 'Surat Keluar',
+      kas: 'Kas Office',
+      karyawan: 'Karyawan',
+      pustaka: 'Pustaka Hanura',
+      user: 'Manajemen User',
+      settings: 'Pengaturan',
+      about: 'Tentang Aplikasi',
+      logout: 'Keluar',
+      profile: 'Profil Saya',
+      security: 'Keamanan',
+      device: 'Perangkat',
+      online: 'AKTIF',
+      offline: 'OFFLINE'
+    },
+    en: {
+      dashboard: 'Dashboard',
+      surat: 'Correspondence',
+      suratMasuk: 'Incoming Mail',
+      suratKeluar: 'Outgoing Mail',
+      kas: 'Cash Office',
+      karyawan: 'Employees',
+      pustaka: 'Library',
+      user: 'User Management',
+      settings: 'Settings',
+      about: 'About App',
+      logout: 'Logout',
+      profile: 'My Profile',
+      security: 'Security',
+      device: 'Device',
+      online: 'ONLINE',
+      offline: 'OFFLINE'
+    }
+  }[language || 'id'];
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -43,23 +82,23 @@ const Layout = ({ children }) => {
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
   const menuItems = [
-    { title: 'Dashboard', icon: <LayoutDashboard size={20} />, path: '/' },
+    { title: t.dashboard, icon: <LayoutDashboard size={20} />, path: '/' },
     { 
-      title: 'Surat Menyurat', 
+      title: t.surat, 
       icon: <Mail size={20} />, 
       path: '/surat',
       submenu: [
-        { title: 'Surat Masuk', path: '/surat/masuk' },
-        { title: 'Surat Keluar', path: '/surat/keluar' }
+        { title: t.suratMasuk, path: '/surat/masuk' },
+        { title: t.suratKeluar, path: '/surat/keluar' }
       ]
     },
-    { title: 'Kas Office', icon: <Wallet size={20} />, path: '/kas' },
-    { title: 'Karyawan', icon: <Users size={20} />, path: '/karyawan' },
-    { title: 'Pustaka Hanura', icon: <Library size={20} />, path: '/pustaka' },
-    { title: 'Manajemen User', icon: <UserCog size={20} />, path: '/users', role: 'Admin' },
-    { title: 'Pengaturan', icon: <Settings size={20} />, path: '/settings' },
-    { title: 'About', icon: <Info size={20} />, path: '/about' },
-  ];
+    { title: t.kas, icon: <Wallet size={20} />, path: '/kas' },
+    { title: t.karyawan, icon: <Users size={20} />, path: '/karyawan' },
+    { title: t.pustaka, icon: <Library size={20} />, path: '/pustaka' },
+    { title: t.user, icon: <UserCog size={20} />, path: '/users', role: 'Admin' },
+    { title: t.settings, icon: <Settings size={20} />, path: '/settings' },
+    { title: t.about, icon: <Info size={20} />, path: '/about' },
+  ].filter(item => !item.role || item.role === user?.role);
 
   return (
     <div className={`app-layout ${isSidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
@@ -86,8 +125,6 @@ const Layout = ({ children }) => {
         <nav className="sidebar-nav">
           <ul>
             {menuItems.map((item, idx) => {
-              if (item.role && user.role !== item.role) return null;
-
               if (item.submenu) {
                 return (
                   <li key={idx} className="menu-item-group">
@@ -168,15 +205,19 @@ const Layout = ({ children }) => {
                   <div className="dropdown-header">
                     <div className="dropdown-user-avatar">{user?.username?.charAt(0) || 'U'}</div>
                     <div className="dropdown-user-info">
-                      <p className="dropdown-name">{user?.name || 'User SITU'}</p>
-                      <p className="dropdown-role">{user?.role || 'Guest'}</p>
+                      <span className="user-name">{user?.name || user?.username}</span>
+                      <span className="user-role">{user?.role || 'User'}</span>
+                      <div className="status-container">
+                        <div className="status-dot"></div>
+                        <span className="status-text">{t.online}</span>
+                      </div>
                     </div>
                   </div>
                   <div className="dropdown-divider"></div>
                   <div className="dropdown-menu">
                     <button className="dropdown-item" onClick={() => { setIsProfileModalOpen(true); setIsUserMenuOpen(false); }}>
                       <div className="item-icon"><UserIcon size={18} /></div>
-                      <span>Profile Saya</span>
+                      <span>{t.profile}</span>
                       <ChevronRight size={14} className="ms-auto opacity-50" />
                     </button>
                     <div className="dropdown-divider"></div>
