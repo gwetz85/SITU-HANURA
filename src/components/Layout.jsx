@@ -15,15 +15,30 @@ import {
   X,
   Bell,
   User as UserIcon,
-  Circle
+  Circle,
+  Shield,
+  ChevronRight
 } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom';
+import Modal from './Modal';
 
 const Layout = ({ children }) => {
   const { user, logout } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth > 1024);
   const [isSuratOpen, setIsSuratOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isUserMenuOpen && !event.target.closest('.user-dropdown-container')) {
+        setIsUserMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isUserMenuOpen]);
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
@@ -138,12 +153,38 @@ const Layout = ({ children }) => {
             <h2 className="page-title">SISTEM INFORMASI TERPADU</h2>
           </div>
           <div className="header-right">
-            <button className="icon-btn">
-              <Bell size={20} />
-              <span className="badge"></span>
-            </button>
-            <div className="header-user-badge">
-              {user?.username?.charAt(0) || 'U'}
+            <div className="user-dropdown-container">
+              <div 
+                className={`header-user-badge ${isUserMenuOpen ? 'active' : ''}`}
+                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+              >
+                {user?.username?.charAt(0) || 'U'}
+              </div>
+
+              {isUserMenuOpen && (
+                <div className="user-dropdown glass-premium fadeIn">
+                  <div className="dropdown-header">
+                    <div className="dropdown-user-avatar">{user?.username?.charAt(0) || 'U'}</div>
+                    <div className="dropdown-user-info">
+                      <p className="dropdown-name">{user?.name || 'User SITU'}</p>
+                      <p className="dropdown-role">{user?.role || 'Guest'}</p>
+                    </div>
+                  </div>
+                  <div className="dropdown-divider"></div>
+                  <div className="dropdown-menu">
+                    <button className="dropdown-item" onClick={() => { setIsProfileModalOpen(true); setIsUserMenuOpen(false); }}>
+                      <div className="item-icon"><UserIcon size={18} /></div>
+                      <span>Profile Saya</span>
+                      <ChevronRight size={14} className="ms-auto opacity-50" />
+                    </button>
+                    <div className="dropdown-divider"></div>
+                    <button className="dropdown-item text-danger" onClick={() => { logout(); navigate('/login'); }}>
+                      <div className="item-icon"><LogOut size={18} /></div>
+                      <span>Keluar Aplikasi</span>
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </header>
@@ -152,6 +193,41 @@ const Layout = ({ children }) => {
           {children}
         </div>
       </main>
+
+      <Modal
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
+        title="Profil Pengguna SITU HANURA"
+        icon={<UserIcon size={24} />}
+        footer={<button className="btn btn-primary" onClick={() => setIsProfileModalOpen(false)}>Tutup Profil</button>}
+      >
+        <div className="premium-modal-section">
+          <h4 className="premium-section-title"><UserIcon size={18} /> Informasi Identitas</h4>
+          <div className="premium-info-grid">
+            <div className="premium-info-item">
+              <span className="premium-info-label">Nama Lengkap</span>
+              <span className="premium-info-value" style={{ color: 'var(--primary)', fontWeight: 800 }}>{user?.name}</span>
+            </div>
+            <div className="premium-info-item">
+              <span className="premium-info-label">Username</span>
+              <span className="premium-info-value"><span className="badge-outline">@{user?.username}</span></span>
+            </div>
+            <div className="premium-info-item">
+              <span className="premium-info-label">Level Akses</span>
+              <span className={`role-badge ${user?.role?.toLowerCase() || 'pending'}`}>{user?.role || 'BELUM AKTIF'}</span>
+            </div>
+          </div>
+        </div>
+        <div className="premium-modal-section">
+          <h4 className="premium-section-title"><Shield size={18} /> Keamanan Perangkat</h4>
+          <div className="premium-info-item full" style={{ background: 'var(--background)', padding: '1.25rem', borderRadius: '12px' }}>
+            <span className="premium-info-label">ID Device Anda (Terdaftar)</span>
+            <p style={{ marginTop: '0.5rem', fontFamily: 'monospace', fontSize: '0.9rem', color: 'var(--text-main)', wordBreak: 'break-all' }}>
+              {user?.activeDevId || 'Tidak Ada Device Terdaftar'}
+            </p>
+          </div>
+        </div>
+      </Modal>
 
       <style dangerouslySetInnerHTML={{ __html: `
         .app-layout {
@@ -392,20 +468,6 @@ const Layout = ({ children }) => {
           border-radius: 50%;
         }
 
-        .header-user-badge {
-          width: 36px;
-          height: 36px;
-          background: var(--primary);
-          color: white;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-weight: 700;
-          font-size: 0.9rem;
-          box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
-        }
-
         /* Content Area */
         .content-viewport {
           padding: 2.5rem;
@@ -433,6 +495,57 @@ const Layout = ({ children }) => {
             z-index: 999;
           }
         }
+
+        /* User Dropdown Premium Styles */
+        .user-dropdown-container { position: relative; }
+        .header-user-badge { 
+          width: 36px; height: 36px; 
+          background: var(--primary); color: white; border-radius: 50%; 
+          display: flex; align-items: center; justify-content: center; 
+          font-weight: 700; font-size: 0.9rem; cursor: pointer;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
+          border: 2px solid transparent;
+        }
+        .header-user-badge:hover, .header-user-badge.active { 
+          transform: scale(1.1); 
+          box-shadow: 0 6px 15px rgba(37, 99, 235, 0.3);
+          border-color: rgba(255,255,255,0.5);
+        }
+        
+        .user-dropdown {
+          position: absolute; top: calc(100% + 12px); right: 0; 
+          width: 260px; padding: 1.25rem; border-radius: 20px;
+          border: 1px solid rgba(255,255,255,0.2);
+          box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+          transform-origin: top right;
+          z-index: 1001;
+        }
+        .dropdown-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+        .dropdown-user-avatar { 
+          width: 44px; height: 44px; background: var(--primary); color: white; 
+          border-radius: 12px; display: flex; align-items: center; justify-content: center;
+          font-weight: 800; font-size: 1.2rem;
+        }
+        .dropdown-name { font-weight: 800; color: var(--text-main); font-size: 0.95rem; }
+        .dropdown-role { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+        
+        .dropdown-divider { height: 1px; background: #f1f5f9; margin: 0.75rem 0; }
+        .dropdown-menu { display: flex; flex-direction: column; gap: 0.25rem; }
+        .dropdown-item { 
+          display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; 
+          border-radius: 12px; font-weight: 700; font-size: 0.9rem; color: #475569;
+          transition: all 0.2s; border: none; background: none; width: 100%; cursor: pointer;
+        }
+        .dropdown-item:hover { background: #f8fafc; color: var(--primary); transform: translateX(4px); }
+        .dropdown-item.text-danger:hover { background: #fef2f2; color: #ef4444; }
+        .item-icon { width: 32px; height: 32px; background: #f1f5f9; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: inherit; }
+        .dropdown-item:hover .item-icon { background: rgba(37,99,235,0.1); }
+        .dropdown-item.text-danger .item-icon { color: #ef4444; }
+        .dropdown-item.text-danger:hover .item-icon { background: #fee2e2; }
+
+        .ms-auto { margin-left: auto; }
+        .opacity-50 { opacity: 0.5; }
       ` }} />
     </div>
   );
