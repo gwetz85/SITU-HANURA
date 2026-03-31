@@ -21,7 +21,8 @@ import {
   Clock,
   Save,
   MapPin,
-  Briefcase
+  Briefcase,
+  User
 } from 'lucide-react';
 import { db } from '../firebase';
 import { ref, onValue, push, remove, update } from 'firebase/database';

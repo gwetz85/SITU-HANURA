@@ -17,7 +17,8 @@ import {
   Trash2,
   Clock,
   Briefcase,
-  FileText
+  FileText,
+  Wallet
 } from 'lucide-react';
 import { db } from '../firebase';
 import { ref, onValue, push, remove, update } from 'firebase/database';
