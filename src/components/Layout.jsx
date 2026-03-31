@@ -118,8 +118,10 @@ const Layout = ({ children }) => {
               return (
                 <li key={idx}>
                   <NavLink to={item.path} className={({isActive}) => `menu-link ${isActive ? 'active' : ''}`}>
-                    {item.icon}
-                    <span className="link-text">{item.title}</span>
+                    <span className="link-content">
+                      {item.icon}
+                      <span className="link-text">{item.title}</span>
+                    </span>
                   </NavLink>
                 </li>
               );
@@ -294,24 +296,24 @@ const Layout = ({ children }) => {
           color: var(--text-muted);
         }
 
-        .sidebar-nav { padding: 0.75rem 0.65rem; }
+        .sidebar-nav { padding: 1rem 0.65rem; }
 
         .menu-link {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 0.6rem 0.85rem;
-          border-radius: 12px;
+          padding: 0.7rem 1rem;
+          border-radius: 10px;
           color: var(--text-muted);
           font-weight: 600;
-          margin-bottom: 0.25rem;
+          margin-bottom: 0.5rem;
           transition: all 0.2s;
         }
 
         .menu-link:hover {
           background: #f1f5f9;
           color: var(--primary);
-          transform: translateX(3px);
+          transform: translateX(4px);
         }
 
         .menu-link.active {
