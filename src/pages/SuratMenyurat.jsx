@@ -1,13 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import { Search, Plus, Filter, MoreVertical, FileText, Calendar, Hash, MapPin, Send } from 'lucide-react';
+import { 
+  Search, Plus, Filter, MoreVertical, FileText, Calendar, Hash, MapPin, Send, 
+  Trash2, Edit2, Eye, Save, X, AlertCircle 
+} from 'lucide-react';
 import { db } from '../firebase';
-import { ref, onValue, push, set } from 'firebase/database';
+import { ref, onValue, push, remove, update } from 'firebase/database';
+import Modal from '../components/Modal';
 
 const SuratMenyurat = ({ type }) => {
   const isMasuk = type === 'masuk';
   const [searchTerm, setSearchTerm] = useState('');
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [showDetail, setShowDetail] = useState(null);
+  const [editingId, setEditingId] = useState(null);
+  const [formValues, setFormValues] = useState({
+    tanggal: new Date().toISOString().split('T')[0],
+    nomor: '',
+    asal: '',
+    tujuan: '',
+    tentang: '',
+    ringkasan: ''
+  });
 
   // Real-time Listener for Mail data
   useEffect(() => {
@@ -24,22 +38,65 @@ const SuratMenyurat = ({ type }) => {
     return () => unsubscribe();
   }, [type]);
 
-  const addDummyData = async () => {
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormValues(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSave = async (e) => {
+    e.preventDefault();
     const mailRef = ref(db, `surat/${type}`);
-    const dummy = isMasuk ? {
+    const letterData = { ...formValues, updatedAt: new Date().toISOString() };
+    
+    try {
+      if (editingId) {
+        await update(ref(db, `surat/${type}/${editingId}`), letterData);
+        alert('Data berhasil diperbarui');
+      } else {
+        await push(mailRef, { ...letterData, createdAt: new Date().toISOString() });
+        alert('Data berhasil ditambahkan');
+      }
+      resetForm();
+    } catch (error) {
+      alert('Gagal menyimpan data');
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm('Hapus data ini secara permanen?')) {
+      try {
+        await remove(ref(db, `surat/${type}/${id}`));
+        alert('Data berhasil dihapus');
+      } catch (error) {
+        alert('Gagal menghapus data');
+      }
+    }
+  };
+
+  const handleEdit = (item) => {
+    setEditingId(item.id);
+    setFormValues({
+      tanggal: item.tanggal,
+      nomor: item.nomor,
+      asal: item.asal || '',
+      tujuan: item.tujuan || '',
+      tentang: item.tentang,
+      ringkasan: item.ringkasan
+    });
+    setShowForm(true);
+  };
+
+  const resetForm = () => {
+    setShowForm(false);
+    setEditingId(null);
+    setFormValues({
       tanggal: new Date().toISOString().split('T')[0],
-      nomor: `00${data.length + 1}/SK/III/2026`,
-      asal: 'Dinas Sosial Kota',
-      tentang: 'Bantuan Operasional',
-      ringkasan: 'Permohonan bantuan dana operasional bulanan.'
-    } : {
-      tanggal: new Date().toISOString().split('T')[0],
-      nomor: `01${data.length + 1}/OUT/2026`,
-      tujuan: 'Kelurahan Sejahtera',
-      tentang: 'Pemberitahuan Kegiatan',
-      ringkasan: 'Surat pemberitahuan rencana bakti sosial rutin.'
-    };
-    await push(mailRef, dummy);
+      nomor: '',
+      asal: '',
+      tujuan: '',
+      tentang: '',
+      ringkasan: ''
+    });
   };
 
   const filteredData = data.filter(item => 
@@ -55,7 +112,7 @@ const SuratMenyurat = ({ type }) => {
           <h1>{isMasuk ? 'Surat Masuk' : 'Surat Keluar'}</h1>
           <p>Data korespondensi cloud {isMasuk ? 'yang diterima' : 'yang dikirim'} kantor.</p>
         </div>
-        <button className="btn btn-primary" onClick={addDummyData}>
+        <button className="btn btn-primary" onClick={() => setShowForm(true)}>
           <Plus size={18} />
           <span>Tambah Data</span>
         </button>
@@ -102,7 +159,11 @@ const SuratMenyurat = ({ type }) => {
                   <td>{item.tentang}</td>
                   <td><p className="truncate-2">{item.ringkasan}</p></td>
                   <td>
-                    <button className="icon-btn-ghost"><MoreVertical size={16} /></button>
+                    <div className="action-group">
+                      <button className="icon-btn-view" onClick={() => setShowDetail(item)}><Eye size={16} /></button>
+                      <button className="icon-btn-edit" onClick={() => handleEdit(item)}><Edit2 size={16} /></button>
+                      <button className="icon-btn-delete" onClick={() => handleDelete(item.id)}><Trash2 size={16} /></button>
+                    </div>
                   </td>
                 </tr>
               )) : (
@@ -116,6 +177,103 @@ const SuratMenyurat = ({ type }) => {
           </table>
         )}
       </div>
+
+      <Modal
+        isOpen={showForm}
+        onClose={resetForm}
+        title={editingId ? 'Edit Data Surat' : 'Tambah Surat Baru'}
+        icon={editingId ? <Edit2 size={24} /> : <Plus size={24} />}
+      >
+        <form onSubmit={handleSave} className="mail-form">
+          <div className="premium-modal-section">
+            <h4 className="premium-section-title"><Calendar size={18} /> Informasi Waktu & Nomor</h4>
+            <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+              <div className="form-group">
+                <label>Tanggal Surat</label>
+                <input required type="date" name="tanggal" value={formValues.tanggal} onChange={handleInputChange} />
+              </div>
+              <div className="form-group">
+                <label>Nomor Surat</label>
+                <input required name="nomor" placeholder="Contoh: 001/SK/2026" value={formValues.nomor} onChange={handleInputChange} />
+              </div>
+            </div>
+          </div>
+
+          <div className="premium-modal-section">
+            <h4 className="premium-section-title">
+              {isMasuk ? <MapPin size={18} /> : <Send size={18} />} {isMasuk ? 'Asal Surat' : 'Tujuan Surat'}
+            </h4>
+            <div className="form-group">
+              <label>{isMasuk ? 'Dari (Asal)' : 'Kepada (Tujuan)'}</label>
+              <input 
+                required 
+                name={isMasuk ? 'asal' : 'tujuan'} 
+                placeholder={isMasuk ? 'Instansi pengirim...' : 'Instansi tujuan...'} 
+                value={isMasuk ? formValues.asal : formValues.tujuan} 
+                onChange={handleInputChange} 
+              />
+            </div>
+          </div>
+
+          <div className="premium-modal-section">
+            <h4 className="premium-section-title"><FileText size={18} /> Isi & Perihal</h4>
+            <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1.5rem' }}>
+              <div className="form-group">
+                <label>Perihal / Tentang</label>
+                <input required name="tentang" placeholder="Tentang surat..." value={formValues.tentang} onChange={handleInputChange} />
+              </div>
+              <div className="form-group">
+                <label>Ringkasan Isi</label>
+                <textarea required name="ringkasan" placeholder="Tuliskan ringkasan isi surat..." value={formValues.ringkasan} onChange={handleInputChange} style={{ minHeight: '120px' }}></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div className="form-actions" style={{ marginTop: '2rem', display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
+            <button type="button" className="btn btn-ghost" onClick={resetForm}>Batal</button>
+            <button type="submit" className="btn btn-primary"><Save size={18} /> Simpan Data</button>
+          </div>
+        </form>
+      </Modal>
+
+      <Modal
+        isOpen={!!showDetail}
+        onClose={() => setShowDetail(null)}
+        title="Detail Korespondensi"
+        icon={<FileText size={24} />}
+        footer={
+          <button className="btn btn-primary" onClick={() => setShowDetail(null)}>Tutup Detail</button>
+        }
+      >
+        {showDetail && (
+          <>
+            <div className="premium-modal-section">
+              <h4 className="premium-section-title"><AlertCircle size={18} /> Metadata Surat</h4>
+              <div className="premium-info-grid">
+                <div className="premium-info-item">
+                  <span className="premium-info-label">Tanggal</span>
+                  <span className="premium-info-value">{new Date(showDetail.tanggal).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                </div>
+                <div className="premium-info-item">
+                  <span className="premium-info-label">Nomor Surat</span>
+                  <span className="premium-info-value"><span className="badge-outline">{showDetail.nomor}</span></span>
+                </div>
+                <div className="premium-info-item">
+                  <span className="premium-info-label">{isMasuk ? 'Asal' : 'Tujuan'}</span>
+                  <span className="premium-info-value">{isMasuk ? showDetail.asal : showDetail.tujuan}</span>
+                </div>
+              </div>
+            </div>
+            <div className="premium-modal-section">
+              <h4 className="premium-section-title"><FileText size={18} /> Deskripsi Masalah / Ringkasan</h4>
+              <div className="premium-info-item full" style={{ background: 'var(--background)', color: 'var(--text-main)', fontStyle: 'italic', lineHeight: 1.8 }}>
+                <strong>{showDetail.tentang}</strong>
+                <p style={{ marginTop: '1rem', fontWeight: 500 }}>{showDetail.ringkasan}</p>
+              </div>
+            </div>
+          </>
+        )}
+      </Modal>
 
       <style dangerouslySetInnerHTML={{ __html: `
         .mail-page { display: flex; flex-direction: column; gap: 1.5rem; }
@@ -166,14 +324,23 @@ const SuratMenyurat = ({ type }) => {
           text-transform: uppercase;
         }
         .truncate-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: var(--text-muted); line-height: 1.6; }
-        .icon-btn-ghost { 
-          color: var(--text-muted); 
-          width: 36px; height: 36px;
-          border-radius: 10px; 
-          display: flex; align-items: center; justify-content: center;
-          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
         .icon-btn-ghost:hover { background: rgba(37, 99, 235, 0.08); color: var(--primary); transform: translateY(-2px); }
+        .action-group { display: flex; gap: 0.75rem; justify-content: flex-end; }
+        .action-group button { 
+          width: 36px; height: 36px; 
+          border-radius: 10px; 
+          display: flex; align-items: center; justify-content: center; 
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); 
+          border: 1px solid transparent;
+        }
+        .icon-btn-view { color: var(--primary); background: rgba(37,99,235,0.08); }
+        .icon-btn-view:hover { background: var(--primary); color: white; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(37,99,235,0.2); }
+        
+        .icon-btn-edit { color: #f59e0b; background: rgba(245,158,11,0.08); }
+        .icon-btn-edit:hover { background: #f59e0b; color: white; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(245,158,11,0.2); }
+        
+        .icon-btn-delete { color: #ef4444; background: rgba(239,68,68,0.08); }
+        .icon-btn-delete:hover { background: #ef4444; color: white; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(239,68,68,0.2); }
         @media (max-width: 768px) { .toolbar { flex-direction: column; align-items: stretch; } .search-box { max-width: none; } }
       ` }} />
     </div>
