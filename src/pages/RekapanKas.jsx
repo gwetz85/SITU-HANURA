@@ -14,7 +14,7 @@ import {
 import { db } from '../firebase';
 import { ref, onValue, get } from 'firebase/database';
 import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 
 const RekapanKas = () => {
   const [archives, setArchives] = useState([]);
@@ -122,7 +122,7 @@ const RekapanKas = () => {
       formatCurrency(t.jumlah)
     ]);
 
-    doc.autoTable({
+    autoTable(doc, {
       startY: 75,
       head: [['Tanggal', 'Keterangan', 'Kategori', 'Tipe', 'Jumlah']],
       body: tableData,
