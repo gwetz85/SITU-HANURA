@@ -183,7 +183,7 @@ const Layout = ({ children }) => {
                 })}
               </p>
               <p className="date-now">
-                {currentTime.toLocaleTimeString(language === 'en' ? 'en-US' : 'id-ID', { 
+                {currentTime.toLocaleDateString(language === 'en' ? 'en-US' : 'id-ID', { 
                    weekday: 'short', day: 'numeric', month: 'short'
                 })}
               </p>
