@@ -119,7 +119,7 @@ export const AuthProvider = ({ children }) => {
             <p style={{ fontWeight: 'bold', marginBottom: '10px' }}>Tindakan Diperlukan:</p>
             <ol style={{ marginLeft: '20px' }}>
               <li>Buka Vercel Dashboard Anda.</li>
-              <li>Masuk ke <b>Settings > Environment Variables</b>.</li>
+              <li>Masuk ke <b>Settings &gt; Environment Variables</b>.</li>
               <li>Tambahkan variabel <code>VITE_FIREBASE_API_KEY</code> dan kunci lainnya.</li>
               <li>Lakukan <b>Redeploy</b> pada proyek Anda.</li>
             </ol>
