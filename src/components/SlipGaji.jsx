@@ -9,188 +9,193 @@ const SlipGaji = ({ data }) => {
     }).format(val || 0);
   };
 
+  const formatNumber = (val) => {
+    return new Intl.NumberFormat('id-ID').format(val || 0);
+  };
+
   const period = new Date().toLocaleString('id-ID', { month: 'long', year: 'numeric' });
-  const totalPenghasilan = (data.gaji || 0) + (data.tunjangan_jabatan || 0) + (data.tunjangan_makan || 0) + (data.bonus_kinerja || 0);
-  const totalPotongan = (data.totalKasbon || 0) + (data.bpjs_kesehatan || 0) + (data.bpjs_ketenagakerjaan || 0);
+  const periodShort = new Date().toLocaleString('en-US', { month: 'short', year: '2-digit' });
+  
+  // Calculations
+  const hariKerjaMandatory = data.hari_kerja || 25;
+  const gajiPerHari = Math.floor(data.gaji / 25); // Baseline is 25 days
+  const totalGajiHarian = gajiPerHari * hariKerjaMandatory;
+  const ketidakhadiranDays = 25 - hariKerjaMandatory;
+  const potonganAbsen = ketidakhadiranDays * gajiPerHari;
+
+  const totalPenghasilan = data.gaji + (data.tunjangan_jabatan || 0) + (data.tunjangan_makan || 0) + (data.bonus_kinerja || 0);
+  const totalPotongan = (data.totalKasbon || 0) + (data.bpjs_kesehatan || 0) + (data.bpjs_ketenagakerjaan || 0) + (data.iuran_koperasi || 0);
+  const penerimaanBersih = totalPenghasilan - totalPotongan;
 
   return (
-    <div className="slip-gaji-container">
-      <div className="slip-header">
-        <h1>HANURA KOTA TANJUNGPINANG</h1>
-        <p>Jl Gatot Subroto ( Depan Gerbang Rawasari ) , Tanjungpinang</p>
-        <hr className="header-line" />
-      </div>
+    <div className="slip-gaji-wrapper">
+      <div className="slip-printable">
+        {/* Header Section */}
+        <div className="slip-top-section">
+          <div className="company-branding">
+            <div className="brand-logo-container">
+               <div className="hanura-flag">
+                 <span className="partai-text">HANURA</span>
+                 <span className="sub-text">PARTAI HATI NURANI RAKYAT</span>
+               </div>
+            </div>
+            <div className="company-details">
+               <p className="branch-name">HANURA KOTA TANJUNGPINANG</p>
+               <p className="address">Jalan Gatot Subroto</p>
+               <p className="city-state">Tanjungpinang , Kepulauan Riau</p>
+            </div>
+          </div>
+          <div className="slip-main-title">
+            <h1>Slip Gaji</h1>
+          </div>
+        </div>
 
-      <div className="slip-title-box">
-        <div className="thick-line"></div>
-        <h2>SLIP GAJI KARYAWAN</h2>
-        <div className="thick-line"></div>
-        <p className="period">Periode {period}</p>
-      </div>
+        {/* Employee Metadata */}
+        <div className="metadata-section">
+           <div className="meta-left">
+              <div className="meta-row"><span className="m-label">NAMA</span><span className="m-val">{data.nama} / {data.nik || '-'}</span></div>
+              <div className="meta-row"><span className="m-label">JABATAN</span><span className="m-val">{data.jabatan || 'STAF'}</span></div>
+           </div>
+           <div className="meta-right">
+              <div className="meta-row"><span className="m-label">Periode Gaji</span><span className="m-val">{periodShort}</span></div>
+           </div>
+        </div>
 
-      <div className="employee-info">
-        <div className="info-row">
-          <span className="label">NIK</span>
-          <span className="separator">:</span>
-          <span className="value">{data.nik || '-'}</span>
-        </div>
-        <div className="info-row">
-          <span className="label">Nama</span>
-          <span className="separator">:</span>
-          <span className="value">{data.nama}</span>
-        </div>
-        <div className="info-row">
-          <span className="label">Pengurus</span>
-          <span className="separator">:</span>
-          <span className="value">{data.jabatan}</span>
-        </div>
-      </div>
+        {/* Table Content */}
+        <table className="summary-table">
+           <thead>
+              <tr>
+                 <th>Pendapatan</th>
+                 <th>Potongan</th>
+              </tr>
+           </thead>
+           <tbody>
+              <tr>
+                 <td className="data-col">
+                    <div className="calc-row"><span>Gaji</span> <span className="val">{formatNumber(data.gaji)}</span></div>
+                    {data.tunjangan_jabatan > 0 && <div className="calc-row"><span>Tunjangan Jabatan</span> <span className="val">{formatNumber(data.tunjangan_jabatan)}</span></div>}
+                    {data.tunjangan_makan > 0 && <div className="calc-row"><span>Tunjangan Makan</span> <span className="val">{formatNumber(data.tunjangan_makan)}</span></div>}
+                    {data.bonus_kinerja > 0 && <div className="calc-row"><span>Bonus Kinerja</span> <span className="val">{formatNumber(data.bonus_kinerja)}</span></div>}
+                 </td>
+                 <td className="data-col">
+                    <div className="calc-row"><span>Pembayaran Hutang</span> <span className="val">{formatNumber(data.totalKasbon)}</span></div>
+                    <div className="calc-row"><span>Iuran BPJS</span> <span className="val">{formatNumber((data.bpjs_kesehatan || 0) + (data.bpjs_ketenagakerjaan || 0))}</span></div>
+                    <div className="calc-row"><span>Iuran Koperasi</span> <span className="val">{formatNumber(data.iuran_koperasi)}</span></div>
+                 </td>
+              </tr>
+              <tr className="footer-row">
+                 <td><div className="calc-row font-bold"><span>Total Pendapatan</span> <span>{formatNumber(totalPenghasilan)}</span></div></td>
+                 <td><div className="calc-row font-bold"><span>Total Potongan</span> <span>{formatNumber(totalPotongan)}</span></div></td>
+              </tr>
+           </tbody>
+        </table>
 
-      <table className="slip-table">
-        <thead>
-          <tr>
-            <th>PENGHASILAN</th>
-            <th>POTONGAN</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td className="col-data">
-              <div className="data-row">
-                <span>Gaji Pokok</span>
-                <span>{formatCurrency(data.gaji)}</span>
-              </div>
-              <div className="data-row">
-                <span>Tunjangan Jabatan</span>
-                <span>{formatCurrency(data.tunjangan_jabatan)}</span>
-              </div>
-              <div className="data-row">
-                <span>Tunjangan Makan</span>
-                <span>{formatCurrency(data.tunjangan_makan)}</span>
-              </div>
-              <div className="data-row">
-                <span>Bonus Kinerja</span>
-                <span>{formatCurrency(data.bonus_kinerja)}</span>
-              </div>
-            </td>
-            <td className="col-data">
-              <div className="data-row">
-                <span>Potongan Kasbon</span>
-                <span className="text-danger">{formatCurrency(data.totalKasbon)}</span>
-              </div>
-              <div className="data-row">
-                <span>BPJS Kesehatan</span>
-                <span>{formatCurrency(data.bpjs_kesehatan)}</span>
-              </div>
-              <div className="data-row">
-                <span>BPJS Ketenagakerjaan</span>
-                <span>{formatCurrency(data.bpjs_ketenagakerjaan)}</span>
-              </div>
-            </td>
-          </tr>
-          <tr className="total-row">
-            <td>
-              <div className="data-row font-bold">
-                <span>Total Penghasilan (A)</span>
-                <span>{new Intl.NumberFormat('id-ID').format(totalPenghasilan)}</span>
-              </div>
-            </td>
-            <td>
-              <div className="data-row font-bold">
-                <span>Total Potongan (B)</span>
-                <span className="text-danger">{new Intl.NumberFormat('id-ID').format(totalPotongan)}</span>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+        {/* Daily Calculation Details */}
+        <div className="daily-calc-section">
+           <h3 className="section-header">Rincian Perhitungan Gaji Harian</h3>
+           <div className="detail-table">
+              <div className="detail-row"><span>Hari Kerja</span> <span>{hariKerjaMandatory} Hari</span></div>
+              <div className="detail-row divider"><span>Gaji Per Hari</span> <span>x</span> <span className="val-box">{formatNumber(gajiPerHari)}</span></div>
+              <div className="detail-row"><span>Total Gaji</span> <span>{formatNumber(totalGajiHarian)}</span></div>
+              <div className="detail-row divider"><span>Ketidakhadiran</span> <span>{ketidakhadiranDays} Hari x {formatNumber(gajiPerHari)}</span> <span>=</span> <span className="val-box">{formatNumber(potonganAbsen)}</span></div>
+              <div className="detail-row font-bold"><span>Total Gaji</span> <span>{formatNumber(totalGajiHarian)}</span></div>
+           </div>
+        </div>
 
-      <div className="net-salary-box">
-        <div className="net-label">
-          <h3>PENERIMAAN BERSIH (A-B)</h3>
-          <p className="terbilang italic">Terbilang: {data.terbilang}</p>
+        {/* Final Receipt */}
+        <div className="final-net-box">
+           <div className="net-border">
+              <p className="net-label">Total Penerimaan Bulan Ini</p>
+              <h2 className="net-amount">{formatNumber(penerimaanBersih)}</h2>
+           </div>
         </div>
-        <div className="net-value">
-          {formatCurrency(data.penerimaanBersih)}
-        </div>
-      </div>
 
-      <div className="signatures">
-        <div className="sign-block">
-          <p>Penerima,</p>
-          <div className="sign-space"></div>
-          <p className="sign-name">{data.nama}</p>
+        {/* Signatures */}
+        <div className="signature-area">
+           <div className="sign-box">
+              <p>Penerima,</p>
+              <div className="space"></div>
+              <p className="name-line">{data.nama}</p>
+           </div>
+           <div className="sign-box">
+              <p>Bendahara,</p>
+              <div className="space"></div>
+              <p className="name-line">ENDANG WIRNANTO</p>
+           </div>
         </div>
-        <div className="sign-block">
-          <p>Bendahara,</p>
-          <div className="sign-space"></div>
-          <p className="sign-name">ENDANG WIRNANTO</p>
-        </div>
-      </div>
 
-      <div className="slip-footer">
-        <p>Dihasilkan oleh SITU HANURA System • {new Date().toLocaleString('id-ID')}</p>
+        <div className="slip-footer-text">
+           <p>Generated by HanuraTPI</p>
+           <p>Generated on : {new Date().toLocaleString('id-ID')}</p>
+        </div>
       </div>
 
       <style dangerouslySetInnerHTML={{ __html: `
-        .slip-gaji-container {
-          padding: 2rem;
-          color: #1e293b;
-          background: white;
-          width: 100%;
-          font-family: 'Inter', sans-serif;
+        .slip-gaji-wrapper { background: #f1f5f9; padding: 2rem; display: flex; justify-content: center; }
+        .slip-printable { 
+          background: white; width: 210mm; padding: 20mm; box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+          font-family: 'Inter', sans-serif; position: relative; color: #000;
         }
-        .slip-header { text-align: center; margin-bottom: 1.5rem; }
-        .slip-header h1 { font-size: 1.8rem; font-weight: 900; margin-bottom: 0.25rem; }
-        .slip-header p { font-size: 0.9rem; color: #64748b; }
-        .header-line { border: none; border-bottom: 2px solid #e2e8f0; margin-top: 1rem; }
         
-        .slip-title-box { text-align: center; margin-bottom: 2rem; }
-        .thick-line { height: 2px; background: #000; margin: 4px 0; }
-        .slip-title-box h2 { font-size: 1.5rem; font-weight: 800; letter-spacing: 0.2em; margin: 0.5rem 0; }
-        .period { font-weight: 700; margin-top: 0.5rem; }
-
-        .employee-info { margin-bottom: 1.5rem; max-width: 400px; }
-        .info-row { display: flex; margin-bottom: 0.25rem; font-weight: 600; font-size: 0.95rem; }
-        .info-row .label { width: 100px; }
-        .info-row .separator { width: 20px; }
-
-        .slip-table { width: 100%; border-collapse: collapse; border: 2px solid #000; margin-bottom: 1.5rem; }
-        .slip-table th { background: #f8fafc; border: 1px solid #000; padding: 0.75rem; text-align: left; font-weight: 800; }
-        .slip-table td { border: 1px solid #000; vertical-align: top; }
-        .col-data { padding: 1rem; min-height: 150px; }
-        .data-row { display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.95rem; }
-        .total-row { background: #f8fafc; }
-        .total-row td { padding: 0.75rem 1rem; }
+        .slip-top-section { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; }
         
-        .net-salary-box { 
-          display: flex; justify-content: space-between; align-items: center; 
-          border: 2px solid #000; padding: 1.5rem; background: #f1f5f9;
-          margin-bottom: 3rem;
+        /* Logo Styling */
+        . hanura-flag { 
+          background: #ff8c00; padding: 8px 15px; border: 2px solid #000; display: flex; flex-direction: column; align-items: center; justify-content: center;
+          position: relative; clip-path: polygon(0% 0%, 90% 0%, 100% 50%, 90% 100%, 0% 100%); width: 140px;
         }
-        .net-label h3 { font-size: 1.25rem; font-weight: 800; margin: 0; }
-        .terbilang { font-size: 0.85rem; color: #475569; margin-top: 0.5rem; }
-        .net-value { font-size: 2rem; font-weight: 900; }
+        .partai-text { font-size: 1.4rem; font-weight: 900; color: #fff; text-shadow: 1px 1px 2px #000; }
+        .sub-text { font-size: 0.4rem; color: #000; font-weight: 800; letter-spacing: -0.2px; }
 
-        .signatures { display: flex; justify-content: space-between; padding: 0 4rem; margin-bottom: 3rem; }
-        .sign-block { text-align: center; min-width: 200px; }
-        .sign-space { height: 80px; }
-        .sign-name { font-weight: 800; text-decoration: underline; text-transform: uppercase; }
+        .company-branding { display: flex; flex-direction: column; gap: 0.5rem; }
+        .branch-name { font-size: 0.8rem; font-weight: 800; }
+        .address, .city-state { font-size: 0.75rem; color: #444; }
 
-        .slip-footer { text-align: center; color: #94a3b8; font-size: 0.75rem; font-family: monospace; }
-        .text-danger { color: #ef4444; }
+        .slip-main-title h1 { font-size: 2.2rem; font-weight: 900; margin: 0; }
+
+        .metadata-section { display: flex; justify-content: space-between; margin-bottom: 1.5rem; border-top: 1.5px solid #000; padding-top: 1rem; }
+        .meta-row { display: flex; gap: 1rem; font-size: 0.75rem; margin-bottom: 4px; }
+        .m-label { font-weight: 600; width: 60px; }
+        .m-val { font-weight: 400; }
+
+        .summary-table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; }
+        .summary-table th { background: #d1d5db; border: 1.5px solid #000; padding: 6px 12px; text-align: left; font-size: 0.9rem; font-weight: 800; }
+        .summary-table td { border: 1.5px solid #000; padding: 0; vertical-align: top; }
+        .data-col { padding: 8px 12px; min-height: 100px; }
+        .calc-row { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px; }
+        .footer-row td { background: white; padding: 8px 12px; }
+
+        .daily-calc-section { margin-bottom: 2rem; }
+        .section-header { background: #d1d5db; border: 1.5px solid #000; padding: 6px 12px; font-size: 0.9rem; font-weight: 800; margin: 0; }
+        .detail-table { border: 1.5px solid #000; border-top: none; padding: 8px 12px; }
+        .detail-row { display: flex; justify-content: space-between; font-size: 0.75rem; padding: 4px 0; }
+        .detail-row.divider { border-bottom: 1.5px solid #000; margin-bottom: 4px; }
+        .val-box { text-align: right; min-width: 80px; }
+
+        .final-net-box { display: flex; justify-content: flex-end; margin-bottom: 3rem; }
+        .net-border { border: 3px solid #000; padding: 10px 40px; text-align: center; min-width: 300px; position: relative; }
+        .net-label { font-size: 0.8rem; font-weight: 700; background: white; position: absolute; top: -10px; left: 50%; transform: translateX(-50%); padding: 0 10px; }
+        .net-amount { font-size: 2.2rem; font-weight: 900; margin: 5px 0 0; }
+
+        .signature-area { display: flex; justify-content: space-between; padding: 0 3rem; }
+        .sign-box { text-align: center; }
+        .sign-box p { font-size: 0.8rem; margin: 0; }
+        .space { height: 60px; }
+        .name-line { font-weight: 800; text-decoration: underline; text-transform: uppercase; }
+
+        .slip-footer-text { margin-top: 4rem; display: flex; justify-content: space-between; font-size: 0.65rem; color: #666; font-family: monospace; }
+
         .font-bold { font-weight: 800; }
-        .italic { font-style: italic; }
 
         @media print {
           body * { visibility: hidden; }
-          .modal-overlay, .premium-modal-overlay { visibility: visible; position: fixed; inset: 0; background: white !important; backdrop-filter: none !important; }
-          .premium-modal-content { visibility: visible !important; width: 100% !important; max-width: 100% !important; border: none !important; box-shadow: none !important; position: static !important; }
+          .modal-overlay, .premium-modal-overlay { visibility: visible !important; background: white !important; position: absolute; top: 0; left: 0; }
+          .premium-modal-content { visibility: visible !important; background: white !important; box-shadow: none !important; border: none !important; width: 100% !important; max-width: 100% !important; }
           .premium-modal-header, .premium-modal-footer, .premium-close-btn { display: none !important; }
-          .premium-modal-body { padding: 0 !important; overflow: visible !important; }
-          .slip-gaji-container { visibility: visible !important; position: fixed; inset: 0; padding: 0 !important; }
-          .slip-gaji-container * { visibility: visible !important; }
-          @page { size: auto; margin: 1cm; }
+          .slip-gaji-wrapper { visibility: visible !important; background: white !important; padding: 0 !important; }
+          .slip-printable { visibility: visible !important; box-shadow: none !important; border: none !important; width: 100% !important; padding: 0 !important; margin: 0 !important; }
+          .slip-printable * { visibility: visible !important; }
+          @page { size: portrait; margin: 0; }
         }
       ` }} />
     </div>

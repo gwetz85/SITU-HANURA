@@ -41,7 +41,7 @@ const Karyawan = () => {
   const [empForm, setEmpForm] = useState({
     nama: '', jabatan: '', nik: '', ponsel: '', bank: 'BNI', norek: '', gaji: '',
     tunjangan_jabatan: 0, tunjangan_makan: 0, bonus_kinerja: 0,
-    bpjs_kesehatan: 0, bpjs_ketenagakerjaan: 0
+    bpjs_kesehatan: 0, bpjs_ketenagakerjaan: 0, iuran_koperasi: 0, hari_kerja: 25
   });
   const [kasbonForm, setKasbonForm] = useState({
     employeeId: '', tanggal: new Date().toISOString().split('T')[0], jumlah: ''
@@ -83,6 +83,8 @@ const Karyawan = () => {
       bonus_kinerja: parseInt(empForm.bonus_kinerja || 0),
       bpjs_kesehatan: parseInt(empForm.bpjs_kesehatan || 0),
       bpjs_ketenagakerjaan: parseInt(empForm.bpjs_ketenagakerjaan || 0),
+      iuran_koperasi: parseInt(empForm.iuran_koperasi || 0),
+      hari_kerja: parseInt(empForm.hari_kerja || 25),
       createdAt: new Date().toISOString() 
     };
     try {
@@ -101,7 +103,7 @@ const Karyawan = () => {
     setEmpForm({ 
       nama: '', jabatan: '', nik: '', ponsel: '', bank: 'BNI', norek: '', gaji: '',
       tunjangan_jabatan: 0, tunjangan_makan: 0, bonus_kinerja: 0,
-      bpjs_kesehatan: 0, bpjs_ketenagakerjaan: 0
+      bpjs_kesehatan: 0, bpjs_ketenagakerjaan: 0, iuran_koperasi: 0, hari_kerja: 25
     });
     setEditingId(null);
     setShowEmpForm(false);
@@ -116,7 +118,9 @@ const Karyawan = () => {
       tunjangan_makan: emp.tunjangan_makan || 0,
       bonus_kinerja: emp.bonus_kinerja || 0,
       bpjs_kesehatan: emp.bpjs_kesehatan || 0,
-      bpjs_ketenagakerjaan: emp.bpjs_ketenagakerjaan || 0
+      bpjs_ketenagakerjaan: emp.bpjs_ketenagakerjaan || 0,
+      iuran_koperasi: emp.iuran_koperasi || 0,
+      hari_kerja: emp.hari_kerja || 25
     });
     setShowEmpForm(true);
   };
@@ -210,9 +214,13 @@ const Karyawan = () => {
                 <label>Nomor Rekening</label>
                 <input required value={empForm.norek} onChange={e => setEmpForm({...empForm, norek: e.target.value})} placeholder="Nomor Rekening" />
               </div>
-              <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+              <div className="form-group">
                 <label>Gaji Pokok (Rp)</label>
                 <input required type="number" value={empForm.gaji} onChange={e => setEmpForm({...empForm, gaji: e.target.value})} placeholder="Contoh: 3000000" />
+              </div>
+              <div className="form-group">
+                <label>Jumlah Hari Kerja</label>
+                <input required type="number" value={empForm.hari_kerja} onChange={e => setEmpForm({...empForm, hari_kerja: e.target.value})} placeholder="25" />
               </div>
             </div>
           </div>
@@ -245,6 +253,10 @@ const Karyawan = () => {
               <div className="form-group">
                 <label>BPJS Ketenagakerjaan</label>
                 <input type="number" value={empForm.bpjs_ketenagakerjaan} onChange={e => setEmpForm({...empForm, bpjs_ketenagakerjaan: e.target.value})} />
+              </div>
+              <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                <label>Iuran Koperasi</label>
+                <input type="number" value={empForm.iuran_koperasi} onChange={e => setEmpForm({...empForm, iuran_koperasi: e.target.value})} />
               </div>
             </div>
           </div>
