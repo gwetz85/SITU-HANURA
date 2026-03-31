@@ -139,8 +139,8 @@ const Karyawan = () => {
 
       {showEmpForm && (
         <div className="form-modal-overlay">
-          <div className="form-card glass-card fadeIn">
-            <div className="card-header">
+          <div className="form-card glass fadeIn">
+            <div className="card-header border-b">
               <h3>{editingId ? <Edit2 size={20} /> : <Plus size={20} />} {editingId ? 'Edit Data Karyawan' : 'Tambah Karyawan Baru'}</h3>
               <button className="close-btn" onClick={resetEmpForm}><X size={20} /></button>
             </div>
@@ -268,8 +268,8 @@ const Karyawan = () => {
             
             {showKasbonForm && (
               <div className="form-modal-overlay">
-                <div className="form-card glass-card fadeIn" style={{ maxWidth: '400px' }}>
-                  <div className="card-header">
+                <div className="form-card glass fadeIn" style={{ maxWidth: '450px' }}>
+                  <div className="card-header border-b">
                     <h3>Tambah Entry Kasbon</h3>
                     <button className="close-btn" onClick={() => setShowKasbonForm(false)}><X size={20} /></button>
                   </div>
@@ -365,7 +365,7 @@ const Karyawan = () => {
 
       {viewingDetail && (
         <div className="form-modal-overlay" onClick={() => setViewingDetail(null)}>
-          <div className="form-card glass-card fadeIn" style={{ maxWidth: '600px' }} onClick={e => e.stopPropagation()}>
+          <div className="form-card glass fadeIn" style={{ maxWidth: '600px' }} onClick={e => e.stopPropagation()}>
             <div className="card-header border-b">
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                 <div className="profile-img-stub"><Users /></div>
@@ -425,19 +425,23 @@ const Karyawan = () => {
         .p-10 { padding: 2.5rem; }
         
         /* New UI Elements */
-        .form-modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 1.5rem; }
-        .form-card { width: 100%; max-width: 700px; padding: 2rem; }
+        .form-modal-overlay { 
+          position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
+          background: rgba(15, 23, 42, 0.6); 
+          backdrop-filter: blur(8px); 
+          display: flex; align-items: center; justify-content: center; 
+          z-index: 1000; padding: 1.5rem; 
+        }
+        .form-card { width: 100%; border: 1px solid var(--border); }
         .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
         .border-b { border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; }
         .border-t { border-top: 1px solid var(--border); padding-top: 1.5rem; }
-        .close-btn { color: var(--text-muted); }
-        .close-btn:hover { color: #ef4444; }
-        .emp-form .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+        .close-btn { color: var(--text-muted); padding: 8px; border-radius: 50%; transition: all 0.2s; }
+        .close-btn:hover { background: #fee2e2; color: #ef4444; }
+        .emp-form .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
         .emp-form .full-width { grid-column: 1 / -1; }
         .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
-        .form-group label { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); }
-        .form-group input, .form-group select { padding: 0.75rem; border-radius: 8px; border: 1px solid var(--border); background: rgba(255,255,255,0.5); font-family: inherit; }
-        .form-actions { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem; }
+        .form-actions { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
         .w-full { width: 100%; }
         .ml-2 { margin-left: 0.5rem; }
         .action-group { display: flex; gap: 0.5rem; justify-content: flex-end; }
