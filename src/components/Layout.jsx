@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { db } from '../firebase';
+import { ref, get, set, remove, update, onValue } from 'firebase/database';
 import { 
   LayoutDashboard, 
   Mail, 
@@ -27,6 +29,7 @@ const Layout = ({ children }) => {
   const { user, logout, language } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth > 1024);
   const [isSuratOpen, setIsSuratOpen] = useState(false);
+  const [isKasOpen, setIsKasOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -36,6 +39,53 @@ const Layout = ({ children }) => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
+
+  // Automated Monthly Reset Logic for Kas Office
+  useEffect(() => {
+    const performMonthlyReset = async () => {
+      if (!db || !user) return;
+      
+      const now = new Date();
+      const currentMonthId = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
+      const dayOfMonth = now.getDate();
+      
+      try {
+        const resetRef = ref(db, 'stats/last_reset_month');
+        const snapshot = await get(resetRef);
+        const lastResetMonth = snapshot.val();
+        
+        // Trigger if today is >= 1st and we haven't reset this month yet
+        if (dayOfMonth >= 1 && lastResetMonth !== currentMonthId) {
+          const cashRef = ref(db, 'cashbook');
+          const cashSnapshot = await get(cashRef);
+          
+          if (cashSnapshot.exists()) {
+            const dataToArchive = cashSnapshot.val();
+            // Calculate previous month ID for archiving
+            const lastMonth = new Date();
+            lastMonth.setMonth(now.getMonth() - 1);
+            const archiveId = `${lastMonth.getFullYear()}-${(lastMonth.getMonth() + 1).toString().padStart(2, '0')}`;
+            
+            // 1. Move to Archive
+            await set(ref(db, `archives/${archiveId}`), dataToArchive);
+            // 2. Clear Current Cashbook
+            await remove(cashRef);
+            // 3. Mark as Reset
+            await set(resetRef, currentMonthId);
+            
+            console.log(`Monthly reset performed. Data moved to archives/${archiveId}`);
+          } else {
+             // Even if empty, mark as reset to avoid redundant checks
+             await set(resetRef, currentMonthId);
+          }
+        }
+      } catch (err) {
+        console.error("Monthly Reset Error:", err);
+      }
+    };
+
+    if (user?.role === 'Admin') performMonthlyReset();
+  }, [user]);
 
   const t = {
     id: {
@@ -99,7 +149,15 @@ const Layout = ({ children }) => {
         { title: t.suratKeluar, path: '/surat/keluar' }
       ]
     },
-    { title: t.kas, icon: <Wallet size={20} />, path: '/kas' },
+    { 
+      title: t.kas, 
+      icon: <Wallet size={20} />, 
+      path: '/kas',
+      submenu: [
+        { title: 'Kas Utama', path: '/kas' },
+        { title: 'Rekapan Transaksi', path: '/kas/rekapan' }
+      ]
+    },
     { title: t.karyawan, icon: <Users size={20} />, path: '/karyawan' },
     { title: t.pustaka, icon: <Library size={20} />, path: '/pustaka' },
     { title: t.user, icon: <UserCog size={20} />, path: '/users', role: 'Admin' },
@@ -133,24 +191,26 @@ const Layout = ({ children }) => {
           <ul>
             {menuItems.map((item, idx) => {
               if (item.submenu) {
+                const isOpen = item.path === '/surat' ? isSuratOpen : isKasOpen;
+                const setIsOpen = item.path === '/surat' ? setIsSuratOpen : setIsKasOpen;
+
                 return (
                   <li key={idx} className="menu-item-group">
                     <button 
-                      className={`menu-link ${isSuratOpen ? 'active' : ''}`}
-                      onClick={() => setIsSuratOpen(!isSuratOpen)}
+                      className={`menu-link ${isOpen ? 'active' : ''}`}
+                      onClick={() => setIsOpen(!isOpen)}
                     >
                       <span className="link-content">
                         {item.icon}
                         <span className="link-text">{item.title}</span>
                       </span>
-                      <ChevronDown size={16} className={`chevron ${isSuratOpen ? 'rotate' : ''}`} />
+                      <ChevronDown size={16} className={`chevron ${isOpen ? 'rotate' : ''}`} />
                     </button>
-                    <ul className={`submenu ${isSuratOpen ? 'open' : ''}`}>
+                    <ul className={`submenu ${isOpen ? 'open' : ''}`}>
                       {item.submenu.map((sub, sidx) => (
                         <li key={sidx}>
                           <NavLink to={sub.path} className="submenu-link">
-                            <Circle size={8} />
-                            <span>{sub.title}</span>
+                            <Circle size={8} /> {sub.title}
                           </NavLink>
                         </li>
                       ))}

@@ -11,6 +11,7 @@ import Pustaka from './pages/Pustaka';
 import ManajemenUser from './pages/ManajemenUser';
 import Pengaturan from './pages/Pengaturan';
 import About from './pages/About';
+import RekapanKas from './pages/RekapanKas';
 
 const ProtectedRoute = ({ children }) => {
   const { user } = useAuth();
@@ -27,6 +28,7 @@ function App() {
       <Route path="/surat/masuk" element={<ProtectedRoute><SuratMenyurat type="masuk" /></ProtectedRoute>} />
       <Route path="/surat/keluar" element={<ProtectedRoute><SuratMenyurat type="keluar" /></ProtectedRoute>} />
       <Route path="/kas" element={<ProtectedRoute><KasOffice /></ProtectedRoute>} />
+      <Route path="/kas/rekapan" element={<ProtectedRoute><RekapanKas /></ProtectedRoute>} />
       <Route path="/karyawan" element={<ProtectedRoute><Karyawan /></ProtectedRoute>} />
       <Route path="/pustaka" element={<ProtectedRoute><Pustaka /></ProtectedRoute>} />
       <Route path="/users" element={<ProtectedRoute><ManajemenUser /></ProtectedRoute>} />
