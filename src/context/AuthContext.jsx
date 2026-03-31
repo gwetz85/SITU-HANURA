@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { db } from '../firebase';
-import { ref, onValue, set, get, update } from 'firebase/database';
+import { ref, onValue, set, get, update, push } from 'firebase/database';
 
 const AuthContext = createContext();
 
@@ -21,7 +21,6 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    // Check if db was initialized successfully
     if (!db) {
       setConfigError(true);
       setLoading(false);
@@ -72,16 +71,20 @@ export const AuthProvider = ({ children }) => {
           }
         });
       } else {
+        // Initial setup for empty database
         const defaults = {
           admin_01: { username: 'admin', password: 'admin', role: 'Admin', name: 'ADMIN DPC HANURA' },
-          petugas_01: { username: 'petugas', password: 'petugas', role: 'Petugas', name: 'PETUGAS HANURA' },
-          verif_01: { username: 'verifikator', password: 'verifikator', role: 'Verifikator', name: 'VERIFIKATOR HANURA' }
         };
         await set(ref(db, 'users'), defaults);
         return login(username, password);
       }
 
       if (foundUser) {
+        if (!foundUser.role) {
+          setError('Akun Anda belum aktif. Hubungi Admin untuk verifikasi.');
+          return false;
+        }
+
         const devId = getDeviceId();
         await update(ref(db, `users/${foundUser.id}`), { activeDevId: devId });
         localStorage.setItem('situ_hanura_user', JSON.stringify(foundUser));
@@ -96,6 +99,55 @@ export const AuthProvider = ({ children }) => {
       console.error(err);
       setError('Kesalahan koneksi database.');
       return false;
+    }
+  };
+
+  const register = async (name, username, password) => {
+    if (!db) return false;
+    try {
+      // Check if username already exists
+      const usersRef = ref(db, 'users');
+      const snapshot = await get(usersRef);
+      
+      let exists = false;
+      if (snapshot.exists()) {
+        snapshot.forEach((child) => {
+          if (child.val().username.toLowerCase() === username.toLowerCase()) {
+            exists = true;
+          }
+        });
+      }
+
+      if (exists) {
+        setError('Username sudah digunakan. Pilih username lain.');
+        return false;
+      }
+
+      const newUser = {
+        name,
+        username,
+        password,
+        role: null, // Pending approval
+        createdAt: new Date().toISOString(),
+        activeDevId: null
+      };
+
+      await push(ref(db, 'users'), newUser);
+      setError('');
+      return true;
+    } catch (err) {
+      console.error(err);
+      setError('Gagal mendaftarkan akun.');
+      return false;
+    }
+  };
+
+  const updateUserRole = async (userId, role) => {
+    if (!db) return;
+    try {
+      await update(ref(db, `users/${userId}`), { role });
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -130,7 +182,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading, error, setError }}>
+    <AuthContext.Provider value={{ user, login, register, updateUserRole, logout, loading, error, setError }}>
       {loading ? (
         <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0f172a', color: 'white', fontFamily: 'sans-serif' }}>
           <div style={{ textAlign: 'center' }}>
