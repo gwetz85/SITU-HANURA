@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Mail, 
   Wallet, 
@@ -10,13 +10,81 @@ import {
   TrendingUp,
   FileText
 } from 'lucide-react';
+import { db } from '../firebase';
+import { ref, onValue, query, limitToLast } from 'firebase/database';
 
 const Dashboard = () => {
+  const [counts, setCounts] = useState({
+    suratMasuk: 0,
+    suratKeluar: 0,
+    saldoKas: 0,
+    karyawan: 0
+  });
+  const [recentActivity, setRecentActivity] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!db) return;
+
+    // Listen to Surat Masuk count
+    const smRef = ref(db, 'surat/masuk');
+    const unsubscribeSM = onValue(smRef, (snapshot) => {
+      setCounts(prev => ({ ...prev, suratMasuk: snapshot.size || 0 }));
+    });
+
+    // Listen to Surat Keluar count
+    const skRef = ref(db, 'surat/keluar');
+    const unsubscribeSK = onValue(skRef, (snapshot) => {
+      setCounts(prev => ({ ...prev, suratKeluar: snapshot.size || 0 }));
+    });
+
+    // Listen to Karyawan count
+    const empRef = ref(db, 'employees');
+    const unsubscribeEmp = onValue(empRef, (snapshot) => {
+      setCounts(prev => ({ ...prev, karyawan: snapshot.size || 0 }));
+    });
+
+    // Listen to Cashbook and calculate balance
+    const kasRef = ref(db, 'cashbook');
+    const unsubscribeKas = onValue(kasRef, (snapshot) => {
+      let balance = 0;
+      snapshot.forEach((child) => {
+        const trans = child.val();
+        if (trans.tipe === 'masuk') balance += trans.jumlah;
+        else balance -= trans.jumlah;
+      });
+      setCounts(prev => ({ ...prev, saldoKas: balance }));
+    });
+
+    // Listen to Recent Activity (Latest 4 Mails)
+    const recentSMQuery = query(ref(db, 'surat/masuk'), limitToLast(4));
+    const unsubscribeRecent = onValue(recentSMQuery, (snapshot) => {
+      const activities = [];
+      snapshot.forEach((child) => {
+        activities.push({ id: child.key, ...child.val(), type: 'Masuk' });
+      });
+      setRecentActivity(activities.reverse());
+      setLoading(false);
+    });
+
+    return () => {
+      unsubscribeSM();
+      unsubscribeSK();
+      unsubscribeEmp();
+      unsubscribeKas();
+      unsubscribeRecent();
+    };
+  }, []);
+
+  const formatCurrency = (val) => {
+    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val);
+  };
+
   const stats = [
-    { title: 'Surat Masuk', value: '12', change: '+2 hari ini', icon: <Mail size={24} />, color: '#3b82f6', trend: 'up' },
-    { title: 'Surat Keluar', value: '8', change: '+1 hari ini', icon: <FileText size={24} />, color: '#10b981', trend: 'up' },
-    { title: 'Saldo Kas', value: 'Rp 4.250.000', change: '-Rp 250k', icon: <Wallet size={24} />, color: '#f59e0b', trend: 'down' },
-    { title: 'Karyawan', value: '15', change: 'Aktif', icon: <Users size={24} />, color: '#8b5cf6', trend: 'neutral' },
+    { title: 'Surat Masuk', value: counts.suratMasuk, change: '+ Aktif', icon: <Mail size={24} />, color: '#3b82f6', trend: 'up' },
+    { title: 'Surat Keluar', value: counts.suratKeluar, change: '+ Aktif', icon: <FileText size={24} />, color: '#10b981', trend: 'up' },
+    { title: 'Saldo Kas', value: formatCurrency(counts.saldoKas), change: 'Realtime', icon: <Wallet size={24} />, color: '#f59e0b', trend: counts.saldoKas >= 0 ? 'up' : 'down' },
+    { title: 'Karyawan', value: counts.karyawan, change: 'Aktif', icon: <Users size={24} />, color: '#8b5cf6', trend: 'neutral' },
   ];
 
   return (
@@ -58,15 +126,17 @@ const Dashboard = () => {
             <button className="view-all">Lihat Semua</button>
           </div>
           <div className="activity-list">
-            {[1, 2, 3, 4].map((item) => (
-              <div key={item} className="activity-item">
+            {recentActivity.length > 0 ? recentActivity.map((item) => (
+              <div key={item.id} className="activity-item">
                 <div className="activity-indicator"></div>
                 <div className="activity-content">
-                  <p className="activity-text">Surat Masuk baru dari <strong>Dinas Pendidikan</strong></p>
-                  <span className="activity-time">10 menit yang lalu</span>
+                  <p className="activity-text">Surat {item.type} baru dari <strong>{item.asal || item.tujuan}</strong></p>
+                  <span className="activity-time">{item.tentang}</span>
                 </div>
               </div>
-            ))}
+            )) : (
+              <div className="p-4 text-center text-muted">Belum ada aktivitas data operasional.</div>
+            )}
           </div>
         </div>
 
@@ -78,7 +148,7 @@ const Dashboard = () => {
           <div className="chart-placeholder">
             <div className="chart-bar-container">
               {[60, 80, 45, 90, 70, 85].map((h, i) => (
-                <div key={i} className="chart-bar" style={{ height: `${h}%` }}>
+                <div key={i} className="chart-bar" style={{ height: `${counts.suratMasuk > 0 ? h : 5}%` }}>
                   <div className="bar-tooltip">Arsip {i+1}</div>
                 </div>
               ))}
@@ -89,237 +159,34 @@ const Dashboard = () => {
       </div>
 
       <style dangerouslySetInnerHTML={{ __html: `
-        .dashboard-page {
-          animation: fadeIn 0.5s ease-out;
-        }
-
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-
-        .dashboard-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          margin-bottom: 2rem;
-        }
-
-        .dashboard-header h1 {
-          font-size: 1.5rem;
-          font-weight: 800;
-          color: var(--text-main);
-          margin-bottom: 0.25rem;
-        }
-
-        .dashboard-header p {
-          color: var(--text-muted);
-          font-size: 0.95rem;
-        }
-
-        .date-badge {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          padding: 0.5rem 1rem;
-          background: white;
-          border-radius: 100px;
-          font-size: 0.85rem;
-          color: var(--text-muted);
-          box-shadow: var(--shadow-sm);
-          border: 1px solid var(--border);
-        }
-
-        .stats-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-          gap: 1.5rem;
-          margin-bottom: 2rem;
-        }
-
-        .glass-card {
-          background: white;
-          border-radius: var(--radius-lg);
-          padding: 1.5rem;
-          border: 1px solid var(--border);
-          box-shadow: var(--shadow-sm);
-          transition: transform 0.3s, box-shadow 0.3s;
-        }
-
-        .glass-card:hover {
-          transform: translateY(-5px);
-          box-shadow: var(--shadow-lg);
-        }
-
-        .stat-card {
-          display: flex;
-          align-items: center;
-          gap: 1.25rem;
-        }
-
-        .stat-icon {
-          width: 54px;
-          height: 54px;
-          border-radius: var(--radius-md);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .stat-info {
-          display: flex;
-          flex-direction: column;
-        }
-
-        .stat-title {
-          font-size: 0.85rem;
-          color: var(--text-muted);
-          font-weight: 600;
-        }
-
-        .stat-value {
-          font-size: 1.25rem;
-          font-weight: 800;
-          color: var(--text-main);
-          margin: 0.1rem 0;
-        }
-
-        .stat-trend {
-          display: flex;
-          align-items: center;
-          gap: 0.25rem;
-          font-size: 0.75rem;
-          font-weight: 700;
-        }
-
+        .dashboard-page { animation: fadeIn 0.5s ease-out; }
+        .dashboard-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; }
+        .dashboard-header h1 { font-size: 1.5rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.25rem; }
+        .dashboard-header p { color: var(--text-muted); font-size: 0.95rem; }
+        .date-badge { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: white; border-radius: 100px; font-size: 0.85rem; color: var(--text-muted); box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .stat-card { display: flex; align-items: center; gap: 1.25rem; }
+        .stat-icon { width: 54px; height: 54px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; }
+        .stat-info { display: flex; flex-direction: column; }
+        .stat-title { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; }
+        .stat-value { font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin: 0.1rem 0; }
+        .stat-trend { display: flex; align-items: center; gap: 0.25rem; font-size: 0.75rem; font-weight: 700; }
         .stat-trend.up { color: #10b981; }
         .stat-trend.down { color: #ef4444; }
-        .stat-trend.neutral { color: var(--text-muted); }
-
-        .dashboard-grids {
-          display: grid;
-          grid-template-columns: 1.5fr 1fr;
-          gap: 1.5rem;
-        }
-
-        .card-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 1.5rem;
-        }
-
-        .card-header h3 {
-          font-size: 1.1rem;
-          font-weight: 700;
-          color: var(--text-main);
-        }
-
-        .view-all {
-          font-size: 0.8rem;
-          font-weight: 600;
-          color: var(--primary);
-        }
-
-        .activity-list {
-          display: flex;
-          flex-direction: column;
-          gap: 1.2rem;
-        }
-
-        .activity-item {
-          display: flex;
-          gap: 1rem;
-          align-items: flex-start;
-          padding-bottom: 1.2rem;
-          border-bottom: 1px solid #f1f5f9;
-        }
-
-        .activity-item:last-child {
-          border-bottom: none;
-          padding-bottom: 0;
-        }
-
-        .activity-indicator {
-          width: 10px;
-          height: 10px;
-          background: var(--primary);
-          border-radius: 50%;
-          margin-top: 5px;
-          flex-shrink: 0;
-          box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
-        }
-
-        .activity-text {
-          font-size: 0.9rem;
-          color: var(--text-main);
-        }
-
-        .activity-time {
-          font-size: 0.75rem;
-          color: var(--text-muted);
-        }
-
-        .chart-placeholder {
-          height: 180px;
-          display: flex;
-          align-items: flex-end;
-          justify-content: center;
-          margin-bottom: 1rem;
-        }
-
-        .chart-bar-container {
-          display: flex;
-          align-items: flex-end;
-          gap: 0.75rem;
-          height: 100%;
-          width: 100%;
-        }
-
-        .chart-bar {
-          flex: 1;
-          background: var(--primary);
-          border-radius: 4px 4px 0 0;
-          transition: all 0.3s;
-          position: relative;
-          opacity: 0.8;
-        }
-
-        .chart-bar:hover {
-          opacity: 1;
-          transform: scaleX(1.1);
-        }
-
-        .bar-tooltip {
-          position: absolute;
-          top: -25px;
-          left: 50%;
-          transform: translateX(-50%);
-          background: var(--text-main);
-          color: white;
-          padding: 2px 6px;
-          border-radius: 4px;
-          font-size: 0.65rem;
-          opacity: 0;
-          transition: opacity 0.2s;
-          white-space: nowrap;
-        }
-
-        .chart-bar:hover .bar-tooltip {
-          opacity: 1;
-        }
-
-        .chart-label {
-          text-align: center;
-          font-size: 0.8rem;
-          color: var(--text-muted);
-        }
-
-        @media (max-width: 1024px) {
-          .dashboard-grids {
-            grid-template-columns: 1fr;
-          }
-        }
+        .dashboard-grids { display: grid; grid-template-columns: 1.5fr 1fr; gap: 1.5rem; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .card-header h3 { font-size: 1.1rem; font-weight: 700; color: var(--text-main); }
+        .view-all { font-size: 0.8rem; font-weight: 600; color: var(--primary); }
+        .activity-list { display: flex; flex-direction: column; gap: 1.2rem; }
+        .activity-item { display: flex; gap: 1rem; align-items: flex-start; padding-bottom: 0.8rem; border-bottom: 1px solid #f1f5f9; }
+        .activity-indicator { width: 10px; height: 10px; background: var(--primary); border-radius: 50%; margin-top: 5px; flex-shrink: 0; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); }
+        .activity-text { font-size: 0.9rem; color: var(--text-main); }
+        .activity-time { font-size: 0.75rem; color: var(--text-muted); }
+        .chart-placeholder { height: 180px; display: flex; align-items: flex-end; justify-content: center; margin-bottom: 1rem; }
+        .chart-bar-container { display: flex; align-items: flex-end; gap: 0.75rem; height: 100%; width: 100%; }
+        .chart-bar { flex: 1; background: var(--primary); border-radius: 4px 4px 0 0; transition: all 0.3s; position: relative; opacity: 0.8; }
+        .chart-label { text-align: center; font-size: 0.8rem; color: var(--text-muted); }
+        @media (max-width: 1024px) { .dashboard-grids { grid-template-columns: 1fr; } }
       ` }} />
     </div>
   );

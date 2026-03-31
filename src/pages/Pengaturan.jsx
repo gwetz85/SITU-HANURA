@@ -30,7 +30,8 @@ const Pengaturan = () => {
     
     setIsResetting(true);
     try {
-      const nodes = ['surat_masuk', 'surat_keluar', 'kas', 'karyawan', 'pustaka', 'stats'];
+      // Standardized paths across all dynamic modules
+      const nodes = ['surat', 'cashbook', 'employees', 'pustaka', 'stats'];
       await Promise.all(nodes.map(node => remove(ref(db, node))));
       
       setResetSuccess(true);
