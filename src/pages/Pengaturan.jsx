@@ -6,6 +6,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { db } from '../firebase';
 import { ref, remove } from 'firebase/database';
+import Modal from '../components/Modal';
 
 const Pengaturan = () => {
   const { user, updateProfile } = useAuth();
@@ -253,57 +254,62 @@ const Pengaturan = () => {
         </main>
       </div>
 
-      {isResetModalOpen && (
-        <div className="modal-overlay">
-          <div className="modal-content glass-card animate-scale-up">
-            <div className="modal-header">
-              <AlertTriangle className="text-danger" size={32} />
-              <h2>Konfirmasi Reset Data</h2>
+      <Modal
+        isOpen={isResetModalOpen}
+        onClose={() => setIsResetModalOpen(false)}
+        title="Peringatan Keamanan"
+        icon={<AlertTriangle className="text-danger" size={28} />}
+        maxWidth="500px"
+      >
+        <div className="premium-modal-body-content text-center">
+          {resetSuccess ? (
+            <div className="success-view animate-scale-up">
+               <CheckCircle2 color="#10b981" size={64} />
+               <h3 style={{ margin: '1.5rem 0 0.5rem', fontWeight: 800 }}>Data Berhasil Direset!</h3>
+               <p style={{ color: 'var(--text-muted)' }}>Seluruh data sistem telah dikembalikan ke nol.</p>
             </div>
-            <div className="modal-body">
-              {resetSuccess ? (
-                <div className="success-view">
-                   <CheckCircle2 color="#10b981" size={48} />
-                   <h3>Data Berhasil Direset!</h3>
-                   <p>Seluruh data sistem telah dikembalikan ke nol.</p>
-                </div>
-              ) : (
-                <>
-                  <p className="warning-text">
-                    Tindakan ini permanen dan **tidak dapat dibatalkan**. Semua catatan administrasi akan terhapus.
-                  </p>
-                  <div className="confirm-input-group">
-                    <label>Ketik <strong>RESET</strong> untuk melanjutkan:</label>
-                    <input 
-                      type="text" 
-                      className="confirm-input"
-                      placeholder="Ketik disini..."
-                      value={resetConfirmText}
-                      onChange={(e) => setResetConfirmText(e.target.value.toUpperCase())}
-                      disabled={isResetting}
-                    />
-                  </div>
-                  <div className="modal-actions">
-                    <button 
-                      className="btn btn-ghost" 
-                      onClick={() => setIsResetModalOpen(false)}
-                      disabled={isResetting}
-                    >Batal</button>
-                    <button 
-                      className="btn btn-danger" 
-                      disabled={resetConfirmText !== 'RESET' || isResetting}
-                      onClick={handleResetDatabase}
-                    >
-                      {isResetting ? <RefreshCw className="spinner" size={18} /> : <Trash2 size={18} />}
-                      <span>{isResetting ? 'Sedang Menghapus...' : 'Ya, Hapus Semua Data'}</span>
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
+          ) : (
+            <>
+              <div style={{ background: '#fff1f2', padding: '1.5rem', borderRadius: '16px', border: '1px solid #fecaca', marginBottom: '2rem' }}>
+                <p style={{ color: '#991b1b', fontWeight: 600, fontSize: '0.95rem', lineHeight: 1.6 }}>
+                  Tindakan ini bersifat permanen dan **tidak dapat dibatalkan**. Semua catatan administrasi akan dihapus dari cloud.
+                </p>
+              </div>
+
+              <div className="confirm-input-group">
+                <label style={{ textAlign: 'center' }}>Ketik <strong style={{ color: '#ef4444' }}>RESET</strong> untuk konfirmasi:</label>
+                <input 
+                  type="text" 
+                  className="confirm-input"
+                  style={{ border: '2px solid #ef4444', background: 'white' }}
+                  placeholder="Ketik disini..."
+                  value={resetConfirmText}
+                  onChange={(e) => setResetConfirmText(e.target.value.toUpperCase())}
+                  disabled={isResetting}
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
+                <button 
+                  className="btn btn-ghost" 
+                  style={{ flex: 1 }}
+                  onClick={() => setIsResetModalOpen(false)}
+                  disabled={isResetting}
+                >Batal</button>
+                <button 
+                  className="btn btn-danger" 
+                  style={{ flex: 1.5 }}
+                  disabled={resetConfirmText !== 'RESET' || isResetting}
+                  onClick={handleResetDatabase}
+                >
+                  {isResetting ? <RefreshCw className="spinner" size={18} /> : <Trash2 size={18} />}
+                  <span>{isResetting ? 'Sedang Menghapus...' : 'Ya, Hapus Semua Data'}</span>
+                </button>
+              </div>
+            </>
+          )}
         </div>
-      )}
+      </Modal>
 
       <style dangerouslySetInnerHTML={{ __html: `
         .settings-page { display: flex; flex-direction: column; gap: 1.5rem; }

@@ -14,10 +14,14 @@ import {
   AlertCircle,
   Eye,
   Edit2,
-  Trash2
+  Trash2,
+  Clock,
+  Briefcase,
+  FileText
 } from 'lucide-react';
 import { db } from '../firebase';
 import { ref, onValue, push, remove, update } from 'firebase/database';
+import Modal from '../components/Modal';
 
 const KasOffice = () => {
   const [filterType, setFilterType] = useState('semua');
@@ -336,51 +340,69 @@ const KasOffice = () => {
         )}
       </div>
 
-      {showDetail && (
-        <div className="modal-overlay" onClick={() => setShowDetail(null)}>
-          <div className="modal-content glass fadeIn" onClick={e => e.stopPropagation()}>
-            <div className="modal-header border-b">
-              <h3>Detail Transaksi</h3>
-              <button className="close-btn" onClick={() => setShowDetail(null)}><X size={20} /></button>
-            </div>
-            <div className="modal-body">
-              <div className="detail-item">
-                <span className="label">Status</span>
-                <span className={`status-badge ${showDetail.tipe}`}>
-                  {showDetail.tipe === 'masuk' ? 'PEMASUKAN' : 'PENGELUARAN'}
-                </span>
-              </div>
-              <div className="detail-item">
-                <span className="label">Tanggal</span>
-                <span className="value">{new Date(showDetail.tanggal).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
-              </div>
-              <div className="detail-item">
-                <span className="label">Kategori</span>
-                <span className="value highlight">{showDetail.kategori}</span>
-              </div>
-              <div className="detail-item">
-                <span className="label">Jumlah</span>
-                <span className={`value amount ${showDetail.tipe === 'masuk' ? 'text-green' : 'text-red'}`}>
-                  {formatCurrency(showDetail.jumlah)}
-                </span>
-              </div>
-              <div className="detail-item full">
-                <span className="label">Keterangan</span>
-                <p className="value bio">{showDetail.keterangan || '-'}</p>
-              </div>
-              {showDetail.createdAt && (
-                <div className="detail-item full">
-                  <span className="label">Waktu Input</span>
-                  <span className="value small-text">{new Date(showDetail.createdAt).toLocaleString('id-ID')}</span>
+      <Modal
+        isOpen={!!showDetail}
+        onClose={() => setShowDetail(null)}
+        title="Detail Transaksi Kas"
+        icon={<Wallet size={24} />}
+        footer={
+          <button className="btn btn-primary" onClick={() => setShowDetail(null)}>
+            Tutup
+          </button>
+        }
+      >
+        {showDetail && (
+          <>
+            <div className="premium-modal-section">
+              <h4 className="premium-section-title">
+                <FileText size={18} /> Ringkasan Transaksi
+              </h4>
+              <div className="premium-info-grid">
+                <div className="premium-info-item">
+                  <span className="premium-info-label">Jenis</span>
+                  <span className={`premium-info-value status-badge ${showDetail.tipe}`}>
+                    {showDetail.tipe === 'masuk' ? 'PEMASUKAN (+)' : 'PENGELUARAN (-)'}
+                  </span>
                 </div>
-              )}
+                <div className="premium-info-item">
+                  <span className="premium-info-label">Kategori</span>
+                  <span className="premium-info-value">{showDetail.kategori}</span>
+                </div>
+                <div className="premium-info-item">
+                  <span className="premium-info-label">Nominal</span>
+                  <span className={`premium-info-value amount ${showDetail.tipe === 'masuk' ? 'text-green' : 'text-red'}`} style={{ fontSize: '1.5rem' }}>
+                    {formatCurrency(showDetail.jumlah)}
+                  </span>
+                </div>
+              </div>
             </div>
-            <div className="modal-footer">
-              <button className="btn btn-primary" onClick={() => setShowDetail(null)}>Tutup</button>
+
+            <div className="premium-modal-section">
+              <h4 className="premium-section-title">
+                <Calendar size={18} /> Waktu & Deskripsi
+              </h4>
+              <div className="premium-info-grid">
+                <div className="premium-info-item">
+                  <span className="premium-info-label">Tanggal Transaksi</span>
+                  <span className="premium-info-value">
+                    {new Date(showDetail.tanggal).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                  </span>
+                </div>
+                <div className="premium-info-item">
+                  <span className="premium-info-label">Waktu Input Sistem</span>
+                  <span className="premium-info-value">
+                    {showDetail.createdAt ? new Date(showDetail.createdAt).toLocaleString('id-ID') : '-'}
+                  </span>
+                </div>
+                <div className="premium-info-item full">
+                  <span className="premium-info-label">Keterangan / Catatan</span>
+                  <span className="premium-info-value" style={{ fontWeight: 500, lineHeight: 1.6 }}>{showDetail.keterangan || '-'}</span>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </Modal>
 
       <style dangerouslySetInnerHTML={{ __html: `
         .kas-page { display: flex; flex-direction: column; gap: 1.5rem; }

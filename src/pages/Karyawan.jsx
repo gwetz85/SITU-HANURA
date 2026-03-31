@@ -19,10 +19,13 @@ import {
   Calendar,
   AlertCircle,
   Clock,
-  Save
+  Save,
+  MapPin,
+  Briefcase
 } from 'lucide-react';
 import { db } from '../firebase';
 import { ref, onValue, push, remove, update } from 'firebase/database';
+import Modal from '../components/Modal';
 
 const Karyawan = () => {
   const [activeTab, setActiveTab] = useState('data');
@@ -137,58 +140,65 @@ const Karyawan = () => {
         </button>
       </div>
 
-      {showEmpForm && (
-        <div className="form-modal-overlay">
-          <div className="form-card glass fadeIn">
-            <div className="card-header border-b">
-              <h3>{editingId ? <Edit2 size={20} /> : <Plus size={20} />} {editingId ? 'Edit Data Karyawan' : 'Tambah Karyawan Baru'}</h3>
-              <button className="close-btn" onClick={resetEmpForm}><X size={20} /></button>
+      <Modal
+        isOpen={showEmpForm}
+        onClose={resetEmpForm}
+        title={editingId ? 'Edit Data Karyawan' : 'Tambah Karyawan Baru'}
+        icon={editingId ? <Edit2 size={24} /> : <Plus size={24} />}
+      >
+        <form onSubmit={handleEmpSubmit} className="emp-form">
+          <div className="premium-modal-section">
+            <h4 className="premium-section-title"><User size={18} /> Profil Karyawan</h4>
+            <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+              <div className="form-group">
+                <label>Nama Lengkap</label>
+                <input required value={empForm.nama} onChange={e => setEmpForm({...empForm, nama: e.target.value})} placeholder="Contoh: Budi Santoso" />
+              </div>
+              <div className="form-group">
+                <label>Jabatan</label>
+                <input required value={empForm.jabatan} onChange={e => setEmpForm({...empForm, jabatan: e.target.value})} placeholder="Contoh: Admin Staff" />
+              </div>
+              <div className="form-group">
+                <label>NIK</label>
+                <input required value={empForm.nik} onChange={e => setEmpForm({...empForm, nik: e.target.value})} placeholder="16 Digit NIK" />
+              </div>
+              <div className="form-group">
+                <label>Nomor Ponsel</label>
+                <input required value={empForm.ponsel} onChange={e => setEmpForm({...empForm, ponsel: e.target.value})} placeholder="081xxx" />
+              </div>
             </div>
-            <form onSubmit={handleEmpSubmit} className="emp-form">
-              <div className="form-grid">
-                <div className="form-group">
-                  <label>Nama Lengkap</label>
-                  <input required value={empForm.nama} onChange={e => setEmpForm({...empForm, nama: e.target.value})} placeholder="Contoh: Budi Santoso" />
-                </div>
-                <div className="form-group">
-                  <label>Jabatan</label>
-                  <input required value={empForm.jabatan} onChange={e => setEmpForm({...empForm, jabatan: e.target.value})} placeholder="Contoh: Admin Staff" />
-                </div>
-                <div className="form-group">
-                  <label>NIK</label>
-                  <input required value={empForm.nik} onChange={e => setEmpForm({...empForm, nik: e.target.value})} placeholder="16 Digit NIK" />
-                </div>
-                <div className="form-group">
-                  <label>Nomor Ponsel</label>
-                  <input required value={empForm.ponsel} onChange={e => setEmpForm({...empForm, ponsel: e.target.value})} placeholder="081xxx" />
-                </div>
-                <div className="form-group">
-                  <label>Bank</label>
-                  <select value={empForm.bank} onChange={e => setEmpForm({...empForm, bank: e.target.value})}>
-                    <option value="BNI">BNI</option>
-                    <option value="BCA">BCA</option>
-                    <option value="Mandiri">Mandiri</option>
-                    <option value="BRI">BRI</option>
-                    <option value="Lainnya">Lainnya</option>
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label>Nomor Rekening</label>
-                  <input required value={empForm.norek} onChange={e => setEmpForm({...empForm, norek: e.target.value})} placeholder="Nomor Rekening" />
-                </div>
-                <div className="form-group full-width">
-                  <label>Gaji Pokok (Rp)</label>
-                  <input required type="number" value={empForm.gaji} onChange={e => setEmpForm({...empForm, gaji: e.target.value})} placeholder="Contoh: 3000000" />
-                </div>
-              </div>
-              <div className="form-actions">
-                <button type="button" className="btn-ghost" onClick={resetEmpForm}>Batal</button>
-                <button type="submit" className="btn btn-primary"><Save size={18} /> Simpan Data</button>
-              </div>
-            </form>
           </div>
-        </div>
-      )}
+
+          <div className="premium-modal-section">
+            <h4 className="premium-section-title"><CreditCard size={18} /> Keuangan & Payroll</h4>
+            <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+              <div className="form-group">
+                <label>Bank</label>
+                <select value={empForm.bank} onChange={e => setEmpForm({...empForm, bank: e.target.value})}>
+                  <option value="BNI">BNI</option>
+                  <option value="BCA">BCA</option>
+                  <option value="Mandiri">Mandiri</option>
+                  <option value="BRI">BRI</option>
+                  <option value="Lainnya">Lainnya</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Nomor Rekening</label>
+                <input required value={empForm.norek} onChange={e => setEmpForm({...empForm, norek: e.target.value})} placeholder="Nomor Rekening" />
+              </div>
+              <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                <label>Gaji Pokok (Rp)</label>
+                <input required type="number" value={empForm.gaji} onChange={e => setEmpForm({...empForm, gaji: e.target.value})} placeholder="Contoh: 3000000" />
+              </div>
+            </div>
+          </div>
+
+          <div className="form-actions" style={{ marginTop: '2rem', display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
+            <button type="button" className="btn btn-ghost" onClick={resetEmpForm}>Batal</button>
+            <button type="submit" className="btn btn-primary"><Save size={18} /> Simpan Data</button>
+          </div>
+        </form>
+      </Modal>
 
       <div className="tab-navigation glass-card">
         <button className={`tab-btn ${activeTab === 'data' ? 'active' : ''}`} onClick={() => setActiveTab('data')}>
@@ -266,36 +276,37 @@ const Karyawan = () => {
               <button className="btn btn-primary" onClick={() => setShowKasbonForm(true)}><Plus size={18} /> Tambah Kasbon</button>
             </div>
             
-            {showKasbonForm && (
-              <div className="form-modal-overlay">
-                <div className="form-card glass fadeIn" style={{ maxWidth: '450px' }}>
-                  <div className="card-header border-b">
-                    <h3>Tambah Entry Kasbon</h3>
-                    <button className="close-btn" onClick={() => setShowKasbonForm(false)}><X size={20} /></button>
+            <Modal
+              isOpen={showKasbonForm}
+              onClose={() => setShowKasbonForm(false)}
+              title="Tambah Entry Kasbon"
+              icon={<Wallet size={24} />}
+              maxWidth="500px"
+            >
+              <form onSubmit={handleKasbonSubmit} className="emp-form">
+                <div className="premium-modal-section">
+                  <div className="form-group">
+                    <label>Pilih Karyawan</label>
+                    <select required value={kasbonForm.employeeId} onChange={e => setKasbonForm({...kasbonForm, employeeId: e.target.value})}>
+                      <option value="">-- Pilih Karyawan --</option>
+                      {employees.map(e => <option key={e.id} value={e.id}>{e.nama} - {e.jabatan}</option>)}
+                    </select>
                   </div>
-                  <form onSubmit={handleKasbonSubmit} className="emp-form">
-                    <div className="form-group">
-                      <label>Pilih Karyawan</label>
-                      <select required value={kasbonForm.employeeId} onChange={e => setKasbonForm({...kasbonForm, employeeId: e.target.value})}>
-                        <option value="">-- Pilih Karyawan --</option>
-                        {employees.map(e => <option key={e.id} value={e.id}>{e.nama} - {e.jabatan}</option>)}
-                      </select>
-                    </div>
-                    <div className="form-group">
-                      <label>Tanggal</label>
-                      <input required type="date" value={kasbonForm.tanggal} onChange={e => setKasbonForm({...kasbonForm, tanggal: e.target.value})} />
-                    </div>
-                    <div className="form-group">
-                      <label>Jumlah Kasbon (Rp)</label>
-                      <input required type="number" value={kasbonForm.jumlah} onChange={e => setKasbonForm({...kasbonForm, jumlah: e.target.value})} />
-                    </div>
-                    <div className="form-actions">
-                      <button type="submit" className="btn btn-primary w-full">Simpan Kasbon</button>
-                    </div>
-                  </form>
+                  <div className="form-group" style={{ marginTop: '1.2rem' }}>
+                    <label>Tanggal</label>
+                    <input required type="date" value={kasbonForm.tanggal} onChange={e => setKasbonForm({...kasbonForm, tanggal: e.target.value})} />
+                  </div>
+                  <div className="form-group" style={{ marginTop: '1.2rem' }}>
+                    <label>Jumlah Kasbon (Rp)</label>
+                    <input required type="number" value={kasbonForm.jumlah} onChange={e => setKasbonForm({...kasbonForm, jumlah: e.target.value})} />
+                  </div>
                 </div>
-              </div>
-            )}
+                <div className="form-actions" style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
+                   <button type="button" className="btn btn-ghost w-full" onClick={() => setShowKasbonForm(false)}>Batal</button>
+                   <button type="submit" className="btn btn-primary w-full">Simpan Kasbon</button>
+                </div>
+              </form>
+            </Modal>
 
             <div className="table-responsive glass-card">
               <table className="data-table">
@@ -363,47 +374,79 @@ const Karyawan = () => {
         )}
       </div>
 
-      {viewingDetail && (
-        <div className="form-modal-overlay" onClick={() => setViewingDetail(null)}>
-          <div className="form-card glass fadeIn" style={{ maxWidth: '600px' }} onClick={e => e.stopPropagation()}>
-            <div className="card-header border-b">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                <div className="profile-img-stub"><Users /></div>
-                <div>
-                  <h3 style={{ margin: 0 }}>{viewingDetail.nama}</h3>
-                  <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.9rem' }}>{viewingDetail.jabatan}</p>
+      <Modal
+        isOpen={!!viewingDetail}
+        onClose={() => setViewingDetail(null)}
+        title="Detail Data Karyawan"
+        icon={<Users size={24} />}
+        footer={
+          <button className="btn btn-primary" onClick={() => setViewingDetail(null)}>
+            Tutup Detail
+          </button>
+        }
+      >
+        {viewingDetail && (
+          <>
+            <div className="premium-modal-section">
+              <h4 className="premium-section-title">
+                <User size={18} /> Informasi Pribadi
+              </h4>
+              <div className="premium-info-grid">
+                <div className="premium-info-item">
+                  <span className="premium-info-label">Nama Lengkap</span>
+                  <span className="premium-info-value">{viewingDetail.nama}</span>
+                </div>
+                <div className="premium-info-item">
+                  <span className="premium-info-label">NIK (Nomor Induk Kependudukan)</span>
+                  <span className="premium-info-value">{viewingDetail.nik}</span>
+                </div>
+                <div className="premium-info-item">
+                  <span className="premium-info-label">Nomor Ponsel / WhatsApp</span>
+                  <span className="premium-info-value">{viewingDetail.ponsel}</span>
                 </div>
               </div>
-              <button className="close-btn" onClick={() => setViewingDetail(null)}><X size={20} /></button>
             </div>
-            <div className="modal-body-grid">
-               <div className="info-item">
-                  <label><AlertCircle size={14} /> NIK</label>
-                  <span>{viewingDetail.nik}</span>
-               </div>
-               <div className="info-item">
-                  <label><Smartphone size={14} /> Nomor Ponsel</label>
-                  <span>{viewingDetail.ponsel}</span>
-               </div>
-               <div className="info-item">
-                  <label><CreditCard size={14} /> Bank & Rekening</label>
-                  <span>{viewingDetail.bank} - {viewingDetail.norek}</span>
-               </div>
-               <div className="info-item">
-                  <label><Banknote size={14} /> Gaji Pokok</label>
-                  <span className="text-primary font-bold">{formatCurrency(viewingDetail.gaji)}</span>
-               </div>
-               <div className="info-item full">
-                  <label><Clock size={14} /> Tanggal Bergabung</label>
-                  <span>{new Date(viewingDetail.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
-               </div>
+
+            <div className="premium-modal-section">
+              <h4 className="premium-section-title">
+                <Briefcase size={18} /> Pekerjaan & Penggajian
+              </h4>
+              <div className="premium-info-grid">
+                <div className="premium-info-item">
+                  <span className="premium-info-label">Jabatan</span>
+                  <span className="premium-info-value">{viewingDetail.jabatan}</span>
+                </div>
+                <div className="premium-info-item">
+                  <span className="premium-info-label">Gaji Pokok (Bulanan)</span>
+                  <span className="premium-info-value text-primary">{formatCurrency(viewingDetail.gaji)}</span>
+                </div>
+                <div className="premium-info-item">
+                  <span className="premium-info-label">Tanggal Bergabung</span>
+                  <span className="premium-info-value">
+                    {new Date(viewingDetail.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                  </span>
+                </div>
+              </div>
             </div>
-            <div className="modal-footer border-t">
-              <button className="btn btn-primary" onClick={() => setViewingDetail(null)}>Tutup Detail</button>
+
+            <div className="premium-modal-section">
+              <h4 className="premium-section-title">
+                <CreditCard size={18} /> Informasi Rekening Bank
+              </h4>
+              <div className="premium-info-grid">
+                <div className="premium-info-item">
+                  <span className="premium-info-label">Nama Bank</span>
+                  <span className="premium-info-value">{viewingDetail.bank}</span>
+                </div>
+                <div className="premium-info-item">
+                  <span className="premium-info-label">Nomor Rekening</span>
+                  <span className="premium-info-value">{viewingDetail.norek}</span>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </Modal>
 
       <style dangerouslySetInnerHTML={{ __html: `
         .karyawan-page { display: flex; flex-direction: column; gap: 1.5rem; }
