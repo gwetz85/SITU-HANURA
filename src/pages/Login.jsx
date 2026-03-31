@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { LogIn, User, Lock, ShieldCheck, UserPlus, ArrowLeft, CheckCircle, Loader2 } from 'lucide-react';
 
 const Login = () => {
+  const navigate = useNavigate();
   const [isRegister, setIsRegister] = useState(false);
   const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -20,17 +22,28 @@ const Login = () => {
   };
 
   const handleLogin = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
+    
+    if (!formData.username || !formData.password) {
+      setError('Harap isi username dan password.');
+      return;
+    }
+
     setIsLoading(true);
     try {
-      await login(formData.username, formData.password);
+      const result = await login(formData.username, formData.password);
+      if (result) {
+        navigate('/');
+      }
+    } catch (err) {
+      setError('Gagal memproses login. Silakan coba lagi.');
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleRegister = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
       setError('Password konfirmasi tidak cocok.');
       return;
@@ -73,12 +86,12 @@ const Login = () => {
             <CheckCircle size={48} color="#10b981" />
             <h3>Pendaftaran Berhasil!</h3>
             <p>Akun Anda telah terdaftar. Mohon hubungi Admin untuk pemberian Role (akses aplikasi).</p>
-            <button className="btn btn-primary" onClick={toggleMode}>
+            <button type="button" className="btn btn-primary" onClick={toggleMode}>
               Kembali ke Login
             </button>
           </div>
         ) : (
-          <form onSubmit={isRegister ? handleRegister : handleLogin} className="login-form">
+          <form className="login-form" onSubmit={(e) => { e.preventDefault(); isRegister ? handleRegister(e) : handleLogin(e); }}>
             {error && <div className="error-alert">{error}</div>}
             
             {isRegister && (
@@ -137,7 +150,11 @@ const Login = () => {
               </div>
             )}
 
-            <button type="submit" className="btn btn-primary login-btn" disabled={isLoading}>
+            <button 
+              type="submit" 
+              className="btn btn-primary login-btn" 
+              disabled={isLoading}
+            >
               {isLoading ? (
                 <>
                   <Loader2 size={18} className="spinner" />
@@ -300,6 +317,7 @@ const Login = () => {
           align-items: center;
           justify-content: center;
           gap: 10px;
+          cursor: pointer;
         }
 
         .login-btn:disabled {
