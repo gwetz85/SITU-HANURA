@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react';
 import { 
   Search, Plus, Filter, MoreVertical, FileText, Calendar, Hash, MapPin, Send, 
   Trash2, Edit2, Eye, Save, X, AlertCircle 
