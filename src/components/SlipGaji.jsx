@@ -26,11 +26,6 @@ const SlipGaji = ({ data }) => {
       <div className="slip-printable receipt-style">
         {/* Receipt Header */}
         <div className="receipt-header">
-          <div className="brand-logo-centered">
-             <div className="hanura-flag-mini">
-               <span className="partai-text-mini">HANURA</span>
-             </div>
-          </div>
           <h2 className="company-name">PARTAI HATI NURANI RAKYAT</h2>
           <p className="branch-name">DPC KOTA TANJUNGPINANG</p>
           <p className="address">Jl. Gatot Subroto, Tanjungpinang</p>
@@ -136,13 +131,6 @@ const SlipGaji = ({ data }) => {
         .company-name { font-size: 14px; font-weight: 900; margin: 5px 0 0; }
         .branch-name { font-size: 11px; font-weight: 700; margin: 0; }
         .address, .contact { font-size: 10px; margin: 0; color: #333; }
-
-        .brand-logo-centered { display: flex; justify-content: center; margin-bottom: 5px; }
-        .hanura-flag-mini { 
-          background: #ff8c00; padding: 4px 10px; border: 1px solid #000; 
-          clip-path: polygon(0% 0%, 90% 0%, 100% 50%, 90% 100%, 0% 100%);
-        }
-        .partai-text-mini { font-size: 12px; font-weight: 900; color: #fff; }
 
         .receipt-separator { text-align: center; margin: 5px 0; overflow: hidden; white-space: nowrap; font-weight: bold; }
         .receipt-separator-thin { text-align: center; margin: 3px 0; overflow: hidden; white-space: nowrap; opacity: 0.5; }
