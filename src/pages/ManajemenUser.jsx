@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   UserPlus, Shield, UserCheck, MoreVertical, ShieldAlert, UserX, Check, Edit, 
-  Eye, Trash2, X, Save, ShieldCheck, CheckCircle, AlertCircle, Calendar, Hash, Smartphone
+  Eye, Trash2, X, Save, ShieldCheck, CheckCircle, AlertCircle, Calendar, Hash, Smartphone, RotateCcw
 } from 'lucide-react';
 import { db } from '../firebase';
 import { ref, onValue, update, remove } from 'firebase/database';
@@ -49,6 +49,17 @@ const ManajemenUser = () => {
         alert('Pengguna berhasil dihapus!');
       } catch (error) {
         alert('Gagal menghapus pengguna!');
+      }
+    }
+  };
+
+  const handleResetDevice = async (user) => {
+    if (window.confirm(`Reset device untuk @${user.username}? Pengguna akan diminta login ulang saat masuk dari perangkat lain.`)) {
+      try {
+        await update(ref(db, `users/${user.id}`), { activeDevId: null });
+        alert('Device ID berhasil direset!');
+      } catch (error) {
+        alert('Gagal mereset device!');
       }
     }
   };
@@ -146,24 +157,9 @@ const ManajemenUser = () => {
                   </td>
                   <td className="text-muted">@{u.username}</td>
                   <td>
-                    {editingUser === u.id ? (
-                      <div className="role-selector">
-                        <select 
-                          onChange={(e) => handleSetRole(u.id, e.target.value)}
-                          defaultValue={u.role || ""}
-                        >
-                          <option value="" disabled>Pilih Role</option>
-                          <option value="Admin">Admin</option>
-                          <option value="Petugas">Petugas</option>
-                          <option value="Verifikator">Verifikator</option>
-                        </select>
-                        <button className="cancel-edit" onClick={() => setEditingUser(null)}>Batal</button>
-                      </div>
-                    ) : (
-                      <span className={`role-badge ${u.role ? u.role.toLowerCase() : 'pending'}`}>
-                        {u.role || 'Belum Aktif'}
-                      </span>
-                    )}
+                    <span className={`role-badge ${u.role ? u.role.toLowerCase() : 'pending'}`}>
+                      {u.role || 'Belum Aktif'}
+                    </span>
                   </td>
                   <td>
                     <div className={`status-indicator-badge ${u.activeDevId ? 'online' : 'offline'}`}>
@@ -175,6 +171,7 @@ const ManajemenUser = () => {
                     <div className="action-group">
                       <button className="icon-btn-view" onClick={() => setShowDetail(u)} title="Detail Akun"><Eye size={16} /></button>
                       <button className="icon-btn-edit" onClick={() => startEditRole(u)} title="Ubah Hak Akses"><ShieldCheck size={16} /></button>
+                      <button className="icon-btn-reset" onClick={() => handleResetDevice(u)} title="Reset Device ID"><RotateCcw size={16} /></button>
                       <button className="icon-btn-delete" onClick={() => handleDeleteUser(u)} title="Hapus Akun"><Trash2 size={16} /></button>
                     </div>
                   </td>
@@ -294,13 +291,14 @@ const ManajemenUser = () => {
         .date-text .day { font-weight: 800; font-size: 0.85rem; color: #3b82f6; }
         .date-text .full-date { opacity: 0.7; font-size: 0.65rem; }
 
-        .vibrant-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
-        .vibrant-stat-card { padding: 1.15rem; transition: all 0.3s; border: 1px solid transparent; }
-        .vibrant-stat-card:hover { transform: translateY(-3px); border-color: var(--accent-color); opacity: 1 !important; box-shadow: 0 8px 16px rgba(0,0,0,0.05); }
-        .vibrant-icon-wrapper { width: 36px; height: 36px; background: rgba(0,0,0,0.04); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--accent-color); }
-        .stat-label { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
-        .stat-main-value { font-size: 1.45rem; font-weight: 900; margin: 0.35rem 0 0.15rem 0; color: #0f172a; }
-        .vibrant-stat-header { display: flex; align-items: center; gap: 0.65rem; margin-bottom: 0.35rem; }
+        .vibrant-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+        .vibrant-stat-card { padding: 1.25rem; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid rgba(0,0,0,0.05); }
+        .vibrant-stat-card:hover { transform: translateY(-4px); border-color: var(--accent-color); box-shadow: 0 12px 20px -8px rgba(0,0,0,0.1); }
+        .vibrant-icon-wrapper { width: 38px; height: 38px; background: rgba(0,0,0,0.03); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--accent-color); }
+        .stat-label { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
+        .stat-main-value { font-size: 1.6rem; font-weight: 900; margin: 0.25rem 0; color: #0f172a; }
+        .role-desc { font-size: 0.7rem; opacity: 0.6; }
+        .vibrant-stat-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem; }
 
         .role-badge { padding: 0.35rem 0.75rem; border-radius: 6px; font-size: 0.7rem; font-weight: 800; display: inline-block; }
         .role-badge.admin { background: #fee2e2; color: #ef4444; }
@@ -320,18 +318,20 @@ const ManajemenUser = () => {
         .alert.success { background: #ecfdf5; color: #065f46; border: 1px solid #10b98133; }
         .alert.info { background: #eff6ff; color: #1e40af; border: 1px solid #3b82f633; }
 
-        .truncate-id { max-width: 200px; display: inline-block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: monospace; font-size: 0.8rem; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; }
-        .text-success { color: #10b981; }
-        .text-danger { color: #ef4444; }
+        .truncate-id { max-width: 180px; display: inline-block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; background: #f1f5f9; padding: 4px 8px; border-radius: 6px; color: var(--text-main); }
+        .text-success { color: #10b981; font-weight: 700; }
+        .text-danger { color: #ef4444; font-weight: 700; }
 
-        .action-group { display: flex; gap: 0.5rem; }
-        .action-group button { width: 34px !important; height: 34px !important; border-radius: 10px !important; border: none !important; }
+        .action-group { display: flex; gap: 0.4rem; justify-content: center; }
+        .action-group button { width: 30px !important; height: 30px !important; border-radius: 8px !important; border: 1px solid transparent !important; display: flex; align-items: center; justify-content: center; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
         .icon-btn-view { color: var(--primary); background: rgba(37,99,235,0.06); }
-        .icon-btn-view:hover { background: var(--primary); color: white; transform: translateY(-3px); box-shadow: 0 5px 12px rgba(37,99,235,0.2); }
-        .icon-btn-edit { color: #f59e0b; background: rgba(245,158,11,0.06); }
-        .icon-btn-edit:hover { background: #f59e0b; color: white; transform: translateY(-3px); box-shadow: 0 5px 12px rgba(245,158,11,0.2); }
+        .icon-btn-view:hover { background: var(--primary); color: white; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(37,99,235,0.2); }
+        .icon-btn-edit { color: #10b981; background: rgba(16,185,129,0.06); }
+        .icon-btn-edit:hover { background: #10b981; color: white; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(16,185,129,0.2); }
+        .icon-btn-reset { color: #f59e0b; background: rgba(245,158,11,0.06); }
+        .icon-btn-reset:hover { background: #f59e0b; color: white; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(245,158,11,0.2); }
         .icon-btn-delete { color: #ef4444; background: rgba(239,68,68,0.06); }
-        .icon-btn-delete:hover { background: #ef4444; color: white; transform: translateY(-3px); box-shadow: 0 5px 12px rgba(239,68,68,0.2); }
+        .icon-btn-delete:hover { background: #ef4444; color: white; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(239,68,68,0.2); }
 
         .row-pending { background: #fff7ed !important; }
         .new-badge { font-size: 0.6rem; background: #f97316; color: white; padding: 2px 6px; border-radius: 4px; font-weight: 800; margin-left: 8px; }
