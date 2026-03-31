@@ -463,10 +463,30 @@ const Karyawan = () => {
         .kasbon-badge { padding: 0.3rem 0.7rem; border-radius: 100px; font-size: 0.75rem; font-weight: 800; }
         .kasbon-badge.success { background: rgba(16, 185, 129, 0.1); color: #10b981; }
         .kasbon-badge.warning { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
-        .bank-info { display: flex; flex-direction: column; }
-        .bank-name { font-size: 0.7rem; font-weight: 800; color: var(--text-muted); }
-        .bank-number { font-size: 0.85rem; font-weight: 500; font-family: monospace; }
+        .bank-info { display: flex; flex-direction: column; gap: 2px; }
+        .bank-name { font-size: 0.75rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; }
+        .bank-number { font-size: 0.95rem; font-weight: 600; font-family: 'JetBrains Mono', monospace; color: var(--text-main); }
         .p-10 { padding: 2.5rem; }
+
+        .data-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+        .data-table th { 
+          padding: 1.5rem 1rem; 
+          text-align: left; 
+          font-size: 0.75rem; 
+          font-weight: 800; 
+          text-transform: uppercase; 
+          letter-spacing: 0.05em; 
+          color: var(--text-muted);
+          border-bottom: 2px solid var(--background);
+        }
+        .data-table td { 
+          padding: 1.25rem 1rem; 
+          vertical-align: middle; 
+          border-bottom: 1px solid var(--background);
+          transition: all 0.2s;
+        }
+        .data-table tr:last-child td { border-bottom: none; }
+        .data-table tr:hover td { background: rgba(37, 99, 235, 0.02); }
         
         /* New UI Elements */
         .form-modal-overlay { 
@@ -488,14 +508,22 @@ const Karyawan = () => {
         .form-actions { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
         .w-full { width: 100%; }
         .ml-2 { margin-left: 0.5rem; }
-        .action-group { display: flex; gap: 0.5rem; justify-content: flex-end; }
-        .action-group button { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
-        .icon-btn-view { color: var(--primary); background: rgba(37,99,235,0.1); }
-        .icon-btn-view:hover { background: var(--primary); color: white; }
-        .icon-btn-edit { color: #f59e0b; background: rgba(245,158,11,0.1); }
-        .icon-btn-edit:hover { background: #f59e0b; color: white; }
-        .icon-btn-delete { color: #ef4444; background: rgba(239,68,68,0.1); }
-        .icon-btn-delete:hover { background: #ef4444; color: white; }
+        .action-group { display: flex; gap: 0.75rem; justify-content: flex-end; }
+        .action-group button { 
+          width: 36px; height: 36px; 
+          border-radius: 10px; 
+          display: flex; align-items: center; justify-content: center; 
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); 
+          border: 1px solid transparent;
+        }
+        .icon-btn-view { color: var(--primary); background: rgba(37,99,235,0.08); }
+        .icon-btn-view:hover { background: var(--primary); color: white; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(37,99,235,0.2); }
+        
+        .icon-btn-edit { color: #f59e0b; background: rgba(245,158,11,0.08); }
+        .icon-btn-edit:hover { background: #f59e0b; color: white; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(245,158,11,0.2); }
+        
+        .icon-btn-delete { color: #ef4444; background: rgba(239,68,68,0.08); }
+        .icon-btn-delete:hover { background: #ef4444; color: white; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(239,68,68,0.2); }
         
         .modal-body-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; padding: 2rem 0; }
         .info-item { display: flex; flex-direction: column; gap: 0.5rem; }

@@ -132,18 +132,48 @@ const SuratMenyurat = ({ type }) => {
         .divider { width: 1px; height: 24px; background: var(--border); }
         .total-label { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); }
         .table-responsive { padding: 0; overflow-x: auto; }
-        .data-table { width: 100%; border-collapse: collapse; text-align: left; }
-        .data-table th { padding: 1.25rem 1.5rem; background: #f8fafc; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); border-bottom: 1px solid var(--border); }
+        .data-table { width: 100%; border-collapse: separate; border-spacing: 0; text-align: left; }
+        .data-table th { 
+          padding: 1.5rem 1.5rem; 
+          background: var(--background); 
+          font-size: 0.75rem; 
+          font-weight: 800; 
+          text-transform: uppercase; 
+          letter-spacing: 0.05em; 
+          color: var(--text-muted); 
+          border-bottom: 2px solid var(--border); 
+        }
         .data-table th svg { vertical-align: middle; margin-bottom: 2px; margin-right: 4px; }
-        .data-table td { padding: 1.25rem 1.5rem; font-size: 0.9rem; border-bottom: 1px solid #f1f5f9; color: var(--text-main); }
+        .data-table td { 
+          padding: 1.25rem 1.5rem; 
+          font-size: 0.95rem; 
+          border-bottom: 1px solid var(--background); 
+          color: var(--text-main); 
+          vertical-align: middle;
+        }
         .data-table tr:hover td { background: rgba(37, 99, 235, 0.02); }
-        .font-medium { font-weight: 500; }
-        .font-semibold { font-weight: 600; }
+        .font-medium { font-weight: 600; }
+        .font-semibold { font-weight: 700; }
         .text-blue { color: var(--primary); }
-        .badge-outline { padding: 0.25rem 0.6rem; background: rgba(37, 99, 235, 0.05); border: 1px solid rgba(37, 99, 235, 0.2); border-radius: 6px; font-size: 0.75rem; font-weight: 700; color: var(--primary); }
-        .truncate-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: var(--text-muted); }
-        .icon-btn-ghost { color: var(--text-muted); padding: 0.4rem; border-radius: 50%; transition: background 0.2s; }
-        .icon-btn-ghost:hover { background: var(--background); color: var(--text-main); }
+        .badge-outline { 
+          padding: 0.4rem 0.8rem; 
+          background: rgba(37, 99, 235, 0.05); 
+          border: 1px solid rgba(37, 99, 235, 0.2); 
+          border-radius: 8px; 
+          font-size: 0.75rem; 
+          font-weight: 800; 
+          color: var(--primary); 
+          text-transform: uppercase;
+        }
+        .truncate-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: var(--text-muted); line-height: 1.6; }
+        .icon-btn-ghost { 
+          color: var(--text-muted); 
+          width: 36px; height: 36px;
+          border-radius: 10px; 
+          display: flex; align-items: center; justify-content: center;
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .icon-btn-ghost:hover { background: rgba(37, 99, 235, 0.08); color: var(--primary); transform: translateY(-2px); }
         @media (max-width: 768px) { .toolbar { flex-direction: column; align-items: stretch; } .search-box { max-width: none; } }
       ` }} />
     </div>

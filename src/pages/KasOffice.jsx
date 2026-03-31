@@ -428,12 +428,31 @@ const KasOffice = () => {
         .filter-tab { padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); transition: all 0.2s; }
         .filter-tab.active { background: var(--primary); color: white; }
         .filter-tab:hover:not(.active) { background: var(--background); }
-        .kategori-tag { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); background: var(--background); padding: 0.2rem 0.6rem; border-radius: 4px; }
-        .status-badge { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; padding: 0.25rem 0.6rem; border-radius: 100px; }
+        .status-badge { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; padding: 0.4rem 0.8rem; border-radius: 100px; display: inline-flex; align-items: center; justify-content: center; }
         .status-badge.masuk { background: rgba(16, 185, 129, 0.1); color: #10b981; }
         .status-badge.keluar { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
         .text-right { text-align: right; }
         .font-bold { font-weight: 800; }
+
+        .data-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+        .data-table th { 
+          padding: 1.5rem 1rem; 
+          text-align: left; 
+          font-size: 0.75rem; 
+          font-weight: 800; 
+          text-transform: uppercase; 
+          letter-spacing: 0.05em; 
+          color: var(--text-muted);
+          border-bottom: 2px solid var(--background);
+        }
+        .data-table td { 
+          padding: 1.25rem 1rem; 
+          vertical-align: middle; 
+          border-bottom: 1px solid var(--background);
+          transition: all 0.2s;
+        }
+        .data-table tr:last-child td { border-bottom: none; }
+        .data-table tr:hover td { background: rgba(37, 99, 235, 0.02); }
         
         /* Clear View Updates */
         .add-transaction-card { width: 100%; border: 1px solid var(--border); margin-bottom: 2rem; padding: 2.5rem; }
@@ -450,14 +469,22 @@ const KasOffice = () => {
         .btn-secondary { background: var(--secondary); color: white; }
 
         .actions-cell { text-align: right; }
-        .action-group { display: flex; gap: 0.5rem; justify-content: flex-end; }
-        .action-group button { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
-        .icon-btn-view { color: var(--primary); background: rgba(37, 99, 235, 0.1); }
-        .icon-btn-view:hover { background: var(--primary); color: white; }
-        .icon-btn-edit { color: var(--accent); background: rgba(245, 158, 11, 0.1); }
-        .icon-btn-edit:hover { background: var(--accent); color: white; }
-        .icon-btn-delete { color: #ef4444; background: rgba(239, 68, 68, 0.1); }
-        .icon-btn-delete:hover { background: #ef4444; color: white; }
+        .action-group { display: flex; gap: 0.75rem; justify-content: flex-end; }
+        .action-group button { 
+          width: 36px; height: 36px; 
+          border-radius: 10px; 
+          display: flex; align-items: center; justify-content: center; 
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); 
+          border: 1px solid transparent;
+        }
+        .icon-btn-view { color: var(--primary); background: rgba(37, 99, 235, 0.08); }
+        .icon-btn-view:hover { background: var(--primary); color: white; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
+        
+        .icon-btn-edit { color: var(--accent); background: rgba(245, 158, 11, 0.08); }
+        .icon-btn-edit:hover { background: var(--accent); color: white; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2); }
+        
+        .icon-btn-delete { color: #ef4444; background: rgba(239, 68, 68, 0.08); }
+        .icon-btn-delete:hover { background: #ef4444; color: white; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2); }
 
         /* Modal Styles */
         .modal-overlay { 
