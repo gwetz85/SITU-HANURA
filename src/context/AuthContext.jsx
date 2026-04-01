@@ -26,6 +26,14 @@ export const AuthProvider = ({ children }) => {
     return devId;
   };
 
+  const logout = () => {
+    if (user && db) {
+      update(ref(db, `users/${user.id}`), { activeDevId: null });
+    }
+    localStorage.removeItem('situ_hanura_user');
+    setUser(null);
+  };
+
   useEffect(() => {
     if (!db) {
       setConfigError(true);
@@ -228,13 +236,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = () => {
-    if (user && db) {
-      update(ref(db, `users/${user.id}`), { activeDevId: null });
-    }
-    localStorage.removeItem('situ_hanura_user');
-    setUser(null);
-  };
 
   if (configError) {
     return (
