@@ -2,18 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { db } from '../firebase';
 import { ref, get, set, remove, update, onValue } from 'firebase/database';
-import { 
-  LayoutDashboard, 
-  Mail, 
-  ChevronDown, 
-  Wallet, 
-  Users, 
-  Library, 
-  UserCog, 
-  Settings, 
-  Info, 
-  LogOut, 
-  Menu, 
+import {
+  LayoutDashboard,
+  Mail,
+  ChevronDown,
+  Wallet,
+  Users,
+  Library,
+  UserCog,
+  Settings,
+  Info,
+  LogOut,
+  Menu,
   X,
   Bell,
   User as UserIcon,
@@ -89,9 +89,9 @@ const Layout = ({ children }) => {
 
   const menuItems = [
     { title: t.dashboard, icon: <LayoutDashboard size={20} />, path: '/', roles: ['Admin', 'Petugas'] },
-    { 
-      title: t.surat, 
-      icon: <Mail size={20} />, 
+    {
+      title: t.surat,
+      icon: <Mail size={20} />,
       path: '/surat',
       roles: ['Admin', 'Petugas'],
       submenu: [
@@ -99,9 +99,9 @@ const Layout = ({ children }) => {
         { title: t.suratKeluar, path: '/surat/keluar' }
       ]
     },
-    { 
-      title: t.kas, 
-      icon: <Wallet size={20} />, 
+    {
+      title: t.kas,
+      icon: <Wallet size={20} />,
       path: '/kas',
       roles: ['Admin', 'Petugas'],
       submenu: [
@@ -111,10 +111,10 @@ const Layout = ({ children }) => {
     },
     { title: t.inventaris, icon: <Library size={20} />, path: '/inventaris', roles: ['Admin', 'Petugas', 'Verifikator'] },
     { title: t.karyawan, icon: <Users size={20} />, path: '/karyawan', roles: ['Admin', 'Petugas'] },
-    { 
-      title: 'Manajemen Kegiatan', 
-      icon: <Calendar size={20} />, 
-      path: '/admin/kegiatan', 
+    {
+      title: 'Manajemen Kegiatan',
+      icon: <Calendar size={20} />,
+      path: '/admin/kegiatan',
       roles: ['Admin'],
       submenu: [
         { title: 'Daftar Kegiatan', path: '/admin/kegiatan' },
@@ -158,7 +158,7 @@ const Layout = ({ children }) => {
 
                 return (
                   <li key={idx} className="menu-item-group">
-                    <button 
+                    <button
                       className={`menu-link ${isOpen ? 'active' : ''}`}
                       onClick={() => setIsOpen(!isOpen)}
                     >
@@ -183,7 +183,7 @@ const Layout = ({ children }) => {
 
               return (
                 <li key={idx}>
-                  <NavLink to={item.path} className={({isActive}) => `menu-link ${isActive ? 'active' : ''}`}>
+                  <NavLink to={item.path} className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>
                     <span className="link-content">
                       {item.icon}
                       <span className="link-text">{item.title}</span>
@@ -200,8 +200,8 @@ const Layout = ({ children }) => {
             <Clock size={18} className="clock-icon" />
             <div className="time-display">
               <p className="time-now">
-                {currentTime.toLocaleTimeString('id-ID', { 
-                  hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false 
+                {currentTime.toLocaleTimeString('id-ID', {
+                  hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
                 })}
               </p>
               <p className="date-now">
@@ -227,8 +227,8 @@ const Layout = ({ children }) => {
             </button>
             <div className="period-selector-container">
               <Calendar size={16} className="text-primary" />
-              <select 
-                value={workingMonth} 
+              <select
+                value={workingMonth}
                 onChange={(e) => setWorkingMonth(e.target.value)}
                 className="working-month-select"
               >
@@ -246,7 +246,7 @@ const Layout = ({ children }) => {
           </div>
           <div className="header-right">
             <div className="user-dropdown-container">
-              <div 
+              <div
                 className={`header-user-badge ${isUserMenuOpen ? 'active' : ''}`}
                 onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
               >
@@ -325,7 +325,8 @@ const Layout = ({ children }) => {
         </div>
       </Modal>
 
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         .app-layout {
           display: flex;
           min-height: 100vh;
