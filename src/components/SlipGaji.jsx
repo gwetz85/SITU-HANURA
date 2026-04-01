@@ -140,9 +140,12 @@ const SlipGaji = ({ data }) => {
         .a4-slip-document {
           background: white;
           width: 210mm;
+          max-width: 100%;
           min-height: 297mm;
           padding: 20mm;
+          margin: 0 auto;
           box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+          box-sizing: border-box;
           position: relative;
           display: flex;
           flex-direction: column;

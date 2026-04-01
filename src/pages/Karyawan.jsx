@@ -729,7 +729,7 @@ const Karyawan = () => {
         onClose={() => setPrintingEmployee(null)}
         title="Pratinjau Slip Gaji"
         icon={<Printer size={24} />}
-        maxWidth="450px"
+        maxWidth="1000px"
         footer={
           <div style={{ display: 'flex', gap: '1rem' }}>
             <button className="btn btn-ghost" onClick={() => setPrintingEmployee(null)}>Batal</button>
