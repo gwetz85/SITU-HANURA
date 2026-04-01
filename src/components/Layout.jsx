@@ -87,6 +87,14 @@ const Layout = ({ children }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isUserMenuOpen]);
 
+  // Sync Submenu Open state with Current Path
+  useEffect(() => {
+    if (location.pathname.startsWith('/surat')) setIsSuratOpen(true);
+    if (location.pathname.startsWith('/kas')) setIsKasOpen(true);
+    if (location.pathname.startsWith('/pelayanan')) setIsPelayananOpen(true);
+    if (location.pathname.startsWith('/admin/kegiatan')) setIsKegiatanOpen(true);
+  }, [location.pathname]);
+
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
   const menuItems = [
