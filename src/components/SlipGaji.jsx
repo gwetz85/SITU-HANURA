@@ -31,166 +31,266 @@ const SlipGaji = ({ data }) => {
   const penerimaanBersih = totalPenghasilan - totalPotongan;
 
   return (
-    <div className="slip-gaji-wrapper">
-      <div className="slip-printable receipt-style">
-        {/* Receipt Header */}
-        <div className="receipt-header">
-          <h2 className="company-name">PARTAI HATI NURANI RAKYAT</h2>
-          <p className="branch-name">DPC KOTA TANJUNGPINANG</p>
-          <p className="address">Jl. Gatot Subroto, Tanjungpinang</p>
-          <p className="contact">Kepulauan Riau</p>
-        </div>
-
-        <div className="receipt-separator">------------------------------------------</div>
-
-        {/* Receipt Title */}
-        <div className="receipt-title">
-          <h3>SLIP GAJI KARYAWAN</h3>
-          <p className="period-text">{periodLong}</p>
-        </div>
-
-        <div className="receipt-separator">------------------------------------------</div>
-
-        {/* Employee Info */}
-        <div className="receipt-info">
-          <div className="info-row"><span>NAMA</span><span>: {data.nama}</span></div>
-          <div className="info-row"><span>NIK</span><span>: {data.nik || '-'}</span></div>
-          <div className="info-row"><span>JABATAN</span><span>: {data.jabatan || 'STAF'}</span></div>
-        </div>
-
-        <div className="receipt-separator">------------------------------------------</div>
-
-        {/* Earnings */}
-        <div className="receipt-section">
-          <p className="section-label">PENGHASILAN {isSimplified && '(ARSIP)'}:</p>
-          <div className="item-row"><span>Gaji Pokok</span><span>{formatNumber(earnings.gaji)}</span></div>
-          {earnings.tunjangan_jabatan > 0 && <div className="item-row"><span>Tunj. Jabatan</span><span>{formatNumber(earnings.tunjangan_jabatan)}</span></div>}
-          {earnings.tunjangan_makan > 0 && <div className="item-row"><span>Tunj. Makan</span><span>{formatNumber(earnings.tunjangan_makan)}</span></div>}
-          {earnings.bonus_kinerja > 0 && <div className="item-row"><span>Bonus Kinerja</span><span>{formatNumber(earnings.bonus_kinerja)}</span></div>}
-          <div className="receipt-separator-thin">------------------------------------------</div>
-          <div className="item-row font-bold"><span>Total Penghasilan</span><span>{formatNumber(totalPenghasilan)}</span></div>
-        </div>
-
-        <div className="receipt-spacer"></div>
-
-        {/* Deductions */}
-        <div className="receipt-section">
-          <p className="section-label">POTONGAN:</p>
-          <div className="item-row"><span>Kasbon/Hutang</span><span>({formatNumber(data.totalKasbon)})</span></div>
-          {(data.bpjs_kesehatan > 0 || data.bpjs_ketenagakerjaan > 0) && (
-            <div className="item-row"><span>BPJS</span><span>({formatNumber((data.bpjs_kesehatan || 0) + (data.bpjs_ketenagakerjaan || 0))})</span></div>
-          )}
-          {data.iuran_koperasi > 0 && <div className="item-row"><span>Iuran Koperasi</span><span>({formatNumber(data.iuran_koperasi)})</span></div>}
-          <div className="receipt-separator-thin">------------------------------------------</div>
-          <div className="item-row font-bold"><span>Total Potongan</span><span>({formatNumber(totalPotongan)})</span></div>
-        </div>
-
-        <div className="receipt-separator">==========================================</div>
-
-        {/* Net Total */}
-        <div className="receipt-total">
-          <p className="total-label">TAKE HOME PAY</p>
-          <h2 className="total-amount">Rp {formatNumber(penerimaanBersih)}</h2>
-          <p className="terbilang"># {data.terbilang || ''} Rupiah #</p>
-        </div>
-
-        <div className="receipt-separator">==========================================</div>
-
-        {/* Signatures */}
-        <div className="receipt-signatures">
-          <div className="sign-column">
-            <p>Penerima,</p>
-            <div className="sign-space"></div>
-            <p className="sign-name">{data.nama}</p>
+    <div className="a4-slip-wrapper">
+      <div className="a4-slip-document print-container">
+        {/* Header Section */}
+        <div className="slip-header">
+          <div className="header-brand">
+            <div className="brand-logo">H</div>
+            <div className="brand-text">
+              <h1 className="company-name">PARTAI HATI NURANI RAKYAT</h1>
+              <p className="branch-name">DEWAN PIMPINAN CABANG (DPC) KOTA TANJUNGPINANG</p>
+            </div>
           </div>
-          <div className="sign-column">
-            <p>Bendahara,</p>
-            <div className="sign-space"></div>
-            <p className="sign-name">ENDANG WIRNANTO</p>
+          <div className="document-title">
+            <h2>SLIP GAJI KARYAWAN</h2>
+            <p className="period-badge">{periodLong}</p>
           </div>
         </div>
 
-        <div className="receipt-footer">
-          <p>Terima kasih atas dedikasinya.</p>
-          <p>Dicetak pada: {timestamp}</p>
-          <p>SITU HANURA Cloud System</p>
+        <div className="divider-line"></div>
+
+        {/* Employee & Info Section */}
+        <div className="info-grid">
+          <div className="info-column">
+            <div className="info-row"><span className="label">Nama Lengkap</span><span className="value">: {data.nama}</span></div>
+            <div className="info-row"><span className="label">NIK</span><span className="value">: {data.nik || '-'}</span></div>
+            <div className="info-row"><span className="label">Jabatan</span><span className="value">: {data.jabatan || 'Staf'}</span></div>
+          </div>
+          <div className="info-column text-right">
+            <div className="info-row"><span className="label">Metode Bayar</span><span className="value">: Transfer {data.bank || 'Bank'}</span></div>
+            <div className="info-row"><span className="label">Tanggal Cetak</span><span className="value">: {timestamp}</span></div>
+            <div className="info-row"><span className="label">Status</span><span className="value">: <span className="paid-tag">Paid</span></span></div>
+          </div>
+        </div>
+
+        {/* Payroll Breakdown Section */}
+        <div className="payroll-container">
+          <div className="payroll-column">
+            <h3 className="section-title">I. PENGHASILAN {isSimplified && '(ARSIP)'}</h3>
+            <table className="payroll-table">
+              <tbody>
+                <tr><td>Gaji Pokok</td><td className="amount">{formatCurrency(earnings.gaji)}</td></tr>
+                {earnings.tunjangan_jabatan > 0 && <tr><td>Tunjangan Jabatan</td><td className="amount">{formatCurrency(earnings.tunjangan_jabatan)}</td></tr>}
+                {earnings.tunjangan_makan > 0 && <tr><td>Tunjangan Makan</td><td className="amount">{formatCurrency(earnings.tunjangan_makan)}</td></tr>}
+                {earnings.bonus_kinerja > 0 && <tr><td>Bonus Kinerja / Insentif</td><td className="amount">{formatCurrency(earnings.bonus_kinerja)}</td></tr>}
+                <tr className="total-row"><td>Total Penghasilan (A)</td><td className="amount">{formatCurrency(totalPenghasilan)}</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div className="payroll-column">
+            <h3 className="section-title">II. POTONGAN</h3>
+            <table className="payroll-table">
+              <tbody>
+                <tr><td>Kasbon / Pinjaman</td><td className="amount">({formatCurrency(data.totalKasbon)})</td></tr>
+                {data.bpjs_kesehatan > 0 && <tr><td>BPJS Kesehatan</td><td className="amount">({formatCurrency(data.bpjs_kesehatan)})</td></tr>}
+                {data.bpjs_ketenagakerjaan > 0 && <tr><td>BPJS Ketenagakerjaan</td><td className="amount">({formatCurrency(data.bpjs_ketenagakerjaan)})</td></tr>}
+                {data.iuran_koperasi > 0 && <tr><td>Iuran Koperasi</td><td className="amount">({formatCurrency(data.iuran_koperasi)})</td></tr>}
+                <tr className="total-row"><td>Total Potongan (B)</td><td className="amount">({formatCurrency(totalPotongan)})</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Total Footer Section */}
+        <div className="summary-section">
+          <div className="summary-card">
+            <div className="summary-row">
+              <span className="summary-label">PENERIMAAN BERSIH (A - B)</span>
+              <span className="summary-value">{formatCurrency(penerimaanBersih)}</span>
+            </div>
+            <div className="terbilang-box">
+              <p># {data.terbilang || '...'} Rupiah #</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer & Signature Section */}
+        <div className="signature-section">
+          <div className="signature-box">
+            <p className="sig-label">Penerima,</p>
+            <div className="sig-space"></div>
+            <p className="sig-name">{data.nama}</p>
+          </div>
+          <div className="signature-box text-right">
+            <p className="sig-label">Tanjungpinang, {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+            <p className="sig-label">Bendahara Kelola,</p>
+            <div className="sig-space"></div>
+            <p className="sig-name">ENDANG WIRNANTO</p>
+          </div>
+        </div>
+
+        <div className="doc-footer">
+          <p>Dokumen ini dihasilkan secara otomatis oleh SITU HANURA Cloud System.</p>
+          <p>Dilarang menyebarluaskan dokumen ini tanpa izin yang berwenang.</p>
         </div>
       </div>
 
       <style dangerouslySetInnerHTML={{ __html: `
-        .slip-gaji-wrapper { 
-          background: #f8fafc; 
-          padding: 2rem; 
-          display: flex; 
+        .a4-slip-wrapper {
+          background: #f1f5f9;
+          padding: 3rem 1rem;
+          display: flex;
           justify-content: center;
-          font-family: 'Courier New', Courier, monospace;
-        }
-        
-        .receipt-style { 
-          background: white; 
-          width: 80mm; 
-          padding: 10mm 5mm; 
-          box-shadow: 0 4px 20px rgba(0,0,0,0.1); 
-          color: #000;
-          font-size: 12px;
-          line-height: 1.4;
+          font-family: 'Inter', -apple-system, sans-serif;
+          color: #1e293b;
         }
 
-        .receipt-header { text-align: center; margin-bottom: 10px; }
-        .company-name { font-size: 14px; font-weight: 900; margin: 5px 0 0; }
-        .branch-name { font-size: 11px; font-weight: 700; margin: 0; }
-        .address, .contact { font-size: 10px; margin: 0; color: #333; }
+        .a4-slip-document {
+          background: white;
+          width: 210mm;
+          min-height: 297mm;
+          padding: 20mm;
+          box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+          position: relative;
+          display: flex;
+          flex-direction: column;
+        }
 
-        .receipt-separator { text-align: center; margin: 5px 0; overflow: hidden; white-space: nowrap; font-weight: bold; }
-        .receipt-separator-thin { text-align: center; margin: 3px 0; overflow: hidden; white-space: nowrap; opacity: 0.5; }
-        
-        .receipt-title { text-align: center; margin: 10px 0; }
-        .receipt-title h3 { font-size: 13px; font-weight: 900; margin: 0; text-decoration: underline; }
-        .period-text { font-size: 11px; margin: 2px 0 0; }
+        /* Header Styles */
+        .slip-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          margin-bottom: 1.5rem;
+        }
 
-        .receipt-info { margin: 10px 0; }
-        .info-row { display: flex; gap: 8px; font-size: 11px; }
-        .info-row span:first-child { min-width: 60px; font-weight: 700; }
+        .header-brand {
+          display: flex;
+          align-items: center;
+          gap: 1.25rem;
+        }
 
-        .receipt-section { margin: 10px 0; }
-        .section-label { font-weight: 900; font-size: 11px; margin-bottom: 4px; text-decoration: underline; }
-        .item-row { display: flex; justify-content: space-between; font-size: 11px; }
-        .receipt-spacer { height: 10px; }
+        .brand-logo {
+          width: 54px;
+          height: 54px;
+          background: #2563eb;
+          color: white;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 2rem;
+          font-weight: 900;
+          box-shadow: 0 4px 12px rgba(37,99,235,0.2);
+        }
 
-        .receipt-total { text-align: center; margin: 15px 0; }
-        .total-label { font-size: 11px; font-weight: 700; margin: 0; }
-        .total-amount { font-size: 20px; font-weight: 900; margin: 5px 0; }
-        .terbilang { font-size: 9px; font-style: italic; margin: 0; font-weight: 600; padding: 0 5px; }
+        .company-name { font-size: 1.25rem; font-weight: 900; color: #0f172a; margin: 0; letter-spacing: -0.01em; }
+        .branch-name { font-size: 0.75rem; font-weight: 700; color: #64748b; margin: 4px 0 0; text-transform: uppercase; }
 
-        .receipt-signatures { display: flex; justify-content: space-between; margin-top: 20px; }
-        .sign-column { text-align: center; flex: 1; }
-        .sign-column p { font-size: 10px; margin: 0; }
-        .sign-space { height: 40px; }
-        .sign-name { font-weight: 800; text-decoration: underline; text-transform: uppercase; }
+        .document-title { text-align: right; }
+        .document-title h2 { font-size: 1.15rem; font-weight: 900; color: #1e293b; margin: 0; }
+        .period-badge { 
+          display: inline-block; 
+          background: #f8fafc; 
+          border: 1px solid #e2e8f0; 
+          padding: 0.35rem 0.85rem; 
+          border-radius: 6px; 
+          font-size: 0.85rem; 
+          font-weight: 800; 
+          color: #2563eb;
+          margin-top: 0.5rem;
+        }
 
-        .receipt-footer { text-align: center; margin-top: 25px; border-top: 1px dashed #ccc; padding-top: 10px; }
-        .receipt-footer p { font-size: 9px; margin: 2px 0; color: #555; }
+        .divider-line { height: 3px; background: #2563eb; margin: 1.5rem 0; opacity: 0.8; }
 
-        .font-bold { font-weight: 900; }
+        /* Info Grid */
+        .info-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 2rem;
+          margin-bottom: 2.5rem;
+          padding: 1.25rem;
+          background: #f8fafc;
+          border-radius: 12px;
+          border: 1px solid #f1f5f9;
+        }
+
+        .info-row { display: flex; font-size: 0.9rem; margin-bottom: 0.5rem; }
+        .info-row .label { width: 120px; font-weight: 600; color: #64748b; }
+        .info-row .value { font-weight: 700; color: #1e293b; }
+        .paid-tag { background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; }
+
+        /* Payroll Tables */
+        .payroll-container {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 2rem;
+          margin-bottom: 3rem;
+        }
+
+        .section-title { 
+          font-size: 0.85rem; 
+          font-weight: 800; 
+          color: #475569; 
+          margin-bottom: 1rem; 
+          letter-spacing: 0.05em;
+          border-bottom: 1px solid #e2e8f0;
+          padding-bottom: 0.5rem;
+        }
+
+        .payroll-table { width: 100%; border-collapse: collapse; }
+        .payroll-table td { padding: 0.75rem 0; font-size: 0.9rem; border-bottom: 1px dashed #f1f5f9; }
+        .payroll-table .amount { text-align: right; font-weight: 700; }
+        .total-row { color: #0f172a; }
+        .total-row td { border-bottom: none; padding-top: 1.25rem; font-weight: 900; }
+
+        /* Summary Card */
+        .summary-section { margin-bottom: 4rem; }
+        .summary-card { 
+          background: #1e293b; 
+          color: white; 
+          padding: 2rem; 
+          border-radius: 16px; 
+          box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+        }
+        .summary-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .summary-label { font-size: 1rem; font-weight: 800; letter-spacing: 0.05em; opacity: 0.9; }
+        .summary-value { font-size: 2.25rem; font-weight: 900; }
+        .terbilang-box { 
+          background: rgba(255,255,255,0.1); 
+          padding: 0.85rem 1.25rem; 
+          border-radius: 8px; 
+          font-style: italic; 
+          font-size: 0.9rem; 
+          text-align: center;
+          border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        /* Signature Area */
+        .signature-section { display: flex; justify-content: space-between; margin-bottom: 5rem; }
+        .signature-box { flex: 1; }
+        .sig-label { font-size: 0.9rem; font-weight: 600; color: #64748b; margin-bottom: 4rem; }
+        .sig-space { height: 100px; }
+        .sig-name { font-size: 1rem; font-weight: 800; text-decoration: underline; text-underline-offset: 4px; }
+
+        /* Footer */
+        .doc-footer { text-align: center; border-top: 1px solid #f1f5f9; padding-top: 1.5rem; margin-top: auto; }
+        .doc-footer p { font-size: 0.75rem; color: #94a3b8; margin: 4px 0; }
+
+        .text-right { text-align: right; }
 
         @media print {
           body * { visibility: hidden; }
           .modal-overlay, .premium-modal-overlay { 
-            visibility: visible !important; background: white !important; position: absolute; top: 0; left: 0; width: 100%; 
+            visibility: visible !important; background: white !important; position: absolute; top: 0; left: 0; width: 100%; height: auto;
           }
           .premium-modal-content { 
-            visibility: visible !important; background: white !important; box-shadow: none !important; border: none !important; width: 100% !important; max-width: 100% !important; 
+            visibility: visible !important; background: white !important; box-shadow: none !important; border: none !important; width: 100% !important; max-width: 100% !important; margin: 0 !important; top: 0 !important;
           }
           .premium-modal-header, .premium-modal-footer, .premium-close-btn { display: none !important; }
-          .slip-gaji-wrapper { 
+          
+          .a4-slip-wrapper { 
             visibility: visible !important; background: white !important; padding: 0 !important; display: block !important;
           }
-          .receipt-style { 
-            visibility: visible !important; box-shadow: none !important; border: none !important; width: 80mm !important; 
-            padding: 5mm !important; margin: 0 auto !important; 
+          .a4-slip-document { 
+            visibility: visible !important; box-shadow: none !important; border: none !important; width: 210mm !important; 
+            padding: 15mm 20mm !important; margin: 0 auto !important; min-height: auto;
           }
-          .receipt-style * { visibility: visible !important; }
-          @page { size: auto; margin: 0; }
+          .a4-slip-document * { visibility: visible !important; }
+          
+          @page { size: A4 portrait; margin: 0; }
         }
       ` }} />
     </div>
