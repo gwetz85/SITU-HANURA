@@ -58,7 +58,6 @@ const SlipGaji = ({ data }) => {
           <table className="info-table text-right">
             <tbody>
               <tr><td className="lbl">Metode Bayar</td><td className="sep">:</td><td className="val">Transfer {data.bank || 'Bank'}</td></tr>
-              <tr><td className="lbl">Tanggal Cetak</td><td className="sep">:</td><td className="val">{timestamp}</td></tr>
               <tr><td className="lbl">Status</td><td className="sep">:</td><td className="val"><span className="paid-tag">LUNAS / PAID</span></td></tr>
             </tbody>
           </table>
@@ -136,6 +135,7 @@ const SlipGaji = ({ data }) => {
 
         <div className="slip-footer">
           <p>This is a computer-generated document. No signature is required for digital verification.</p>
+          <p>Generated on: <strong>{timestamp}</strong></p>
           <p>&copy; {new Date().getFullYear()} SITU HANURA Cloud Management System.</p>
         </div>
       </div>
