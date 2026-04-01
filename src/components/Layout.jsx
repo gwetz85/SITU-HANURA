@@ -241,61 +241,63 @@ const Layout = ({ children }) => {
       {/* Main Content Area */}
       <main className="main-container">
         <header className="top-navbar glass sticky-nav">
-          <div className="header-left">
-            <button className="toggle-btn" onClick={toggleSidebar}>
-              <Menu size={24} />
-            </button>
-            <div className="period-selector-container">
-              <Calendar size={16} className="text-primary" />
-              <select
-                value={workingMonth}
-                onChange={(e) => setWorkingMonth(e.target.value)}
-                className="working-month-select"
-              >
-                {Array.from({ length: 13 }, (_, i) => {
-                  const d = new Date();
-                  d.setMonth(d.getMonth() - 6 + i);
-                  const val = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}`;
-                  const label = d.toLocaleString('id-ID', { month: 'long', year: 'numeric' });
-                  return <option key={val} value={val}>{label}</option>;
-                })}
-              </select>
-              <span className="period-badge">PERIODE AKTIF</span>
-            </div>
-          </div>
-          <div className="header-right">
-            <div className="user-dropdown-container">
-              <div
-                className={`header-user-badge ${isUserMenuOpen ? 'active' : ''}`}
-                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-              >
-                {user?.username?.charAt(0) || 'U'}
+          <div className="navbar-inner">
+            <div className="header-left">
+              <button className="toggle-btn" onClick={toggleSidebar}>
+                <Menu size={24} />
+              </button>
+              <div className="period-selector-container">
+                <Calendar size={16} className="text-primary" />
+                <select
+                  value={workingMonth}
+                  onChange={(e) => setWorkingMonth(e.target.value)}
+                  className="working-month-select"
+                >
+                  {Array.from({ length: 13 }, (_, i) => {
+                    const d = new Date();
+                    d.setMonth(d.getMonth() - 6 + i);
+                    const val = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}`;
+                    const label = d.toLocaleString('id-ID', { month: 'long', year: 'numeric' });
+                    return <option key={val} value={val}>{label}</option>;
+                  })}
+                </select>
+                <span className="period-badge">PERIODE AKTIF</span>
               </div>
+            </div>
+            <div className="header-right">
+              <div className="user-dropdown-container">
+                <div
+                  className={`header-user-badge ${isUserMenuOpen ? 'active' : ''}`}
+                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                >
+                  {user?.username?.charAt(0) || 'U'}
+                </div>
 
-              {isUserMenuOpen && (
-                <div className="user-dropdown glass-premium fadeIn">
-                  <div className="dropdown-header">
-                    <div className="dropdown-user-avatar">{user?.username?.charAt(0) || 'U'}</div>
-                    <div className="dropdown-user-info">
-                      <span className="user-name">{user?.name || user?.username}</span>
-                      <span className="user-role">{user?.role || 'User'}</span>
+                {isUserMenuOpen && (
+                  <div className="user-dropdown glass-premium fadeIn">
+                    <div className="dropdown-header">
+                      <div className="dropdown-user-avatar">{user?.username?.charAt(0) || 'U'}</div>
+                      <div className="dropdown-user-info">
+                        <span className="user-name">{user?.name || user?.username}</span>
+                        <span className="user-role">{user?.role || 'User'}</span>
+                      </div>
+                    </div>
+                    <div className="dropdown-divider"></div>
+                    <div className="dropdown-menu">
+                      <button className="dropdown-item" onClick={() => { setIsProfileModalOpen(true); setIsUserMenuOpen(false); }}>
+                        <div className="item-icon"><UserIcon size={18} /></div>
+                        <span>Profil Saya</span>
+                        <ChevronRight size={14} className="ms-auto opacity-50" />
+                      </button>
+                      <div className="dropdown-divider"></div>
+                      <button className="dropdown-item text-danger" onClick={() => { logout(); navigate('/login'); }}>
+                        <div className="item-icon"><LogOut size={18} /></div>
+                        <span>Keluar Aplikasi</span>
+                      </button>
                     </div>
                   </div>
-                  <div className="dropdown-divider"></div>
-                  <div className="dropdown-menu">
-                    <button className="dropdown-item" onClick={() => { setIsProfileModalOpen(true); setIsUserMenuOpen(false); }}>
-                      <div className="item-icon"><UserIcon size={18} /></div>
-                      <span>Profil Saya</span>
-                      <ChevronRight size={14} className="ms-auto opacity-50" />
-                    </button>
-                    <div className="dropdown-divider"></div>
-                    <button className="dropdown-item text-danger" onClick={() => { logout(); navigate('/login'); }}>
-                      <div className="item-icon"><LogOut size={18} /></div>
-                      <span>Keluar Aplikasi</span>
-                    </button>
-                  </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
         </header>
@@ -479,24 +481,37 @@ const Layout = ({ children }) => {
         .main-container {
           flex: 1;
           margin-left: var(--sidebar-width);
-          transition: all 0.3s;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           display: flex;
           flex-direction: column;
+          background: var(--background);
+          min-height: 100vh;
         }
 
         .sidebar-closed .main-container { margin-left: 0; }
 
         .top-navbar {
           height: var(--navbar-height);
-          padding: 0 1.25rem;
+          padding: 0 2rem;
           display: flex;
           align-items: center;
           justify-content: space-between;
-          background: var(--surface);
+          background: rgba(255, 255, 255, 0.8);
+          backdrop-filter: blur(20px);
           border-bottom: 1px solid var(--border);
           position: sticky;
           top: 0;
           z-index: 900;
+        }
+        
+        /* Centered Nav Inner */
+        .navbar-inner {
+          width: 100%;
+          max-width: 1400px;
+          margin: 0 auto;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
         }
 
         .header-left { display: flex; align-items: center; gap: 0.75rem; }
@@ -557,7 +572,20 @@ const Layout = ({ children }) => {
         .dropdown-item:hover { background: var(--background); color: var(--primary); }
         .dropdown-item.text-danger:hover { color: #ef4444; background: #fee2e2; }
 
-        .content-viewport { padding: 1.25rem 1.5rem; background: var(--background); flex: 1; }
+        .content-viewport { 
+          padding: 2rem; 
+          background: var(--background); 
+          flex: 1; 
+          width: 100%;
+          max-width: 1400px;
+          margin: 0 auto;
+          animation: pageFadeIn 0.5s ease-out;
+        }
+
+        @keyframes pageFadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
 
         @media (max-width: 1024px) {
           .sidebar { transform: translateX(-100%); }
