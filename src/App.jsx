@@ -15,7 +15,8 @@ import RekapanKas from './pages/RekapanKas';
 import ManajemenKegiatan from './pages/ManajemenKegiatan';
 import ArsipKegiatan from './pages/ArsipKegiatan';
 import Inventaris from './pages/Inventaris';
-import PelayananMasyarakat from './pages/PelayananMasyarakat';
+import RegistrasiNIB from './pages/RegistrasiNIB';
+import RegistrasiHalal from './pages/RegistrasiHalal';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user } = useAuth();
@@ -35,6 +36,8 @@ function App() {
       
       <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/pelayanan" element={<ProtectedRoute allowedRoles={['Admin', 'Petugas']}><PelayananMasyarakat /></ProtectedRoute>} />
+      <Route path="/pelayanan/nib" element={<ProtectedRoute allowedRoles={['Admin', 'Petugas']}><RegistrasiNIB /></ProtectedRoute>} />
+      <Route path="/pelayanan/halal" element={<ProtectedRoute allowedRoles={['Admin', 'Petugas']}><RegistrasiHalal /></ProtectedRoute>} />
       <Route path="/surat/masuk" element={<ProtectedRoute allowedRoles={['Admin', 'Petugas']}><SuratMenyurat type="masuk" /></ProtectedRoute>} />
       <Route path="/surat/keluar" element={<ProtectedRoute allowedRoles={['Admin', 'Petugas']}><SuratMenyurat type="keluar" /></ProtectedRoute>} />
       <Route path="/kas" element={<ProtectedRoute allowedRoles={['Admin', 'Petugas']}><KasOffice /></ProtectedRoute>} />

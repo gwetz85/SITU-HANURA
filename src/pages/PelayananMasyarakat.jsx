@@ -71,7 +71,7 @@ const PelayananMasyarakat = () => {
             key={index} 
             className="service-card glass-card-premium slideUp" 
             style={{ '--delay': `${index * 0.1}s` }}
-            onClick={() => {/* Navigate or show coming soon */}}
+            onClick={() => service.path && navigate(service.path)}
           >
             <div className="card-decoration" style={{ background: service.color }}></div>
             <div className="card-icon-wrapper" style={{ background: `${service.color}15`, color: service.color }}>
