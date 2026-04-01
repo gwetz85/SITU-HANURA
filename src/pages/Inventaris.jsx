@@ -8,6 +8,7 @@ import { db } from '../firebase';
 import { ref, onValue, push, remove, update } from 'firebase/database';
 import { useAuth } from '../context/AuthContext';
 import Modal from '../components/Modal';
+import { logActivity } from '../utils/logging';
 
 const Inventaris = () => {
   const { user } = useAuth();
@@ -58,9 +59,11 @@ const Inventaris = () => {
     try {
       if (editingId) {
         await update(ref(db, `inventaris/${editingId}`), data);
+        await logActivity(db, 'Inventaris Kantor', `Mengubah data barang: ${data.merek}`, user);
         alert('Data inventaris berhasil diperbarui');
       } else {
         await push(invRef, { ...data, createdAt: new Date().toISOString() });
+        await logActivity(db, 'Inventaris Kantor', `Menambah barang baru: ${data.merek} (${data.jumlah} Unit)`, user);
         alert('Data inventaris berhasil ditambahkan');
       }
       resetForm();
@@ -72,7 +75,9 @@ const Inventaris = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Hapus data inventaris ini?')) {
       try {
+        const itemToDelete = items.find(item => item.id === id);
         await remove(ref(db, `inventaris/${id}`));
+        await logActivity(db, 'Inventaris Kantor', `Menghapus data barang: ${itemToDelete?.merek}`, user);
         alert('Data berhasil dihapus');
       } catch (error) {
         alert('Gagal menghapus data');

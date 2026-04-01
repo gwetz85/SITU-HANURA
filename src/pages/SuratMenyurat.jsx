@@ -6,8 +6,11 @@ import {
 import { db } from '../firebase';
 import { ref, onValue, push, remove, update } from 'firebase/database';
 import Modal from '../components/Modal';
+import { logActivity } from '../utils/logging';
+import { useAuth } from '../context/AuthContext';
 
 const SuratMenyurat = ({ type }) => {
+  const { user } = useAuth();
   const isMasuk = type === 'masuk';
   const [searchTerm, setSearchTerm] = useState('');
   const [data, setData] = useState([]);
@@ -52,9 +55,11 @@ const SuratMenyurat = ({ type }) => {
     try {
       if (editingId) {
         await update(ref(db, `surat/${type}/${editingId}`), letterData);
+        await logActivity(db, isMasuk ? 'Surat Masuk' : 'Surat Keluar', `Mengubah surat nomor: ${letterData.nomor}`, user);
         alert('Data berhasil diperbarui');
       } else {
         await push(mailRef, { ...letterData, createdAt: new Date().toISOString() });
+        await logActivity(db, isMasuk ? 'Surat Masuk' : 'Surat Keluar', `Menambah surat baru nomor: ${letterData.nomor}`, user);
         alert('Data berhasil ditambahkan');
       }
       resetForm();
@@ -66,7 +71,9 @@ const SuratMenyurat = ({ type }) => {
   const handleDelete = async (id) => {
     if (window.confirm('Hapus data ini secara permanen?')) {
       try {
+        const itemToDelete = data.find(item => item.id === id);
         await remove(ref(db, `surat/${type}/${id}`));
+        await logActivity(db, isMasuk ? 'Surat Masuk' : 'Surat Keluar', `Menghapus surat nomor: ${itemToDelete?.nomor}`, user);
         alert('Data berhasil dihapus');
       } catch (error) {
         alert('Gagal menghapus data');

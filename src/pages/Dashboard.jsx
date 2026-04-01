@@ -30,7 +30,7 @@ const Dashboard = () => {
     pustaka: 0
   });
   const [activities, setActivities] = useState([]);
-  const [recentActivity, setRecentActivity] = useState([]);
+  const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -68,14 +68,15 @@ const Dashboard = () => {
         setActivities(items.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal)).slice(0, 4));
       });
 
-    // Listen to Recent Activity (Latest 4 Mails)
-    const recentSMQuery = query(ref(db, 'surat/masuk'), limitToLast(4));
-    const unsubscribeRecent = onValue(recentSMQuery, (snapshot) => {
-      const activities = [];
+    // Listen to Logs (Latest 15)
+    const logsRef = ref(db, 'logs');
+    const unsubscribeLogs = onValue(logsRef, (snapshot) => {
+      const logItems = [];
       snapshot.forEach((child) => {
-        activities.push({ id: child.key, ...child.val(), type: 'Masuk' });
+        logItems.push({ id: child.key, ...child.val() });
       });
-      setRecentActivity(activities.reverse());
+      // Sort by timestamp and take latest 15
+      setLogs(logItems.sort((a, b) => b.timestamp - a.timestamp).slice(0, 15));
       setLoading(false);
     });
 
@@ -84,7 +85,7 @@ const Dashboard = () => {
       unsubscribeSK();
       unsubscribePustaka();
       unsubscribeActs();
-      unsubscribeRecent();
+      unsubscribeLogs();
     };
   }, []);
 
@@ -218,81 +219,57 @@ const Dashboard = () => {
         ))}
       </div>
 
-      <div className="dashboard-layout-grids-modern">
-        <div className="main-data-section-modern glass-card-premium">
-          <div className="section-header-modern">
-            <div className="title-with-icon-modern">
-              <div className="icon-box accent">
-                 <Clock size={20} />
-              </div>
-              <div className="title-text">
-                 <h3>Aktivitas Korespondensi</h3>
-                 <span className="subtitle">Update Data Terbaru</span>
-              </div>
+      <div className="work-history-section-modern glass-card-premium slideUp">
+        <div className="section-header-modern">
+          <div className="title-with-icon-modern">
+            <div className="icon-box warning">
+               <Clock size={20} />
             </div>
-            <button className="btn-link-modern">History Lengkap <ArrowRight size={14} /></button>
+            <div className="title-text">
+               <h3>Riwayat Pekerjaan</h3>
+               <span className="subtitle">Audit Aktivitas Sistem Terkini</span>
+            </div>
           </div>
-          <div className="activity-timeline-modern text-fade-in">
-            {recentActivity.length > 0 ? recentActivity.map((item, idx) => (
-              <div key={item.id} className="timeline-item-modern">
-                <div className="timeline-marker-modern">
-                   <div className="marker-dot-premium"></div>
-                   {idx !== recentActivity.length - 1 && <div className="marker-line-premium"></div>}
-                </div>
-                <div className="timeline-content-modern card-hover-premium">
-                  <div className="content-header-modern">
-                    <span className={`letter-tag-premium ${item.type?.toLowerCase()}`}>{item.type}</span>
-                    <span className="letter-date-premium">{new Date(item.tanggal).toLocaleDateString('id-ID')}</span>
-                  </div>
-                  <p className="letter-summary-modern">
-                    Surat dari <strong>{item.asal || item.tujuan}</strong> 
-                    <span className="letter-subject"> "{item.tentang}"</span>
-                  </p>
-                </div>
-              </div>
-            )) : (
-              <div className="empty-state-modern">
-                <div className="empty-icon-box">
-                   <Clock size={48} />
-                </div>
-                <p>Belum ada aktivitas korespondensi tercatat hari ini.</p>
-              </div>
-            )}
-          </div>
+          <div className="history-badge">LIVE MONITORING</div>
         </div>
-
-        <div className="side-stats-section-modern glass-card-premium">
-          <div className="section-header-modern">
-            <div className="title-with-icon-modern">
-               <div className="icon-box warning">
-                  <TrendingUp size={20} />
-               </div>
-               <div className="title-text">
-                  <h3>Statistik Pustaka</h3>
-                  <span className="subtitle">Tren Arsip Digital</span>
-               </div>
-            </div>
-          </div>
-          <div className="premium-chart-modern">
-            <div className="chart-bars-wrapper-modern">
-              {[40, 65, 30, 85, 55, 75, 95].map((h, i) => (
-                <div key={i} className="premium-bar-group-modern">
-                  <div className="premium-bar-modern" style={{ height: `${h}%`, '--delay': `${i * 0.1}s` }}>
-                    <div className="bar-tooltip">{h}%</div>
-                    <div className="bar-glow-modern"></div>
-                  </div>
-                  <span className="bar-label-modern">M{i+1}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="chart-legend-modern">
-            <div className="legend-item-modern">
-              <div className="legend-dot-premium"></div>
-              <span>Volume Dokumen Masuk</span>
-            </div>
-            <p className="legend-note-modern">Visualisasi aktivitas digitalisasi dokumen SITU HANURA periode 7 bulan terakhir.</p>
-          </div>
+        <div className="table-responsive-compact">
+          <table className="history-table">
+            <thead>
+              <tr>
+                <th><Calendar size={12} /> Tanggal Input</th>
+                <th><Archive size={12} /> Menu Input</th>
+                <th><Info size={12} /> Keterangan Aktivitas</th>
+                <th><Users size={12} /> Petugas</th>
+              </tr>
+            </thead>
+            <tbody>
+              {logs.length > 0 ? logs.map((log) => (
+                <tr key={log.id}>
+                  <td>
+                    <div className="history-date">
+                      <span className="date-main">{new Date(log.tanggal).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' })}</span>
+                      <span className="date-time">{new Date(log.tanggal).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</span>
+                    </div>
+                  </td>
+                  <td><span className="menu-tag-premium">{log.menu}</span></td>
+                  <td className="desc-cell-premium">{log.keterangan}</td>
+                  <td className="petugas-cell-premium">
+                    <div className="user-avatar-mini">{log.petugas?.charAt(0).toUpperCase()}</div>
+                    <span>{log.petugas}</span>
+                  </td>
+                </tr>
+              )) : (
+                <tr>
+                  <td colSpan="4" className="empty-history">
+                    <div className="empty-flow">
+                       <Clock size={32} />
+                       <p>Belum ada riwayat pekerjaan yang tercatat hari ini.</p>
+                    </div>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -305,12 +282,12 @@ const Dashboard = () => {
           --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
 
-        .dashboard-page { display: flex; flex-direction: column; gap: 1.5rem; padding-bottom: 2rem; }
+        .dashboard-page { display: flex; flex-direction: column; gap: 1rem; padding-bottom: 1.5rem; }
         
         /* Premium Hero Section */
         .dashboard-hero { 
-          padding: 2.5rem 3rem; 
-          border-radius: 24px; 
+          padding: 1.5rem 2rem; 
+          border-radius: 20px; 
           color: white; 
           display: flex; justify-content: space-between; align-items: center; 
           position: relative; overflow: hidden;
@@ -331,167 +308,204 @@ const Dashboard = () => {
         }
 
         .welcome-tag-premium { 
-          font-size: 0.7rem; font-weight: 800; letter-spacing: 0.1rem; 
+          font-size: 0.65rem; font-weight: 800; letter-spacing: 0.05rem; 
           background: rgba(255,255,255,0.15); backdrop-filter: blur(8px);
-          padding: 0.4rem 1rem; border-radius: 100px; width: fit-content; margin-bottom: 1.25rem;
-          display: flex; align-items: center; gap: 8px; border: 1px solid rgba(255,255,255,0.2);
+          padding: 0.3rem 0.8rem; border-radius: 100px; width: fit-content; margin-bottom: 0.75rem;
+          display: flex; align-items: center; gap: 6px; border: 1px solid rgba(255,255,255,0.2);
         }
 
-        .dot-pulse { width: 8px; height: 8px; background: #4ade80; border-radius: 50%; animation: pulseOpacity 2s infinite; }
+        .dot-pulse { width: 6px; height: 6px; background: #4ade80; border-radius: 50%; animation: pulseOpacity 2s infinite; }
         @keyframes pulseOpacity { 0% { opacity: 0.4; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.2); } 100% { opacity: 0.4; transform: scale(0.8); } }
 
-        .hero-content h1 { font-size: 2.25rem; font-weight: 900; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
-        .hero-content p { font-size: 1rem; opacity: 0.9; max-width: 500px; line-height: 1.6; }
+        .hero-content h1 { font-size: 1.75rem; font-weight: 900; margin-bottom: 0.25rem; letter-spacing: -0.02em; }
+        .hero-content p { font-size: 0.85rem; opacity: 0.9; max-width: 450px; line-height: 1.5; }
         .wave-emoji { display: inline-block; animation: wave 2.5s infinite; transform-origin: 70% 70%; }
         @keyframes wave { 0% { transform: rotate(0deg); } 10% { transform: rotate(14deg); } 20% { transform: rotate(-8deg); } 30% { transform: rotate(14deg); } 40% { transform: rotate(-4deg); } 50% { transform: rotate(10deg); } 60% { transform: rotate(0deg); } 100% { transform: rotate(0deg); } }
         
         .date-badge-modern { 
-          display: flex; align-items: center; gap: 1.25rem; 
-          padding: 1rem 1.5rem; border-radius: 20px; border: 1px solid rgba(255,255,255,0.3);
+          display: flex; align-items: center; gap: 0.75rem; 
+          padding: 0.75rem 1.25rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.3);
           box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
         }
         .calendar-icon-wrapper { 
-          width: 48px; height: 48px; background: rgba(255,255,255,0.2); 
-          border-radius: 14px; display: flex; align-items: center; justify-content: center;
+          width: 40px; height: 40px; background: rgba(255,255,255,0.2); 
+          border-radius: 12px; display: flex; align-items: center; justify-content: center;
         }
         .date-text-modern { display: flex; flex-direction: column; }
-        .date-name { font-weight: 900; font-size: 1.1rem; text-transform: uppercase; }
-        .date-full { opacity: 0.85; font-size: 0.85rem; font-weight: 500; }
+        .day-name { font-weight: 900; font-size: 0.9rem; text-transform: uppercase; }
+        .date-full { opacity: 0.85; font-size: 0.75rem; font-weight: 500; }
 
         /* Stats Cards Redesign */
-        .vibrant-stats-grid-modern { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; }
+        .vibrant-stats-grid-modern { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
         .glass-card-premium {
           background: var(--glass-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-          border: 1px solid var(--glass-border); border-radius: 24px; padding: 1.5rem;
+          border: 1px solid var(--glass-border); border-radius: 20px; padding: 1.15rem;
           box-shadow: var(--shadow-md); transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .glass-card-premium:hover { transform: translateY(-8px); box-shadow: var(--shadow-lg); border-color: var(--primary); }
+        .glass-card-premium:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); border-color: var(--primary); }
 
-        .vibrant-stat-card-modern { display: flex; flex-direction: column; gap: 1.25rem; position: relative; overflow: hidden; }
+        .vibrant-stat-card-modern { display: flex; flex-direction: column; gap: 1rem; position: relative; overflow: hidden; }
         .vibrant-stat-card-modern::after {
-          content: ''; position: absolute; top: -50%; right: -50%; width: 150px; height: 150px;
-          background: var(--accent-color); opacity: 0.05; border-radius: 50%; filter: blur(40px);
+          content: ''; position: absolute; top: -50%; right: -50%; width: 120px; height: 120px;
+          background: var(--accent-color); opacity: 0.05; border-radius: 50%; filter: blur(35px);
         }
 
         .vibrant-stat-header-modern { display: flex; justify-content: space-between; align-items: center; }
         .vibrant-icon-container { 
-          width: 52px; height: 52px; border-radius: 16px; 
+          width: 42px; height: 42px; border-radius: 12px; 
           display: flex; align-items: center; justify-content: center; 
           box-shadow: 0 4px 12px rgba(0,0,0,0.04);
         }
         .stat-trend-indicator { 
-          padding: 0.4rem 0.8rem; background: #ecfdf5; color: #10b981; 
-          border-radius: 100px; font-size: 0.7rem; font-weight: 800; 
-          display: flex; align-items: center; gap: 6px; 
+          padding: 0.3rem 0.6rem; background: #ecfdf5; color: #10b981; 
+          border-radius: 100px; font-size: 0.65rem; font-weight: 800; 
+          display: flex; align-items: center; gap: 4px; 
         }
-        .stat-label-modern { font-size: 0.9rem; font-weight: 700; color: #64748b; }
+        .stat-label-modern { font-size: 0.8rem; font-weight: 700; color: #64748b; }
         .stat-value-group { display: flex; justify-content: space-between; align-items: flex-end; }
-        .stat-main-value-modern { font-size: 2rem; font-weight: 900; color: #1e293b; letter-spacing: -0.02em; }
+        .stat-main-value-modern { font-size: 1.5rem; font-weight: 900; color: #1e293b; letter-spacing: -0.02em; }
         
-        .stat-mini-chart { display: flex; align-items: flex-end; gap: 3px; height: 32px; }
-        .mini-bar { width: 4px; border-radius: 10px; opacity: 0.6; }
+        .stat-mini-chart { display: flex; align-items: flex-end; gap: 2px; height: 28px; }
+        .mini-bar { width: 3px; border-radius: 10px; opacity: 0.6; }
 
-        .stat-progress-container-modern { height: 6px; background: #f1f5f9; border-radius: 100px; overflow: hidden; margin-top: 0.5rem; }
+        .stat-progress-container-modern { height: 5px; background: #f1f5f9; border-radius: 100px; overflow: hidden; margin-top: 0.25rem; }
         .stat-progress-fill-modern { height: 100%; border-radius: 100px; }
 
         /* Upcoming Activities Modern */
-        .upcoming-activities-section-modern { margin-top: 0.5rem; }
-        .section-header-modern { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
-        .title-with-icon-modern { display: flex; align-items: center; gap: 1rem; }
+        .upcoming-activities-section-modern { margin-top: 0.25rem; }
+        .section-header-modern { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .title-with-icon-modern { display: flex; align-items: center; gap: 0.75rem; }
         .icon-box { 
-          width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
+          width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
           box-shadow: 0 8px 16px -4px rgba(0,0,0,0.1); color: white;
         }
         .icon-box.primary { background: var(--primary); }
         .icon-box.accent { background: var(--secondary); }
         .icon-box.warning { background: #f59e0b; }
 
-        .title-text h3 { font-size: 1.25rem; font-weight: 900; color: #1e293b; margin: 0; }
-        .subtitle { font-size: 0.75rem; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
+        .title-text h3 { font-size: 1.1rem; font-weight: 900; color: #1e293b; margin: 0; }
+        .subtitle { font-size: 0.65rem; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
 
         .btn-manage-kegiatan {
-          background: white; border: 1px solid #e2e8f0; padding: 0.6rem 1.25rem; border-radius: 12px;
-          font-weight: 700; font-size: 0.85rem; color: var(--primary); display: flex; align-items: center; gap: 8px;
+          background: white; border: 1px solid #e2e8f0; padding: 0.4rem 1rem; border-radius: 10px;
+          font-weight: 700; font-size: 0.75rem; color: var(--primary); display: flex; align-items: center; gap: 6px;
           transition: all 0.2s; box-shadow: var(--shadow-sm); cursor: pointer;
         }
-        .btn-manage-kegiatan:hover { background: var(--primary); color: white; border-color: var(--primary); transform: translateX(-4px); }
+        .btn-manage-kegiatan:hover { background: var(--primary); color: white; border-color: var(--primary); transform: translateX(-2px); }
 
-        .activity-grid-modern { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; }
-        .activity-card-modern { display: flex; flex-direction: column; gap: 1rem; position: relative; }
+        .activity-grid-modern { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+        .activity-card-modern { display: flex; flex-direction: column; gap: 0.75rem; position: relative; }
         .act-header-modern { display: flex; justify-content: space-between; align-items: center; }
-        .act-type-tag { font-size: 0.65rem; font-weight: 900; padding: 0.25rem 0.75rem; border-radius: 6px; text-transform: uppercase; letter-spacing: 1px; }
+        .act-type-tag { font-size: 0.6rem; font-weight: 900; padding: 0.2rem 0.6rem; border-radius: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
         .act-type-tag.rapat { background: #dbeafe; color: #2563eb; }
         .act-type-tag.acara { background: #fef3c7; color: #d97706; }
         .act-type-tag.urgent { background: #fee2e2; color: #dc2626; }
         
-        .act-title-modern { font-size: 1.15rem; font-weight: 800; color: #1e293b; line-height: 1.4; }
-        .act-info-row { display: flex; gap: 1rem; }
-        .act-info-item { font-size: 0.75rem; color: #64748b; font-weight: 600; display: flex; align-items: center; gap: 4px; }
-        .act-desc-modern { font-size: 0.9rem; color: #64748b; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .act-title-modern { font-size: 1rem; font-weight: 800; color: #1e293b; line-height: 1.3; }
+        .act-info-row { display: flex; gap: 0.75rem; }
+        .act-info-item { font-size: 0.7rem; color: #64748b; font-weight: 600; display: flex; align-items: center; gap: 3px; }
+        .act-desc-modern { font-size: 0.8rem; color: #64748b; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         
-        .act-footer-modern { margin-top: 0.5rem; padding-top: 1rem; border-top: 1px solid #f1f5f9; }
-        .btn-details-act { background: transparent; border: none; color: var(--primary); font-weight: 800; font-size: 0.8rem; cursor: pointer; padding: 0; }
+        .act-footer-modern { margin-top: 0.25rem; padding-top: 0.75rem; border-top: 1px solid #f1f5f9; }
+        .btn-details-act { background: transparent; border: none; color: var(--primary); font-weight: 800; font-size: 0.75rem; cursor: pointer; padding: 0; }
         .btn-details-act:hover { text-decoration: underline; }
 
         /* Timeline & Grids */
-        .dashboard-layout-grids-modern { display: grid; grid-template-columns: 1.6fr 1fr; gap: 1.5rem; }
-        .main-data-section-modern { display: flex; flex-direction: column; gap: 1.5rem; }
-        .btn-link-modern { background: #f8fafc; border: 1px solid #e2e8f0; padding: 0.5rem 1rem; border-radius: 10px; font-weight: 700; font-size: 0.75rem; color: #475569; display: flex; align-items: center; gap: 6px; cursor: pointer; transition: all 0.2s; }
+        .dashboard-layout-grids-modern { display: grid; grid-template-columns: 1.6fr 1fr; gap: 1rem; }
+        .main-data-section-modern { display: flex; flex-direction: column; gap: 1rem; }
+        .btn-link-modern { background: #f8fafc; border: 1px solid #e2e8f0; padding: 0.4rem 0.8rem; border-radius: 8px; font-weight: 700; font-size: 0.7rem; color: #475569; display: flex; align-items: center; gap: 5px; cursor: pointer; transition: all 0.2s; }
         .btn-link-modern:hover { background: #f1f5f9; color: var(--primary); border-color: var(--primary); }
 
-        .timeline-item-modern { display: flex; gap: 1.25rem; }
-        .marker-dot-premium { width: 12px; height: 12px; border-radius: 50%; background: var(--primary); box-shadow: 0 0 0 4px rgba(37,99,235,0.1); margin-top: 1rem; z-index: 2; }
-        .marker-line-premium { width: 2px; height: calc(100% - 12px); background: #f1f5f9; position: absolute; left: 5px; top: 24px; z-index: 1; }
-        .timeline-marker-modern { position: relative; width: 12px; flex-shrink: 0; }
+        .timeline-item-modern { display: flex; gap: 1rem; }
+        .marker-dot-premium { width: 10px; height: 10px; border-radius: 50%; background: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); margin-top: 0.85rem; z-index: 2; }
+        .marker-line-premium { width: 2px; height: calc(100% - 10px); background: #f1f5f9; position: absolute; left: 4px; top: 22px; z-index: 1; }
+        .timeline-marker-modern { position: relative; width: 10px; flex-shrink: 0; }
 
         .timeline-content-modern { 
-          flex: 1; padding: 1.25rem; border-radius: 20px; background: #fff; border: 1px solid #f1f5f9;
-          margin-bottom: 1.25rem; transition: all 0.3s; box-shadow: var(--shadow-sm);
+          flex: 1; padding: 1rem; border-radius: 16px; background: #fff; border: 1px solid #f1f5f9;
+          margin-bottom: 1rem; transition: all 0.3s; box-shadow: var(--shadow-sm);
         }
-        .timeline-content-modern:hover { transform: scale(1.02); border-color: var(--primary); box-shadow: var(--shadow-md); }
-        .letter-tag-premium { font-size: 0.6rem; font-weight: 900; background: #f1f5f9; padding: 0.25rem 0.6rem; border-radius: 4px; text-transform: uppercase; color: #64748b; }
+        .timeline-content-modern:hover { transform: scale(1.01); border-color: var(--primary); box-shadow: var(--shadow-md); }
+        .letter-tag-premium { font-size: 0.55rem; font-weight: 900; background: #f1f5f9; padding: 0.2rem 0.5rem; border-radius: 4px; text-transform: uppercase; color: #64748b; }
         .letter-tag-premium.masuk { color: #2563eb; background: #eff6ff; }
         .letter-tag-premium.keluar { color: #10b981; background: #ecfdf5; }
+        .letter-summary-modern { font-size: 0.8rem; }
 
         /* Chart Styles */
-        .premium-chart-modern { height: 200px; margin: 2rem 0; padding-bottom: 1rem; }
-        .chart-bars-wrapper-modern { display: flex; align-items: flex-end; gap: 0.75rem; height: 100%; justify-content: space-between; }
-        .premium-bar-group-modern { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 1rem; height: 100%; }
+        .premium-chart-modern { height: 160px; margin: 1.5rem 0; padding-bottom: 0.5rem; }
+        .chart-bars-wrapper-modern { display: flex; align-items: flex-end; gap: 0.6rem; height: 100%; justify-content: space-between; }
+        .premium-bar-group-modern { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.75rem; height: 100%; }
         .premium-bar-modern { 
-          width: 100%; border-radius: 12px 12px 6px 6px; background: linear-gradient(to top, #2563eb, #818cf8); 
+          width: 100%; border-radius: 8px 8px 4px 4px; background: linear-gradient(to top, #2563eb, #818cf8); 
           position: relative; animation: growBarFade 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards; 
           animation-delay: var(--delay); opacity: 0; box-shadow: 0 4px 12px rgba(37,99,235,0.2);
         }
         .bar-tooltip { 
-          position: absolute; top: -35px; left: 50%; transform: translateX(-50%); 
-          background: #1e293b; color: white; padding: 4px 8px; border-radius: 6px; 
-          font-size: 0.65rem; font-weight: 800; opacity: 0; transition: opacity 0.3s; pointer-events: none;
+          position: absolute; top: -30px; left: 50%; transform: translateX(-50%); 
+          background: #1e293b; color: white; padding: 3px 6px; border-radius: 4px; 
+          font-size: 0.6rem; font-weight: 800; opacity: 0; transition: opacity 0.3s; pointer-events: none;
         }
         .premium-bar-modern:hover .bar-tooltip { opacity: 1; }
-        .bar-glow-modern { position: absolute; top: -10px; left: 0; right: 0; height: 20px; background: #3b82f6; filter: blur(15px); opacity: 0.3; }
+        .bar-glow-modern { position: absolute; top: -8px; left: 0; right: 0; height: 16px; background: #3b82f6; filter: blur(12px); opacity: 0.3; }
         
-        .chart-legend-modern { padding-top: 1.5rem; border-top: 1px solid #f1f5f9; }
-        .legend-dot-premium { width: 10px; height: 10px; border-radius: 50%; background: #2563eb; box-shadow: 0 0 10px rgba(37,99,235,0.5); }
-        .legend-item-modern { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 0.8rem; color: #1e293b; margin-bottom: 0.5rem; }
+        .chart-legend-modern { padding-top: 1rem; border-top: 1px solid #f1f5f9; }
+        .legend-dot-premium { width: 8px; height: 8px; border-radius: 50%; background: #2563eb; box-shadow: 0 0 10px rgba(37,99,235,0.5); }
+        .legend-item-modern { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 0.75rem; color: #1e293b; margin-bottom: 0.4rem; }
+        .legend-note-modern { font-size: 0.65rem; }
 
         /* Sidebar Alerts Premium */
         .closing-alert-card-premium { 
-          display: flex; align-items: center; gap: 1.5rem; padding: 1.5rem 2.5rem;
-          background: linear-gradient(90deg, #fffbeb, #fff7ed); border-radius: 24px;
+          display: flex; align-items: center; gap: 1.25rem; padding: 1.25rem 2rem;
+          background: linear-gradient(90deg, #fffbeb, #fff7ed); border-radius: 20px;
           border: 1px solid #fed7aa; box-shadow: var(--shadow-md);
         }
-        .alert-icon-wrapper-premium { width: 60px; height: 60px; border-radius: 18px; background: #ffedd5; color: #f97316; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 16px rgba(249, 115, 22, 0.1); }
-        .btn-glow { box-shadow: 0 0 15px rgba(37, 99, 235, 0.4); }
+        .alert-icon-wrapper-premium { width: 50px; height: 50px; border-radius: 16px; background: #ffedd5; color: #f97316; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 16px rgba(249, 115, 22, 0.1); }
+        .btn-glow { box-shadow: 0 0 12px rgba(37, 99, 235, 0.3); }
 
         @keyframes growBarFade { 0% { height: 0; opacity: 0; } 100% { opacity: 1; } }
 
         @media (max-width: 1200px) { .dashboard-layout-grids-modern { grid-template-columns: 1fr; } }
         @media (max-width: 768px) { 
-          .dashboard-hero { flex-direction: column; text-align: center; gap: 2rem; padding: 2rem; }
-          .hero-content h1 { font-size: 1.75rem; }
+          .dashboard-hero { flex-direction: column; text-align: center; gap: 1.5rem; padding: 1.5rem; }
+          .hero-content h1 { font-size: 1.5rem; }
         }
 
         /* Animation Classes */
+        /* Work History Table Styles */
+        .work-history-section-modern { width: 100%; }
+        .history-badge { font-size: 0.6rem; font-weight: 900; color: #10b981; background: rgba(16, 185, 129, 0.1); padding: 0.25rem 0.6rem; border-radius: 6px; letter-spacing: 1px; }
+        .table-responsive-compact { overflow-x: auto; margin-top: 0.5rem; }
+        .history-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+        .history-table th { 
+          text-align: left; padding: 0.75rem 1rem; font-size: 0.65rem; font-weight: 800; 
+          text-transform: uppercase; color: #64748b; border-bottom: 2px solid #f1f5f9;
+        }
+        .history-table th svg { vertical-align: middle; margin-right: 6px; color: var(--primary); }
+        .history-table td { padding: 0.75rem 1rem; border-bottom: 1px solid #f8fafc; vertical-align: middle; font-size: 0.8rem; }
+        .history-table tr:last-child td { border-bottom: none; }
+        .history-table tr:hover td { background: rgba(37, 99, 235, 0.02); }
+        
+        .history-date { display: flex; flex-direction: column; gap: 2px; }
+        .date-main { font-weight: 800; color: #1e293b; }
+        .date-time { font-size: 0.65rem; color: #94a3b8; font-weight: 600; }
+        
+        .menu-tag-premium { 
+          font-size: 0.65rem; font-weight: 800; color: var(--primary); 
+          background: rgba(37,99,235,0.08); padding: 0.25rem 0.6rem; border-radius: 6px;
+          display: inline-block; white-space: nowrap;
+        }
+        .desc-cell-premium { color: #475569; font-weight: 500; min-width: 250px; }
+        .petugas-cell-premium { display: flex; align-items: center; gap: 8px; font-weight: 700; color: #1e293b; }
+        .user-avatar-mini { 
+          width: 24px; height: 24px; background: var(--primary); color: white; 
+          border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+          font-size: 0.7rem; font-weight: 800; flex-shrink: 0;
+        }
+        
+        .empty-history { text-align: center; padding: 3rem !important; }
+        .empty-flow { display: flex; flex-direction: column; align-items: center; gap: 1rem; color: #cbd5e1; }
+        .empty-flow p { font-size: 0.85rem; font-weight: 600; }
+
         .fadeIn { animation: fadeIn 0.8s ease-out; }
         .slideUp { animation: slideUp 0.8s ease-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }

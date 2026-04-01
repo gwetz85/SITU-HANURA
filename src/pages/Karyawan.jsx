@@ -30,8 +30,8 @@ import { ref, onValue, push, remove, update } from 'firebase/database';
 import Modal from '../components/Modal';
 import { formatTerbilang } from '../utils/terbilang';
 import SlipGaji from '../components/SlipGaji';
-import { useAuth } from '../context/AuthContext';
 import { get, set } from 'firebase/database';
+import { logActivity } from '../utils/logging';
 
 const Karyawan = () => {
   const { user, workingMonth, setWorkingMonth } = useAuth();
@@ -127,9 +127,11 @@ const Karyawan = () => {
     try {
       if (editingId) {
         await update(ref(db, `employees/${editingId}`), data);
+        await logActivity(db, 'Karyawan', `Mengubah data karyawan: ${data.nama}`, user);
         alert('Data Karyawan berhasil diperbarui');
       } else {
         await push(ref(db, 'employees'), data);
+        await logActivity(db, 'Karyawan', `Menambah karyawan baru: ${data.nama}`, user);
         alert('Karyawan Baru berhasil ditambahkan');
       }
       resetEmpForm();
@@ -164,7 +166,9 @@ const Karyawan = () => {
 
   const handleDeleteEmp = async (id) => {
     if (window.confirm('Hapus data karyawan ini?')) {
+      const empToDelete = employees.find(e => e.id === id);
       await remove(ref(db, `employees/${id}`));
+      await logActivity(db, 'Karyawan', `Menghapus data karyawan: ${empToDelete?.nama}`, user);
     }
   };
 
@@ -179,6 +183,7 @@ const Karyawan = () => {
       createdAt: new Date().toISOString() 
     };
     await push(ref(db, 'kasbon'), data);
+    await logActivity(db, 'Karyawan', `Mencatat kasbon untuk: ${data.nama} sebesar ${formatCurrency(data.jumlah)}`, user);
     alert('Kasbon berhasil dicatat');
     setKasbonForm({ employeeId: '', tanggal: new Date().toISOString().split('T')[0], jumlah: '' });
     setShowKasbonForm(false);
@@ -238,6 +243,7 @@ const Karyawan = () => {
       setWorkingMonth(nextMonth);
 
       alert(`Tutup Buku ${monthLabel} Berhasil!\nPeriode aktif sekarang: ${current.toLocaleString('id-ID', { month: 'long', year: 'numeric' })}`);
+      await logActivity(db, 'Karyawan', `Melakukan Tutup Buku & Arsip Gaji periode ${monthLabel}`, user);
       setActiveTab('rekapan');
     } catch (err) {
       console.error(err);

@@ -7,6 +7,7 @@ import { db } from '../firebase';
 import { ref, onValue, push, remove, update } from 'firebase/database';
 import { useAuth } from '../context/AuthContext';
 import Modal from '../components/Modal';
+import { logActivity } from '../utils/logging';
 
 const ManajemenKegiatan = () => {
   const { user } = useAuth();
@@ -57,9 +58,11 @@ const ManajemenKegiatan = () => {
 
       if (editingId) {
         await update(ref(db, `activities/${editingId}`), data);
+        await logActivity(db, 'Manajemen Kegiatan', `Mengubah kegiatan: ${data.judul}`, user);
         alert('Kegiatan berhasil diperbarui');
       } else {
         await push(ref(db, 'activities'), { ...data, createdAt: new Date().toISOString() });
+        await logActivity(db, 'Manajemen Kegiatan', `Memposting kegiatan baru: ${data.judul}`, user);
         alert('Kegiatan baru berhasil diposting');
       }
       resetForm();
@@ -70,7 +73,9 @@ const ManajemenKegiatan = () => {
 
   const handleDelete = async (id) => {
     if (window.confirm('Hapus postingan kegiatan ini?')) {
+      const actToDelete = activities.find(a => a.id === id);
       await remove(ref(db, `activities/${id}`));
+      await logActivity(db, 'Manajemen Kegiatan', `Menghapus postingan: ${actToDelete?.judul}`, user);
     }
   };
 
@@ -81,6 +86,8 @@ const ManajemenKegiatan = () => {
           status: 'Selesai',
           finishedAt: new Date().toISOString()
         });
+        const actFinished = activities.find(a => a.id === id);
+        await logActivity(db, 'Manajemen Kegiatan', `Menyelesaikan kegiatan: ${actFinished?.judul}`, user);
         alert('Kegiatan telah dipindahkan ke Arsip');
       } catch (err) {
         alert('Gagal memperbarui status kegiatan');

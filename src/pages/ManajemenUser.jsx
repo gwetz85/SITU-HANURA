@@ -8,6 +8,7 @@ import { db } from '../firebase';
 import { ref, onValue, update, remove } from 'firebase/database';
 import { useAuth } from '../context/AuthContext';
 import Modal from '../components/Modal';
+import { logActivity } from '../utils/logging';
 
 const ManajemenUser = () => {
   const [users, setUsers] = useState([]);
@@ -35,6 +36,7 @@ const ManajemenUser = () => {
     if (!editingUser || !newRole) return;
     try {
       await updateUserRole(editingUser.id, newRole);
+      await logActivity(db, 'Manajemen User', `Mengubah peran @${editingUser.username} menjadi ${newRole}`, user);
       alert('Peran pengguna berhasil diperbarui!');
       setEditingUser(null);
       setNewRole('');
@@ -47,6 +49,7 @@ const ManajemenUser = () => {
     if (window.confirm(`Hapus akses untuk @${user.username} secara permanen?`)) {
       try {
         await remove(ref(db, `users/${user.id}`));
+        await logActivity(db, 'Manajemen User', `Menghapus akses pengguna: @${user.username}`, user);
         alert('Pengguna berhasil dihapus!');
       } catch (error) {
         alert('Gagal menghapus pengguna!');
@@ -58,6 +61,7 @@ const ManajemenUser = () => {
     if (window.confirm(`Reset device untuk @${user.username}? Pengguna akan diminta login ulang saat masuk dari perangkat lain.`)) {
       try {
         await update(ref(db, `users/${user.id}`), { activeDevId: null });
+        await logActivity(db, 'Manajemen User', `Mereset Device ID untuk: @${user.username}`, user);
         alert('Device ID berhasil direset!');
       } catch (error) {
         alert('Gagal mereset device!');

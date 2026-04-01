@@ -25,6 +25,7 @@ import { ref, onValue, push, remove, update, get, set } from 'firebase/database'
 import Modal from '../components/Modal';
 import { useAuth } from '../context/AuthContext';
 import { Archive, Download } from 'lucide-react';
+import { logActivity } from '../utils/logging';
 
 const KasOffice = () => {
   const { user, workingMonth, setWorkingMonth } = useAuth();
@@ -79,10 +80,12 @@ const KasOffice = () => {
 
       if (editingId) {
         await update(ref(db, `cashbook/${editingId}`), transactionData);
+        await logActivity(db, 'Kas Office', `Mengubah transaksi: ${transactionData.keterangan} - ${formatCurrency(transactionData.jumlah)}`, user);
         alert('Transaksi berhasil diperbarui!');
         setEditingId(null);
       } else {
         await push(kasRef, { ...transactionData, createdAt: new Date().toISOString() });
+        await logActivity(db, 'Kas Office', `Menambah transaksi baru: ${transactionData.keterangan} - ${formatCurrency(transactionData.jumlah)}`, user);
         alert('Transaksi berhasil ditambahkan!');
       }
       
@@ -106,7 +109,9 @@ const KasOffice = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Apakah Anda yakin ingin menghapus transaksi ini?')) {
       try {
+        const itemToDelete = transactions.find(t => t.id === id);
         await remove(ref(db, `cashbook/${id}`));
+        await logActivity(db, 'Kas Office', `Menghapus transaksi: ${itemToDelete?.keterangan} - ${formatCurrency(itemToDelete?.jumlah)}`, user);
         alert('Transaksi berhasil dihapus');
       } catch (error) {
         console.error("Error deleting transaction:", error);
@@ -187,6 +192,7 @@ const KasOffice = () => {
       // For now, we just inform them and clear the current view.
       
       alert(`Tutup Buku Kas Office ${monthLabel} Berhasil!`);
+      await logActivity(db, 'Kas Office', `Melakukan Tutup Buku periode ${monthLabel}`, user);
       // No need to manually change workingMonth here if it's shared, 
       // but it helps if they only use Kas Office.
     } catch (err) {
