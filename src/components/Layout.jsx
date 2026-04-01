@@ -32,6 +32,7 @@ const Layout = ({ children }) => {
   const [isSuratOpen, setIsSuratOpen] = useState(false);
   const [isKasOpen, setIsKasOpen] = useState(false);
   const [isKegiatanOpen, setIsKegiatanOpen] = useState(false);
+  const [isPelayananOpen, setIsPelayananOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -41,8 +42,6 @@ const Layout = ({ children }) => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
-
-  // Working period is now managed globally via AuthContext and manual 'Tutup Buku' action.
 
   const t = {
     id: {
@@ -91,7 +90,16 @@ const Layout = ({ children }) => {
 
   const menuItems = [
     { title: t.dashboard, icon: <LayoutDashboard size={20} />, path: '/', roles: ['Admin', 'Petugas'] },
-    { title: t.pelayanan, icon: <Users size={20} />, path: '/pelayanan', roles: ['Admin', 'Petugas'] },
+    {
+      title: t.pelayanan,
+      icon: <Users size={20} />,
+      path: '/pelayanan',
+      roles: ['Admin', 'Petugas'],
+      submenu: [
+        { title: 'Menu Layanan', path: '/pelayanan' },
+        { title: 'Data Pekerjaan', path: '/pelayanan/data' }
+      ]
+    },
     {
       title: t.surat,
       icon: <Mail size={20} />,
@@ -156,8 +164,13 @@ const Layout = ({ children }) => {
           <ul>
             {menuItems.map((item, idx) => {
               if (item.submenu) {
-                const isOpen = item.path === '/surat' ? isSuratOpen : (item.path === '/kas' ? isKasOpen : isKegiatanOpen);
-                const setIsOpen = item.path === '/surat' ? setIsSuratOpen : (item.path === '/kas' ? setIsKasOpen : setIsKegiatanOpen);
+                const isOpen = item.path === '/surat' ? isSuratOpen : 
+                             (item.path === '/kas' ? isKasOpen : 
+                             (item.path === '/pelayanan' ? isPelayananOpen : isKegiatanOpen));
+                
+                const setIsOpen = item.path === '/surat' ? setIsSuratOpen : 
+                                (item.path === '/kas' ? setIsKasOpen : 
+                                (item.path === '/pelayanan' ? setIsPelayananOpen : setIsKegiatanOpen));
 
                 return (
                   <li key={idx} className="menu-item-group">
@@ -235,7 +248,6 @@ const Layout = ({ children }) => {
                 onChange={(e) => setWorkingMonth(e.target.value)}
                 className="working-month-select"
               >
-                {/* Generate 6 months back and 6 months forward for selection */}
                 {Array.from({ length: 13 }, (_, i) => {
                   const d = new Date();
                   d.setMonth(d.getMonth() - 6 + i);
@@ -263,17 +275,13 @@ const Layout = ({ children }) => {
                     <div className="dropdown-user-info">
                       <span className="user-name">{user?.name || user?.username}</span>
                       <span className="user-role">{user?.role || 'User'}</span>
-                      <div className="status-container">
-                        <div className="status-dot"></div>
-                        <span className="status-text">{t.online}</span>
-                      </div>
                     </div>
                   </div>
                   <div className="dropdown-divider"></div>
                   <div className="dropdown-menu">
                     <button className="dropdown-item" onClick={() => { setIsProfileModalOpen(true); setIsUserMenuOpen(false); }}>
                       <div className="item-icon"><UserIcon size={18} /></div>
-                      <span>{t.profile}</span>
+                      <span>Profil Saya</span>
                       <ChevronRight size={14} className="ms-auto opacity-50" />
                     </button>
                     <div className="dropdown-divider"></div>
@@ -336,7 +344,6 @@ const Layout = ({ children }) => {
           background: var(--background);
         }
 
-        /* Sidebar Styles */
         .sidebar {
           width: var(--sidebar-width);
           height: 100vh;
@@ -348,7 +355,7 @@ const Layout = ({ children }) => {
           display: flex;
           flex-direction: column;
           border-right: 1px solid var(--border);
-          background: var(--surface); /* Theme Aware Sidebar */
+          background: var(--surface);
           box-shadow: 4px 0 24px rgba(0,0,0,0.05);
         }
 
@@ -381,39 +388,14 @@ const Layout = ({ children }) => {
           box-shadow: 0 4px 12px rgba(37,99,235,0.3);
         }
 
-        .brand-info {
-          display: flex;
-          flex-direction: column;
-        }
-
+        .brand-info { display: flex; flex-direction: column; }
         .brand-name { font-weight: 800; font-size: 1.1rem; color: var(--text-main); }
-
-        .brand-tag {
-          font-size: 0.65rem;
-          font-weight: 600;
-          color: var(--text-muted);
-        }
+        .brand-tag { font-size: 0.65rem; font-weight: 600; color: var(--text-muted); }
 
         .sidebar-nav { 
           padding: 1rem 0.65rem; 
           flex: 1; 
           overflow-y: auto; 
-          scrollbar-width: thin;
-          scrollbar-color: var(--primary) transparent;
-        }
-
-        .sidebar-nav::-webkit-scrollbar {
-          width: 4px;
-        }
-
-        .sidebar-nav::-webkit-scrollbar-track {
-          background: transparent;
-        }
-
-        .sidebar-nav::-webkit-scrollbar-thumb {
-          background: var(--primary);
-          border-radius: 10px;
-          opacity: 0.5;
         }
 
         .menu-link {
@@ -440,23 +422,10 @@ const Layout = ({ children }) => {
           box-shadow: 0 4px 12px -2px rgba(37, 99, 235, 0.3);
         }
 
-        .link-content {
-          display: flex;
-          align-items: center;
-          gap: 0.75rem;
-        }
-
-        .link-text {
-          font-size: 0.9rem;
-        }
-
-        .chevron {
-          transition: transform 0.3s;
-        }
-
-        .chevron.rotate {
-          transform: rotate(180deg);
-        }
+        .link-content { display: flex; align-items: center; gap: 0.75rem; }
+        .link-text { font-size: 0.9rem; }
+        .chevron { transition: transform 0.3s; }
+        .chevron.rotate { transform: rotate(180deg); }
 
         .submenu {
           max-height: 0;
@@ -497,55 +466,12 @@ const Layout = ({ children }) => {
           justify-content: space-between; 
         }
 
-        .clock-container {
-          display: flex;
-          align-items: center;
-          gap: 0.75rem;
-          color: var(--text-main);
-        }
+        .clock-container { display: flex; align-items: center; gap: 0.75rem; color: var(--text-main); }
+        .time-now { font-size: 1rem; font-weight: 800; font-family: 'JetBrains Mono', monospace; line-height: 1; }
+        .date-now { font-size: 0.65rem; color: var(--text-muted); font-weight: 700; margin-top: 2px; }
+        .logout-btn { color: var(--text-muted); background: none; border: none; cursor: pointer; transition: color 0.2s; }
+        .logout-btn:hover { color: #ef4444; }
 
-        .clock-icon {
-          color: var(--primary);
-          animation: pulse-soft 2s infinite;
-        }
-
-        @keyframes pulse-soft {
-          0% { opacity: 1; }
-          50% { opacity: 0.6; }
-          100% { opacity: 1; }
-        }
-
-        .time-display {
-          display: flex;
-          flex-direction: column;
-        }
-
-        .time-now { 
-          font-size: 1rem; 
-          font-weight: 800; 
-          font-family: 'JetBrains Mono', monospace;
-          line-height: 1;
-        }
-
-        .date-now {
-          font-size: 0.65rem;
-          color: var(--text-muted);
-          text-transform: uppercase;
-          font-weight: 700;
-          letter-spacing: 0.5px;
-          margin-top: 2px;
-        }
-
-        .device-id-footer {
-          font-size: 0.55rem;
-          color: var(--primary);
-          font-weight: 800;
-          opacity: 0.7;
-          margin-top: 1px;
-          font-family: 'JetBrains Mono', monospace;
-        }
-
-        /* Main Content */
         .main-container {
           flex: 1;
           margin-left: var(--sidebar-width);
@@ -554,11 +480,8 @@ const Layout = ({ children }) => {
           flex-direction: column;
         }
 
-        .sidebar-closed .main-container {
-          margin-left: 0;
-        }
+        .sidebar-closed .main-container { margin-left: 0; }
 
-        /* Navbar Brightness */
         .top-navbar {
           height: var(--navbar-height);
           padding: 0 1.25rem;
@@ -567,131 +490,14 @@ const Layout = ({ children }) => {
           justify-content: space-between;
           background: var(--surface);
           border-bottom: 1px solid var(--border);
-          box-shadow: 0 4px 12px rgba(0,0,0,0.03);
           position: sticky;
           top: 0;
           z-index: 900;
         }
 
-        .header-left {
-          display: flex;
-          align-items: center;
-          gap: 0.75rem;
-        }
+        .header-left { display: flex; align-items: center; gap: 0.75rem; }
+        .header-right { display: flex; align-items: center; gap: 0.75rem; }
 
-        .page-title { font-weight: 800; color: var(--text-main); font-size: 0.85rem; letter-spacing: 0.5px; text-transform: uppercase; }
-
-        .header-right {
-          display: flex;
-          align-items: center;
-          gap: 0.75rem;
-        }
-
-        .icon-btn {
-          position: relative;
-          color: var(--text-muted);
-          padding: 0.4rem;
-          border-radius: 50%;
-          transition: background 0.2s;
-        }
-
-        .icon-btn:hover {
-          background: var(--background);
-          color: var(--primary);
-        }
-
-        .badge {
-          position: absolute;
-          top: 6px;
-          right: 6px;
-          width: 6px;
-          height: 6px;
-          background: #ef4444;
-          border: 2px solid white;
-          border-radius: 50%;
-        }
-
-        /* Content Area */
-        .content-viewport {
-          padding: 1.25rem 1.5rem;
-          background: var(--background);
-          flex: 1;
-        }
-
-        /* Mobile Adjustments */
-        @media (max-width: 1024px) {
-          .sidebar {
-            --sidebar-width: 280px;
-            transform: translateX(-100%);
-          }
-          .sidebar.active {
-            transform: translateX(0);
-          }
-          .main-container {
-            margin-left: 0 !important;
-          }
-          .sidebar-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(15, 23, 42, 0.5);
-            backdrop-filter: blur(8px);
-            z-index: 999;
-          }
-        }
-
-        /* User Dropdown Premium Styles */
-        .user-dropdown-container { position: relative; }
-        .header-user-badge { 
-          width: 36px; height: 36px; 
-          background: var(--primary); color: white; border-radius: 50%; 
-          display: flex; align-items: center; justify-content: center; 
-          font-weight: 700; font-size: 0.9rem; cursor: pointer;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
-          border: 2px solid transparent;
-        }
-        .header-user-badge:hover, .header-user-badge.active { 
-          transform: scale(1.1); 
-          box-shadow: 0 6px 15px rgba(37, 99, 235, 0.3);
-          border-color: rgba(255,255,255,0.5);
-        }
-        
-        .user-dropdown {
-          position: absolute; top: calc(100% + 12px); right: 0; 
-          width: 210px; padding: 0.75rem; border-radius: 16px;
-          background: var(--surface);
-          border: 1px solid var(--border);
-          box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-          transform-origin: top right;
-          z-index: 1001;
-        }
-        .dropdown-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }
-        .dropdown-user-avatar { 
-          width: 36px; height: 36px; background: var(--primary); color: white; 
-          border-radius: 10px; display: flex; align-items: center; justify-content: center;
-          font-weight: 800; font-size: 1rem;
-        }
-        .dropdown-name { font-weight: 800; color: var(--text-main); font-size: 0.85rem; }
-        .dropdown-role { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
-        
-        .dropdown-divider { height: 1px; background: #f1f5f9; margin: 0.5rem 0; }
-        .dropdown-menu { display: flex; flex-direction: column; gap: 0.15rem; }
-        .dropdown-item { 
-          display: flex; align-items: center; gap: 0.6rem; padding: 0.5rem 0.75rem; 
-          border-radius: 10px; font-weight: 700; font-size: 0.85rem; color: #475569;
-          transition: all 0.2s; border: none; background: none; width: 100%; cursor: pointer;
-        }
-        .dropdown-item:hover { background: var(--background); color: var(--primary); transform: translateX(2px); }
-        .dropdown-item.text-danger:hover { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
-        .item-icon { width: 28px; height: 28px; background: var(--background); border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: inherit; }
-        .dropdown-item:hover .item-icon { background: rgba(37,99,235,0.1); }
-        .dropdown-item.text-danger .item-icon { color: #ef4444; }
-        .dropdown-item.text-danger:hover .item-icon { background: #fee2e2; }
-
-        .ms-auto { margin-left: auto; }
-        .opacity-50 { opacity: 0.5; }
-
-        /* Period Selector Styles */
         .period-selector-container {
           display: flex;
           align-items: center;
@@ -702,17 +508,16 @@ const Layout = ({ children }) => {
           border: 1px solid var(--border);
           margin-left: 1rem;
         }
+
         .working-month-select {
           background: transparent;
           border: none;
           color: var(--text-main);
           font-weight: 800;
           font-size: 0.85rem;
-          cursor: pointer;
           outline: none;
-          padding-right: 0.5rem;
-          text-transform: uppercase;
         }
+
         .period-badge {
           font-size: 0.6rem;
           font-weight: 800;
@@ -720,10 +525,40 @@ const Layout = ({ children }) => {
           color: white;
           padding: 2px 6px;
           border-radius: 4px;
-          letter-spacing: 0.5px;
         }
-        @media (max-width: 640px) {
-          .period-selector-container { display: none; }
+
+        .header-user-badge { 
+          width: 36px; height: 36px; background: var(--primary); color: white; border-radius: 50%; 
+          display: flex; align-items: center; justify-content: center; font-weight: 700; cursor: pointer;
+        }
+
+        .user-dropdown {
+          position: absolute; top: calc(100% + 12px); right: 0; 
+          width: 220px; padding: 0.75rem; border-radius: 16px;
+          background: var(--surface); border: 1px solid var(--border);
+          box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 1001;
+        }
+
+        .dropdown-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }
+        .dropdown-user-avatar { width: 36px; height: 36px; background: var(--primary); color: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; }
+        .user-name { font-weight: 800; color: var(--text-main); font-size: 0.85rem; display: block; }
+        .user-role { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; }
+
+        .dropdown-divider { height: 1px; background: var(--border); margin: 0.5rem 0; }
+        .dropdown-item { 
+          display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem; 
+          border-radius: 8px; width: 100%; border: none; background: none;
+          font-size: 0.85rem; font-weight: 600; color: var(--text-main); cursor: pointer;
+        }
+        .dropdown-item:hover { background: var(--background); color: var(--primary); }
+        .dropdown-item.text-danger:hover { color: #ef4444; background: #fee2e2; }
+
+        .content-viewport { padding: 1.25rem 1.5rem; background: var(--background); flex: 1; }
+
+        @media (max-width: 1024px) {
+          .sidebar { transform: translateX(-100%); }
+          .sidebar.active { transform: translateX(0); }
+          .main-container { margin-left: 0 !important; }
         }
       ` }} />
     </div>
