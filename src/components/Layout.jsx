@@ -109,6 +109,7 @@ const Layout = ({ children }) => {
         { title: 'Rekapan Transaksi', path: '/kas/rekapan' }
       ]
     },
+    { title: t.inventaris, icon: <Library size={20} />, path: '/inventaris', roles: ['Admin', 'Petugas', 'Verifikator'] },
     { title: t.karyawan, icon: <Users size={20} />, path: '/karyawan', roles: ['Admin', 'Petugas'] },
     { 
       title: 'Manajemen Kegiatan', 
@@ -120,7 +121,6 @@ const Layout = ({ children }) => {
         { title: 'Arsip Kegiatan', path: '/admin/kegiatan/arsip' }
       ]
     },
-    { title: t.inventaris, icon: <Library size={20} />, path: '/inventaris', roles: ['Admin', 'Petugas', 'Verifikator'] },
     { title: t.pustaka, icon: <Library size={20} />, path: '/pustaka', roles: ['Admin', 'Petugas'] },
     { title: t.user, icon: <UserCog size={20} />, path: '/users', roles: ['Admin'] },
     { title: t.settings, icon: <Settings size={20} />, path: '/settings', roles: ['Admin', 'Petugas'] },
