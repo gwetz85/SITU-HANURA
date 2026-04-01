@@ -54,15 +54,19 @@ const Dashboard = () => {
       setCounts(prev => ({ ...prev, pustaka: snapshot.size || 0 }));
     });
 
-    // Listen to Activities (Latest 4)
-    const actQuery = query(ref(db, 'activities'), limitToLast(4));
-    const unsubscribeActs = onValue(actQuery, (snapshot) => {
-      const items = [];
-      snapshot.forEach((child) => {
-        items.push({ id: child.key, ...child.val() });
+      // Listen to Activities (Latest Active)
+      const actRef = ref(db, 'activities');
+      const unsubscribeActs = onValue(actRef, (snapshot) => {
+        const items = [];
+        snapshot.forEach((child) => {
+          const val = child.val();
+          if (val.status !== 'Selesai') {
+            items.push({ id: child.key, ...val });
+          }
+        });
+        // Sort and take last 4
+        setActivities(items.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal)).slice(0, 4));
       });
-      setActivities(items.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal)));
-    });
 
     // Listen to Recent Activity (Latest 4 Mails)
     const recentSMQuery = query(ref(db, 'surat/masuk'), limitToLast(4));

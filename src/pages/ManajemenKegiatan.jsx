@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Calendar, Plus, Trash2, Edit2, Save, X, Search, Clock, 
-  MapPin, MessageSquare, AlertCircle, Info, Send 
+  MapPin, MessageSquare, AlertCircle, Info, Send, Check
 } from 'lucide-react';
 import { db } from '../firebase';
 import { ref, onValue, push, remove, update } from 'firebase/database';
@@ -74,6 +74,20 @@ const ManajemenKegiatan = () => {
     }
   };
 
+  const handleMarkAsFinished = async (id) => {
+    if (window.confirm('Tandai kegiatan ini telah selesai dan pindahkan ke arsip?')) {
+      try {
+        await update(ref(db, `activities/${id}`), { 
+          status: 'Selesai',
+          finishedAt: new Date().toISOString()
+        });
+        alert('Kegiatan telah dipindahkan ke Arsip');
+      } catch (err) {
+        alert('Gagal memperbarui status kegiatan');
+      }
+    }
+  };
+
   const handleEdit = (item) => {
     setEditingId(item.id);
     setFormValues({
@@ -99,6 +113,7 @@ const ManajemenKegiatan = () => {
   };
 
   const filteredActivities = activities.filter(a => 
+    a.status !== 'Selesai' &&
     a.judul.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -154,6 +169,7 @@ const ManajemenKegiatan = () => {
                 <td className="font-semibold text-primary">@{act.author}</td>
                 <td className="text-right">
                   <div className="action-group">
+                    <button className="icon-btn-edit" onClick={() => handleMarkAsFinished(act.id)} title="Tandai Selesai" style={{ color: '#10b981', background: 'rgba(16, 185, 129, 0.1)' }}><Check size={16} /></button>
                     <button className="icon-btn-edit" onClick={() => handleEdit(act)}><Edit2 size={16} /></button>
                     <button className="icon-btn-delete" onClick={() => handleDelete(act.id)}><Trash2 size={16} /></button>
                   </div>

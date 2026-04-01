@@ -31,6 +31,7 @@ const Layout = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth > 1024);
   const [isSuratOpen, setIsSuratOpen] = useState(false);
   const [isKasOpen, setIsKasOpen] = useState(false);
+  const [isKegiatanOpen, setIsKegiatanOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -117,7 +118,16 @@ const Layout = ({ children }) => {
       ]
     },
     { title: t.karyawan, icon: <Users size={20} />, path: '/karyawan', roles: ['Admin', 'Petugas'] },
-    { title: 'Manajemen Kegiatan', icon: <Calendar size={20} />, path: '/admin/kegiatan', roles: ['Admin'] },
+    { 
+      title: 'Manajemen Kegiatan', 
+      icon: <Calendar size={20} />, 
+      path: '/admin/kegiatan', 
+      roles: ['Admin'],
+      submenu: [
+        { title: 'Daftar Kegiatan', path: '/admin/kegiatan' },
+        { title: 'Arsip Kegiatan', path: '/admin/kegiatan/arsip' }
+      ]
+    },
     { title: t.pustaka, icon: <Library size={20} />, path: '/pustaka', roles: ['Admin', 'Petugas'] },
     { title: t.user, icon: <UserCog size={20} />, path: '/users', roles: ['Admin'] },
     { title: t.settings, icon: <Settings size={20} />, path: '/settings', roles: ['Admin', 'Petugas'] },
@@ -150,8 +160,8 @@ const Layout = ({ children }) => {
           <ul>
             {menuItems.map((item, idx) => {
               if (item.submenu) {
-                const isOpen = item.path === '/surat' ? isSuratOpen : isKasOpen;
-                const setIsOpen = item.path === '/surat' ? setIsSuratOpen : setIsKasOpen;
+                const isOpen = item.path === '/surat' ? isSuratOpen : (item.path === '/kas' ? isKasOpen : isKegiatanOpen);
+                const setIsOpen = item.path === '/surat' ? setIsSuratOpen : (item.path === '/kas' ? setIsKasOpen : setIsKegiatanOpen);
 
                 return (
                   <li key={idx} className="menu-item-group">

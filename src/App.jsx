@@ -13,6 +13,7 @@ import Pengaturan from './pages/Pengaturan';
 import About from './pages/About';
 import RekapanKas from './pages/RekapanKas';
 import ManajemenKegiatan from './pages/ManajemenKegiatan';
+import ArsipKegiatan from './pages/ArsipKegiatan';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user } = useAuth();
@@ -36,6 +37,7 @@ function App() {
       <Route path="/kas" element={<ProtectedRoute allowedRoles={['Admin', 'Petugas']}><KasOffice /></ProtectedRoute>} />
       <Route path="/kas/rekapan" element={<ProtectedRoute allowedRoles={['Admin', 'Petugas']}><RekapanKas /></ProtectedRoute>} />
       <Route path="/admin/kegiatan" element={<ProtectedRoute allowedRoles={['Admin']}><ManajemenKegiatan /></ProtectedRoute>} />
+      <Route path="/admin/kegiatan/arsip" element={<ProtectedRoute allowedRoles={['Admin']}><ArsipKegiatan /></ProtectedRoute>} />
       <Route path="/karyawan" element={<ProtectedRoute allowedRoles={['Admin', 'Petugas']}><Karyawan /></ProtectedRoute>} />
       <Route path="/pustaka" element={<ProtectedRoute allowedRoles={['Admin', 'Petugas']}><Pustaka /></ProtectedRoute>} />
       <Route path="/users" element={<ProtectedRoute allowedRoles={['Admin']}><ManajemenUser /></ProtectedRoute>} />
