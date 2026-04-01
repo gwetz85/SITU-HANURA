@@ -15,7 +15,7 @@ import { db } from '../firebase';
 import { ref, onValue, query, limitToLast } from 'firebase/database';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Archive, AlertTriangle, ArrowRight, MapPin } from 'lucide-react';
+import { Archive, AlertTriangle, ArrowRight } from 'lucide-react';
 
 const Dashboard = () => {
   const { user, workingMonth } = useAuth();
@@ -26,7 +26,6 @@ const Dashboard = () => {
     pustaka: 0
   });
   const [activities, setActivities] = useState([]);
-  const [selectedActivity, setSelectedActivity] = useState(null);
   const [recentActivity, setRecentActivity] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -147,7 +146,7 @@ const Dashboard = () => {
         </div>
         <div className="activity-grid">
           {activities.length > 0 ? activities.map(act => (
-            <div key={act.id} className="activity-card glass-card cursor-pointer" onClick={() => setSelectedActivity(act)}>
+            <div key={act.id} className="activity-card glass-card">
               <div className="act-header">
                 <span className="act-type">{act.tipe}</span>
                 <span className="act-date"><Clock size={12} /> {new Date(act.tanggal).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}</span>
@@ -155,10 +154,7 @@ const Dashboard = () => {
               <h4 className="act-title">{act.judul}</h4>
               <div className="act-loc"><MapPin size={12} /> {act.lokasi}</div>
               <p className="act-desc">{act.deskripsi}</p>
-              <div className="act-footer">
-                <span className="act-author">Oleh: {act.author}</span>
-                <span className="read-more">Lihat Detail →</span>
-              </div>
+              <span className="act-author">Oleh: {act.author}</span>
             </div>
           )) : (
             <div className="glass-card" style={{ gridColumn: '1/-1', padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
@@ -168,30 +164,6 @@ const Dashboard = () => {
           )}
         </div>
       </div>
-
-      <Modal
-        isOpen={!!selectedActivity}
-        onClose={() => setSelectedActivity(null)}
-        title={selectedActivity?.tipe || 'Detail Kegiatan'}
-        icon={<Calendar size={24} />}
-        footer={<button className="btn btn-primary" onClick={() => setSelectedActivity(null)}>Tutup</button>}
-      >
-        {selectedActivity && (
-          <div className="activity-detail-modal">
-            <div className="detail-hero">
-              <h2 className="detail-title">{selectedActivity.judul}</h2>
-              <div className="detail-meta">
-                <div className="meta-item"><Calendar size={16} /> {new Date(selectedActivity.tanggal).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</div>
-                <div className="meta-item"><MapPin size={16} /> {selectedActivity.lokasi}</div>
-                <div className="meta-item"><Clock size={16} /> Diposting oleh {selectedActivity.author}</div>
-              </div>
-            </div>
-            <div className="detail-body">
-              <p>{selectedActivity.deskripsi}</p>
-            </div>
-          </div>
-        )}
-      </Modal>
 
       <div className="vibrant-stats-grid">
         {stats.map((stat, idx) => (
@@ -427,19 +399,7 @@ const Dashboard = () => {
         .act-title { font-size: 1.05rem; font-weight: 800; color: var(--text-main); }
         .act-loc { font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
         .act-desc { font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .act-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem; }
-        .act-author { font-size: 0.7rem; color: var(--primary); font-weight: 700; }
-        .read-more { font-size: 0.7rem; font-weight: 800; color: var(--primary); opacity: 0; transition: all 0.2s; }
-        .activity-card:hover .read-more { opacity: 1; }
-        .cursor-pointer { cursor: pointer; }
-
-        /* Detail Modal Styles */
-        .activity-detail-modal { display: flex; flex-direction: column; gap: 1.5rem; }
-        .detail-hero { padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
-        .detail-title { font-size: 1.4rem; font-weight: 900; color: var(--primary); margin-bottom: 1rem; line-height: 1.3; }
-        .detail-meta { display: flex; flex-direction: column; gap: 0.75rem; }
-        .meta-item { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-muted); font-weight: 600; }
-        .detail-body { font-size: 1rem; color: var(--text-main); line-height: 1.7; white-space: pre-wrap; }
+        .act-author { font-size: 0.7rem; color: var(--primary); font-weight: 700; margin-top: 0.5rem; }
       ` }} />
     </div>
   );

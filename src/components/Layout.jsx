@@ -20,8 +20,7 @@ import {
   Circle,
   Shield,
   ChevronRight,
-  Clock,
-  Calendar
+  Clock
 } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import Modal from './Modal';
@@ -148,10 +147,6 @@ const Layout = ({ children }) => {
 
         <nav className="sidebar-nav">
           <ul>
-            <div className="mobile-period-info">
-              <Calendar size={14} />
-              <span>PERIODE: <strong>{new Date(`${workingMonth}-01`).toLocaleString('id-ID', { month: 'long', year: 'numeric' })}</strong></span>
-            </div>
             {menuItems.map((item, idx) => {
               if (item.submenu) {
                 const isOpen = item.path === '/surat' ? isSuratOpen : isKasOpen;
@@ -699,23 +694,8 @@ const Layout = ({ children }) => {
           border-radius: 4px;
           letter-spacing: 0.5px;
         }
-
-        .mobile-period-info {
-          display: none;
-          padding: 0.75rem 1.25rem;
-          margin-bottom: 1rem;
-          background: rgba(37, 99, 235, 0.05);
-          border-radius: 12px;
-          align-items: center;
-          gap: 8px;
-          font-size: 0.75rem;
-          color: var(--text-muted);
-          border: 1px solid rgba(37, 99, 235, 0.1);
-        }
-
         @media (max-width: 640px) {
           .period-selector-container { display: none; }
-          .mobile-period-info { display: flex; }
         }
       ` }} />
     </div>
