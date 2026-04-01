@@ -391,7 +391,27 @@ const Layout = ({ children }) => {
           color: var(--text-muted);
         }
 
-        .sidebar-nav { padding: 1rem 0.65rem; }
+        .sidebar-nav { 
+          padding: 1rem 0.65rem; 
+          flex: 1; 
+          overflow-y: auto; 
+          scrollbar-width: thin;
+          scrollbar-color: var(--primary) transparent;
+        }
+
+        .sidebar-nav::-webkit-scrollbar {
+          width: 4px;
+        }
+
+        .sidebar-nav::-webkit-scrollbar-track {
+          background: transparent;
+        }
+
+        .sidebar-nav::-webkit-scrollbar-thumb {
+          background: var(--primary);
+          border-radius: 10px;
+          opacity: 0.5;
+        }
 
         .menu-link {
           display: flex;
