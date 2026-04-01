@@ -384,6 +384,37 @@ const Inventaris = () => {
         
         .text-right { text-align: right; }
         .p-10 { padding: 1.5rem; }
+
+        /* Table & Layout Fixes */
+        .table-responsive { padding: 0 !important; overflow-x: auto; background: var(--surface); border-radius: var(--radius-lg); }
+        .data-table { width: 100%; border-collapse: separate; border-spacing: 0; text-align: left; }
+        .data-table th { 
+          padding: 1rem 1.25rem; 
+          background: var(--background); 
+          font-size: 0.75rem; 
+          font-weight: 800; 
+          text-transform: uppercase; 
+          letter-spacing: 0.05em; 
+          color: var(--text-muted); 
+          border-bottom: 2px solid var(--border); 
+          white-space: nowrap;
+        }
+        .data-table th svg { 
+          vertical-align: middle; 
+          margin-bottom: 2px; 
+          margin-right: 8px; /* Extra spacing for icon */
+          color: var(--primary);
+        }
+        .data-table td { 
+          padding: 0.85rem 1.25rem; 
+          font-size: 0.85rem; 
+          border-bottom: 1px solid var(--border); 
+          color: var(--text-main); 
+          vertical-align: middle;
+        }
+        .data-table tr:hover td { background: rgba(37, 99, 235, 0.02); }
+        
+        .action-group { display: flex; gap: 0.65rem; }
         
         @media (max-width: 768px) {
           .toolbar { flex-direction: column; align-items: stretch; }
