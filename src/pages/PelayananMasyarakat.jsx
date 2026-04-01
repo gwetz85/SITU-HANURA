@@ -9,7 +9,8 @@ import {
   ShieldCheck,
   Zap,
   TrendingUp,
-  BarChart3
+  BarChart3,
+  Clock
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
@@ -49,7 +50,8 @@ const PelayananMasyarakat = () => {
       icon: <Fingerprint size={22} />,
       color: '#3b82f6',
       path: '/pelayanan/nib',
-      count: counts.nib
+      count: counts.nib,
+      active: true
     },
     {
       id: 'halal',
@@ -57,7 +59,8 @@ const PelayananMasyarakat = () => {
       icon: <ShieldCheck size={22} />,
       color: '#10b981',
       path: '/pelayanan/halal',
-      count: counts.halal
+      count: counts.halal,
+      active: true
     },
     {
       id: 'bpjs-apbd',
@@ -65,7 +68,8 @@ const PelayananMasyarakat = () => {
       icon: <HeartPulse size={22} />,
       color: '#ef4444',
       path: '/pelayanan/bpjs-apbd',
-      count: counts.bpjsApbd
+      count: counts.bpjsApbd,
+      active: false
     },
     {
       id: 'bpjs-tk',
@@ -73,7 +77,8 @@ const PelayananMasyarakat = () => {
       icon: <Briefcase size={22} />,
       color: '#f59e0b',
       path: '/pelayanan/bpjs-tk',
-      count: counts.bpjsTk
+      count: counts.bpjsTk,
+      active: false
     },
     {
       id: 'kependudukan',
@@ -81,7 +86,8 @@ const PelayananMasyarakat = () => {
       icon: <UserPlus size={22} />,
       color: '#8b5cf6',
       path: '/pelayanan/kependudukan',
-      count: counts.kependudukan
+      count: counts.kependudukan,
+      active: false
     }
   ];
 
@@ -91,7 +97,7 @@ const PelayananMasyarakat = () => {
         <div className="header-info">
           <div className="badge-premium">
             <Zap size={14} className="icon-bolt" /> 
-            LAYANAN PUBLIK
+            Layanan Publik
           </div>
           <h1>Pelayanan Masyarakat</h1>
           <p>Sistem Pelayanan Terpadu & Profesional.</p>
@@ -102,23 +108,27 @@ const PelayananMasyarakat = () => {
         {services.map((service, index) => (
           <div 
             key={index} 
-            className="service-card-mini slideUp" 
+            className={`service-card-mini slideUp ${!service.active ? 'disabled-card' : ''}`}
             style={{ '--delay': `${index * 0.1}s` }}
-            onClick={() => service.path && navigate(service.path)}
+            onClick={() => service.active && service.path && navigate(service.path)}
           >
             <div className="card-top">
               <div className="icon-box-mini" style={{ background: `${service.color}10`, color: service.color }}>
                 {service.icon}
               </div>
-              <div className="status-badge-mini">
-                <TrendingUp size={10} /> Aktif
+              <div className={`status-badge-mini ${!service.active ? 'soon' : ''}`}>
+                {service.active ? (
+                  <><TrendingUp size={10} /> Aktif</>
+                ) : (
+                  <><Clock size={10} /> SOON</>
+                )}
               </div>
             </div>
 
             <div className="card-middle-mini">
               <span className="service-label-mini">{service.title}</span>
               <div className="stat-row-mini">
-                <h2 className="stat-number-mini">{service.count}</h2>
+                <h2 className="stat-number-mini">{service.active ? service.count : '---'}</h2>
                 <div className="mini-chart-decoration" style={{ color: service.color }}>
                   <BarChart3 size={18} />
                 </div>
@@ -127,12 +137,14 @@ const PelayananMasyarakat = () => {
 
             <div className="card-footer-mini">
               <div className="progress-bar-mini">
-                <div className="progress-fill" style={{ background: service.color, width: '60%' }}></div>
+                <div className="progress-fill" style={{ background: service.active ? service.color : '#e2e8f0', width: service.active ? '60%' : '10%' }}></div>
               </div>
-              <span className="action-link-mini" style={{ color: service.color }}>
-                Buka <ArrowRight size={12} />
+              <span className="action-link-mini" style={{ color: service.active ? service.color : '#94a3b8' }}>
+                {service.active ? "Buka" : "Segera"} <ArrowRight size={12} />
               </span>
             </div>
+            
+            {!service.active && <div className="disabled-overlay"></div>}
           </div>
         ))}
       </div>
@@ -176,10 +188,7 @@ const PelayananMasyarakat = () => {
           margin-bottom: 0.25rem;
         }
 
-        .pelayanan-header p {
-          font-size: 0.85rem;
-          opacity: 0.9;
-        }
+        .pelayanan-header p { font-size: 0.85rem; opacity: 0.9; }
 
         .services-container {
           display: flex;
@@ -206,6 +215,7 @@ const PelayananMasyarakat = () => {
           gap: 1rem;
           border: 1px solid rgba(0,0,0,0.03);
           box-shadow: 0 8px 20px rgba(0,0,0,0.02);
+          position: relative;
         }
 
         .service-card-mini:hover {
@@ -214,27 +224,33 @@ const PelayananMasyarakat = () => {
           border-color: rgba(0,0,0,0.06);
         }
 
+        .disabled-card {
+           cursor: not-allowed;
+           filter: grayscale(0.4);
+           opacity: 0.8;
+        }
+        
+        .disabled-card:hover {
+           transform: none;
+           box-shadow: 0 8px 20px rgba(0,0,0,0.02);
+        }
+
         .card-top { display: flex; justify-content: space-between; align-items: flex-start; }
 
         .icon-box-mini {
-          width: 44px;
-          height: 44px;
-          border-radius: 14px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          width: 44px; height: 44px; border-radius: 14px;
+          display: flex; align-items: center; justify-content: center;
         }
 
         .status-badge-mini {
-          background: #ecfdf5;
-          color: #10b981;
-          padding: 0.25rem 0.6rem;
-          border-radius: 100px;
-          font-size: 0.65rem;
-          font-weight: 800;
-          display: flex;
-          align-items: center;
-          gap: 4px;
+          background: #ecfdf5; color: #10b981;
+          padding: 0.25rem 0.6rem; border-radius: 100px;
+          font-size: 0.65rem; font-weight: 800;
+          display: flex; align-items: center; gap: 4px; border: 1px solid #a7f3d0;
+        }
+
+        .status-badge-mini.soon {
+          background: #fff7ed; color: #f97316; border: 1px solid #fed7aa;
         }
 
         .card-middle-mini { display: flex; flex-direction: column; gap: 0.25rem; }
@@ -245,28 +261,18 @@ const PelayananMasyarakat = () => {
 
         .card-footer-mini {
           margin-top: 0.5rem;
-          display: flex;
-          flex-direction: column;
-          gap: 0.75rem;
+          display: flex; flex-direction: column; gap: 0.75rem;
         }
 
         .progress-bar-mini {
-          height: 4px;
-          background: #f1f5f9;
-          border-radius: 100px;
-          overflow: hidden;
+          height: 4px; background: #f1f5f9; border-radius: 100px; overflow: hidden;
         }
 
         .progress-fill { height: 100%; border-radius: 100px; }
 
         .action-link-mini {
-          font-size: 0.75rem;
-          font-weight: 800;
-          display: flex;
-          align-items: center;
-          gap: 4px;
-          justify-content: flex-end;
-          opacity: 0.8;
+          font-size: 0.75rem; font-weight: 800;
+          display: flex; align-items: center; gap: 4px; justify-content: flex-end; opacity: 0.8;
         }
 
         @keyframes slideUp { 

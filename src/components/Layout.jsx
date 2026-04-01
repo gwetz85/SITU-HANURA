@@ -58,7 +58,7 @@ const Layout = ({ children }) => {
       about: 'Tentang Aplikasi',
       offline: 'OFFLINE',
       inventaris: 'Inventaris Kantor',
-      pelayanan: 'PELAYANAN MASYARAKAT'
+      pelayanan: 'Pelayanan Masyarakat'
     },
     en: {
       dashboard: 'Dashboard',
