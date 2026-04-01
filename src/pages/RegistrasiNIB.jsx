@@ -36,7 +36,8 @@ const RegistrasiNIB = () => {
     tanggalLahir: '',
     alamat: '',
     rtRw: '',
-    kelurahan: ''
+    kelurahan: '',
+    koordinat: ''
   });
 
   // Usaha List State (Support multiple businesses)
@@ -83,6 +84,28 @@ const RegistrasiNIB = () => {
     if (usahaList.length === 1) return;
     const newList = usahaList.filter((_, i) => i !== index);
     setUsahaList(newList);
+  };
+
+  const handleGetLocation = () => {
+    if (!navigator.geolocation) {
+      alert('Geolocation tidak didukung oleh browser Anda.');
+      return;
+    }
+
+    setLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setPelakuUsaha(prev => ({ ...prev, koordinat: `${latitude}, ${longitude}` }));
+        setLoading(false);
+      },
+      (error) => {
+        setLoading(false);
+        console.error('Error getting location:', error);
+        alert('Gagal mengambil lokasi. Pastikan izin lokasi diberikan.');
+      },
+      { enableHighAccuracy: true }
+    );
   };
 
   const handleSubmit = async (e) => {
@@ -234,6 +257,21 @@ const RegistrasiNIB = () => {
                 onChange={handlePelakuChange} 
                 placeholder="Nama Kelurahan"
               />
+            </div>
+            <div className="form-group full">
+               <label>Titik Koordinat Lokasi (Real-time)</label>
+               <div className="location-input-group">
+                  <input 
+                    readOnly 
+                    name="koordinat" 
+                    value={pelakuUsaha.koordinat} 
+                    placeholder="Contoh: -5.412, 105.257"
+                  />
+                  <button type="button" className="btn-get-location" onClick={handleGetLocation}>
+                    <MapPin size={18} /> Ambil Titik Koordinat
+                  </button>
+               </div>
+               <span className="input-tip">Pastikan GPS aktif dan berikan izin akses lokasi pada browser.</span>
             </div>
           </div>
         </div>
@@ -586,6 +624,46 @@ const RegistrasiNIB = () => {
 
         .btn-submit-premium:active { transform: translateY(0); }
         .btn-submit-premium:disabled { opacity: 0.7; cursor: not-allowed; }
+
+        .location-input-group {
+          display: flex;
+          gap: 1rem;
+        }
+
+        .location-input-group input {
+          flex: 1;
+          background: #f8fafc !important;
+          color: #64748b;
+          font-family: monospace;
+          font-weight: 700;
+        }
+
+        .btn-get-location {
+          background: #ecfdf5;
+          color: #059669;
+          border: 1px solid #10b981;
+          padding: 0.75rem 1.5rem;
+          border-radius: 10px;
+          font-weight: 800;
+          font-size: 0.85rem;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .btn-get-location:hover {
+          background: #10b981;
+          color: white;
+        }
+
+        .input-tip {
+          font-size: 0.7rem;
+          font-weight: 600;
+          color: #94a3b8;
+          margin-top: 4px;
+        }
 
         @media (max-width: 768px) {
           .form-grid { grid-template-columns: 1fr; }

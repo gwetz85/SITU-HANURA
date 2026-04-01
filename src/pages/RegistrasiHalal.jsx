@@ -40,7 +40,8 @@ const RegistrasiHalal = () => {
     tanggalLahir: '',
     alamat: '',
     rtRw: '',
-    kelurahan: ''
+    kelurahan: '',
+    koordinat: ''
   });
 
   // Usaha List State
@@ -91,6 +92,28 @@ const RegistrasiHalal = () => {
     const newList = [...list];
     newList[index] = value;
     setList(newList);
+  };
+
+  const handleGetLocation = () => {
+    if (!navigator.geolocation) {
+      alert('Geolocation tidak didukung oleh browser Anda.');
+      return;
+    }
+
+    setLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setPelakuUsaha(prev => ({ ...prev, koordinat: `${latitude}, ${longitude}` }));
+        setLoading(false);
+      },
+      (error) => {
+        setLoading(false);
+        console.error('Error getting location:', error);
+        alert('Gagal mengambil lokasi. Pastikan izin lokasi diberikan.');
+      },
+      { enableHighAccuracy: true }
+    );
   };
 
   const handleSubmit = async (e) => {
@@ -191,6 +214,15 @@ const RegistrasiHalal = () => {
             <div className="form-group">
               <label>Kelurahan</label>
               <input required name="kelurahan" value={pelakuUsaha.kelurahan} onChange={handlePelakuChange} />
+            </div>
+            <div className="form-group full">
+               <label>Titik Koordinat Lokasi (Real-time)</label>
+               <div className="location-input-group">
+                  <input readOnly name="koordinat" value={pelakuUsaha.koordinat} placeholder="Kilk tombol di samping..." />
+                  <button type="button" className="btn-get-location" onClick={handleGetLocation}>
+                    <MapPin size={18} /> Ambil Titik Koordinat
+                  </button>
+               </div>
             </div>
           </div>
         </div>
@@ -313,6 +345,12 @@ const RegistrasiHalal = () => {
         .form-footer-actions { display: flex; justify-content: flex-end; gap: 1.5rem; padding-bottom: 3rem; }
         .btn-cancel { background: none; border: 1px solid var(--border); padding: 0.75rem 2rem; border-radius: 12px; font-weight: 700; color: var(--text-muted); cursor: pointer; }
         .btn-submit-premium { background: var(--primary); color: white; border: none; padding: 0.75rem 2.5rem; border-radius: 12px; font-weight: 800; box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3); cursor: pointer; display: flex; align-items: center; gap: 10px; }
+        
+        .location-input-group { display: flex; gap: 1rem; }
+        .location-input-group input { flex: 1; background: #f8fafc !important; color: #64748b; font-family: monospace; font-weight: 700; }
+        .btn-get-location { background: #ecfdf5; color: #059669; border: 1px solid #10b981; padding: 0.75rem 1.5rem; border-radius: 10px; font-weight: 800; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s; }
+        .btn-get-location:hover { background: #10b981; color: white; }
+
         @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } .form-group.full { grid-column: span 1; } }
       ` }} />
     </div>

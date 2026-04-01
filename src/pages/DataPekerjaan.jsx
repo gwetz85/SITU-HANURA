@@ -233,6 +233,22 @@ const DataPekerjaan = () => {
                       <div className="info-item"><span className="label">HP</span><span className="value">{showDetail.pelakuUsaha?.ponsel}</span></div>
                       <div className="info-item"><span className="label">Email</span><span className="value">{showDetail.pelakuUsaha?.email || '-'}</span></div>
                       <div className="info-item"><span className="label">Alamat</span><span className="value">{showDetail.pelakuUsaha?.alamat}, Kel. {showDetail.pelakuUsaha?.kelurahan}</span></div>
+                      <div className="info-item full">
+                        <span className="label">Titik Koordinat</span>
+                        <span className="value" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          {showDetail.pelakuUsaha?.koordinat || '-'}
+                          {showDetail.pelakuUsaha?.koordinat && (
+                            <a 
+                              href={`https://www.google.com/maps/search/?api=1&query=${showDetail.pelakuUsaha.koordinat}`} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="map-link-btn"
+                            >
+                              <MapPin size={12} /> Buka Peta
+                            </a>
+                          )}
+                        </span>
+                      </div>
                    </div>
                 </div>
 
@@ -360,6 +376,26 @@ const DataPekerjaan = () => {
         .btn-ghost:hover { background: #f1f5f9; color: var(--text-main); }
         .btn-primary { background: var(--primary); color: white; border: none; box-shadow: 0 4px 12px rgba(37,99,235,0.2); }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(37,99,235,0.3); }
+
+        .map-link-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          font-size: 0.65rem;
+          font-weight: 800;
+          color: #2563eb;
+          background: #eff6ff;
+          padding: 3px 8px;
+          border-radius: 6px;
+          text-decoration: none;
+          border: 1px solid rgba(37,99,235,0.1);
+          transition: all 0.2s;
+        }
+        .map-link-btn:hover {
+          background: #2563eb;
+          color: white;
+          border-color: #2563eb;
+        }
 
         @media (max-width: 768px) {
           .toolbar { flex-direction: column; align-items: stretch; }
