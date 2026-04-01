@@ -22,7 +22,8 @@ import {
   Save,
   MapPin,
   Briefcase,
-  User
+  User,
+  History
 } from 'lucide-react';
 import { db } from '../firebase';
 import { ref, onValue, push, remove, update } from 'firebase/database';
@@ -48,6 +49,10 @@ const Karyawan = () => {
   });
   const [viewingDetail, setViewingDetail] = useState(null);
   const [printingEmployee, setPrintingEmployee] = useState(null);
+  const [archives, setArchives] = useState([]);
+  const [selectedArchiveMonth, setSelectedArchiveMonth] = useState('');
+  const [archivedData, setArchivedData] = useState([]);
+  const [fetchingArchive, setFetchingArchive] = useState(false);
 
   useEffect(() => {
     const empRef = ref(db, 'employees');
@@ -72,6 +77,35 @@ const Karyawan = () => {
 
     return () => { unsubEmp(); unsubKasbon(); };
   }, []);
+
+  useEffect(() => {
+    const archivesRef = ref(db, 'employee_archives');
+    const unsubArchives = onValue(archivesRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const months = Object.keys(snapshot.val()).sort().reverse();
+        setArchives(months);
+        if (months.length > 0 && !selectedArchiveMonth) {
+          setSelectedArchiveMonth(months[0]);
+        }
+      }
+    });
+    return () => unsubArchives();
+  }, []);
+
+  useEffect(() => {
+    if (selectedArchiveMonth && activeTab === 'rekapan') {
+      setFetchingArchive(true);
+      const monthRef = ref(db, `employee_archives/${selectedArchiveMonth}`);
+      get(monthRef).then((snapshot) => {
+        if (snapshot.exists()) {
+          setArchivedData(Object.values(snapshot.val()));
+        } else {
+          setArchivedData([]);
+        }
+        setFetchingArchive(false);
+      });
+    }
+  }, [selectedArchiveMonth, activeTab]);
 
   const handleEmpSubmit = async (e) => {
     e.preventDefault();
@@ -278,6 +312,9 @@ const Karyawan = () => {
         <button className={`tab-btn ${activeTab === 'gaji' ? 'active' : ''}`} onClick={() => setActiveTab('gaji')}>
           <Receipt size={18} /> <span>Slip Gaji</span>
         </button>
+        <button className={`tab-btn ${activeTab === 'rekapan' ? 'active' : ''}`} onClick={() => setActiveTab('rekapan')}>
+          <History size={18} /> <span>Rekapan Gaji</span>
+        </button>
       </div>
 
       <div className="tab-content">
@@ -451,6 +488,81 @@ const Karyawan = () => {
                 </tbody>
               </table>
             </div>
+          </div>
+        )}
+        {activeTab === 'rekapan' && (
+          <div className="rekapan-tab animate-slide-up">
+            <div className="toolbar glass-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <History size={20} className="text-primary" />
+                <h3 style={{ margin: 0 }}>Arsip Penggajian</h3>
+              </div>
+              <div className="archive-controls" style={{ display: 'flex', gap: '1rem' }}>
+                <select 
+                  className="month-selector"
+                  value={selectedArchiveMonth}
+                  onChange={(e) => setSelectedArchiveMonth(e.target.value)}
+                  style={{ 
+                    padding: '0.6rem 2.5rem 0.6rem 1rem', 
+                    borderRadius: '10px', 
+                    border: '1px solid var(--border)',
+                    background: 'var(--surface)',
+                    fontWeight: 700
+                  }}
+                >
+                  <option value="">-- Pilih Bulan --</option>
+                  {archives.map(m => <option key={m} value={m}>{m}</option>)}
+                </select>
+                <button 
+                  className="btn btn-ghost" 
+                  onClick={() => window.print()}
+                  disabled={archivedData.length === 0}
+                >
+                  <Printer size={18} /> Cetak
+                </button>
+              </div>
+            </div>
+
+            {fetchingArchive ? (
+              <div style={{ padding: '5rem', textAlign: 'center', color: 'var(--text-muted)' }}>Mengambil arsip...</div>
+            ) : archivedData.length === 0 ? (
+              <div className="glass-card" style={{ padding: '5rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+                <Clock size={48} style={{ marginBottom: '1rem', opacity: 0.3 }} />
+                <p>Tidak ada arsip data untuk periode ini.</p>
+              </div>
+            ) : (
+              <div className="table-responsive glass-card">
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>Karyawan</th>
+                      <th>NIK</th>
+                      <th>Bulan</th>
+                      <th>Total Kasbon</th>
+                      <th className="text-right">Sisa Gaji (Net)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {archivedData.map((a, idx) => (
+                      <tr key={idx}>
+                        <td>
+                          <div className="name-cell">
+                            <span className="font-bold">{a.nama}</span>
+                            <span className="text-muted" style={{ fontSize: '0.7rem' }}>{a.jabatan}</span>
+                          </div>
+                        </td>
+                        <td>{a.nik || '-'}</td>
+                        <td><span className="status-badge success" style={{ background: 'rgba(37, 99, 235, 0.1)', color: 'var(--primary)' }}>{a.bulan_gaji}</span></td>
+                        <td className="text-red font-bold">-{formatCurrency(a.kasbon_total)}</td>
+                        <td className="text-right">
+                          <span className="font-bold text-primary" style={{ fontSize: '1rem' }}>{formatCurrency(a.sisa_gaji)}</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         )}
       </div>

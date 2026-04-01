@@ -41,6 +41,7 @@ const Layout = ({ children }) => {
   }, []);
 
   // Automated Monthly Reset Logic for Kas Office
+  // Automated Monthly Reset Logic for Kas Office & Employees
   useEffect(() => {
     const performMonthlyReset = async () => {
       if (!db || !user) return;
@@ -56,28 +57,57 @@ const Layout = ({ children }) => {
         
         // Trigger if today is >= 1st and we haven't reset this month yet
         if (dayOfMonth >= 1 && lastResetMonth !== currentMonthId) {
+          const lastMonth = new Date();
+          lastMonth.setMonth(now.getMonth() - 1);
+          const archiveId = `${lastMonth.getFullYear()}-${(lastMonth.getMonth() + 1).toString().padStart(2, '0')}`;
+          const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+          const monthLabel = `${monthNames[lastMonth.getMonth()]} ${lastMonth.getFullYear()}`;
+
+          // --- 1. Archive Kas Office (Cashbook) ---
           const cashRef = ref(db, 'cashbook');
           const cashSnapshot = await get(cashRef);
           
           if (cashSnapshot.exists()) {
-            const dataToArchive = cashSnapshot.val();
-            // Calculate previous month ID for archiving
-            const lastMonth = new Date();
-            lastMonth.setMonth(now.getMonth() - 1);
-            const archiveId = `${lastMonth.getFullYear()}-${(lastMonth.getMonth() + 1).toString().padStart(2, '0')}`;
-            
-            // 1. Move to Archive
-            await set(ref(db, `archives/${archiveId}`), dataToArchive);
-            // 2. Clear Current Cashbook
+            await set(ref(db, `archives/${archiveId}`), cashSnapshot.val());
             await remove(cashRef);
-            // 3. Mark as Reset
-            await set(resetRef, currentMonthId);
-            
-            console.log(`Monthly reset performed. Data moved to archives/${archiveId}`);
-          } else {
-             // Even if empty, mark as reset to avoid redundant checks
-             await set(resetRef, currentMonthId);
           }
+
+          // --- 2. Archive Employees (Kasbon & Salary Summary) ---
+          const empRef = ref(db, 'employees');
+          const kasbonRef = ref(db, 'kasbon');
+          const [empSnapshot, kasbonSnapshot] = await Promise.all([get(empRef), get(kasbonRef)]);
+
+          if (empSnapshot.exists()) {
+            const employees = empSnapshot.val();
+            const allKasbon = kasbonSnapshot.exists() ? Object.values(kasbonSnapshot.val()) : [];
+            const empArchiveData = {};
+
+            Object.entries(employees).forEach(([id, emp]) => {
+              const empKasbonList = allKasbon.filter(k => k.employeeId === id);
+              const totalKasbon = empKasbonList.reduce((sum, k) => sum + (parseInt(k.jumlah) || 0), 0);
+              const totalPenghasilan = (parseInt(emp.gaji) || 0) + (parseInt(emp.tunjangan_jabatan) || 0) + (parseInt(emp.tunjangan_makan) || 0) + (parseInt(emp.bonus_kinerja) || 0);
+              const totalPotongan = totalKasbon + (parseInt(emp.bpjs_kesehatan) || 0) + (parseInt(emp.bpjs_ketenagakerjaan) || 0) + (parseInt(emp.iuran_koperasi) || 0);
+              const sisaGaji = totalPenghasilan - totalPotongan;
+
+              empArchiveData[id] = {
+                nama: emp.nama,
+                jabatan: emp.jabatan,
+                nik: emp.nik,
+                bulan_gaji: monthLabel,
+                kasbon_total: totalKasbon,
+                kasbon_dates: empKasbonList.map(k => k.tanggal).join(', '),
+                sisa_gaji: sisaGaji,
+                timestamp: now.toISOString()
+              };
+            });
+
+            await set(ref(db, `employee_archives/${archiveId}`), empArchiveData);
+            if (kasbonSnapshot.exists()) await remove(kasbonRef);
+          }
+          
+          // 3. Mark as Reset
+          await set(resetRef, currentMonthId);
+          console.log(`Monthly reset performed. Data moved to archives/${archiveId} & employee_archives/${archiveId}`);
         }
       } catch (err) {
         console.error("Monthly Reset Error:", err);
