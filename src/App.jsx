@@ -15,6 +15,7 @@ import RekapanKas from './pages/RekapanKas';
 import ManajemenKegiatan from './pages/ManajemenKegiatan';
 import ArsipKegiatan from './pages/ArsipKegiatan';
 import Inventaris from './pages/Inventaris';
+import PelayananMasyarakat from './pages/PelayananMasyarakat';
 import RegistrasiNIB from './pages/RegistrasiNIB';
 import RegistrasiHalal from './pages/RegistrasiHalal';
 import DataPekerjaan from './pages/DataPekerjaan';

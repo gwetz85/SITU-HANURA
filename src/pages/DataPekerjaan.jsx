@@ -14,7 +14,10 @@ import {
   Droplets,
   FileText,
   Calendar,
-  MoreVertical
+  MoreVertical,
+  Fingerprint,
+  Archive,
+  Fingerprint as FingerIcon
 } from 'lucide-react';
 import { db } from '../firebase';
 import { ref, onValue, update } from 'firebase/database';
@@ -202,7 +205,7 @@ const DataPekerjaan = () => {
         isOpen={!!showDetail}
         onClose={() => setShowDetail(null)}
         title={`Detail Pengajuan ${showDetail?.category}`}
-        icon={showDetail?.category === 'NIB' ? <Fingerprint size={24} /> : <ShieldCheck size={24} />}
+        icon={showDetail?.category === 'NIB' ? <FingerIcon size={24} /> : <ShieldCheck size={24} />}
         footer={
           <div className="modal-footer-btns">
             <button className="btn btn-ghost" onClick={() => setShowDetail(null)}>Tutup</button>
@@ -259,7 +262,7 @@ const DataPekerjaan = () => {
                              </div>
                           </div>
                           <div className="halal-sub">
-                             <div className="sub-title"><Box size={14} /> Kemasan ({showDetail.halalDetails.kemasan?.length})</div>
+                             <div className="sub-title"><Archive size={14} /> Kemasan ({showDetail.halalDetails.kemasan?.length})</div>
                              <div className="item-tags">
                                 {showDetail.halalDetails.kemasan?.map((k, i) => <span key={i} className="tag">{k}</span>)}
                              </div>
