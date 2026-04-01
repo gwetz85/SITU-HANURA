@@ -16,8 +16,17 @@ const SlipGaji = ({ data }) => {
   const periodLong = data.bulan_gaji || new Date().toLocaleString('id-ID', { month: 'long', year: 'numeric' });
   const timestamp = new Date().toLocaleString('id-ID');
   
-  // Calculations
-  const totalPenghasilan = (data.gaji || 0) + (data.tunjangan_jabatan || 0) + (data.tunjangan_makan || 0) + (data.bonus_kinerja || 0);
+  // Calculations - Handle older simplified archives (where gaji is 0 but sisa_gaji exists)
+  const isSimplified = !data.gaji && (data.sisa_gaji || data.penerimaanBersih);
+  
+  const earnings = {
+    gaji: isSimplified ? (data.sisa_gaji || data.penerimaanBersih) + (data.totalKasbon || 0) : (data.gaji || 0),
+    tunjangan_jabatan: data.tunjangan_jabatan || 0,
+    tunjangan_makan: data.tunjangan_makan || 0,
+    bonus_kinerja: data.bonus_kinerja || 0
+  };
+
+  const totalPenghasilan = earnings.gaji + earnings.tunjangan_jabatan + earnings.tunjangan_makan + earnings.bonus_kinerja;
   const totalPotongan = (data.totalKasbon || 0) + (data.bpjs_kesehatan || 0) + (data.bpjs_ketenagakerjaan || 0) + (data.iuran_koperasi || 0);
   const penerimaanBersih = totalPenghasilan - totalPotongan;
 
@@ -53,11 +62,11 @@ const SlipGaji = ({ data }) => {
 
         {/* Earnings */}
         <div className="receipt-section">
-          <p className="section-label">PENGHASILAN:</p>
-          <div className="item-row"><span>Gaji Pokok</span><span>{formatNumber(data.gaji)}</span></div>
-          {data.tunjangan_jabatan > 0 && <div className="item-row"><span>Tunj. Jabatan</span><span>{formatNumber(data.tunjangan_jabatan)}</span></div>}
-          {data.tunjangan_makan > 0 && <div className="item-row"><span>Tunj. Makan</span><span>{formatNumber(data.tunjangan_makan)}</span></div>}
-          {data.bonus_kinerja > 0 && <div className="item-row"><span>Bonus Kinerja</span><span>{formatNumber(data.bonus_kinerja)}</span></div>}
+          <p className="section-label">PENGHASILAN {isSimplified && '(ARSIP)'}:</p>
+          <div className="item-row"><span>Gaji Pokok</span><span>{formatNumber(earnings.gaji)}</span></div>
+          {earnings.tunjangan_jabatan > 0 && <div className="item-row"><span>Tunj. Jabatan</span><span>{formatNumber(earnings.tunjangan_jabatan)}</span></div>}
+          {earnings.tunjangan_makan > 0 && <div className="item-row"><span>Tunj. Makan</span><span>{formatNumber(earnings.tunjangan_makan)}</span></div>}
+          {earnings.bonus_kinerja > 0 && <div className="item-row"><span>Bonus Kinerja</span><span>{formatNumber(earnings.bonus_kinerja)}</span></div>}
           <div className="receipt-separator-thin">------------------------------------------</div>
           <div className="item-row font-bold"><span>Total Penghasilan</span><span>{formatNumber(totalPenghasilan)}</span></div>
         </div>
