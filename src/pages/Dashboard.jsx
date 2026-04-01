@@ -318,21 +318,29 @@ const Dashboard = () => {
 
         @media (max-width: 640px) {
           .stats-row-grid { grid-template-columns: 1fr; }
-          .dash-header-banner { padding: 1rem 1.25rem; }
+          .dash-header-banner { padding: 1.5rem; text-align: center; }
+          .header-badge-premium { margin: 0 auto 0.75rem auto; font-size: 0.5rem; padding: 0.2rem 0.6rem; }
           .dash-header-banner h1 { font-size: 1.25rem; line-height: 1.3; }
-          .dash-header-banner p { font-size: 0.75rem; line-height: 1.4; max-width: 100%; }
-          .header-badge-premium { font-size: 0.5rem; padding: 0.2rem 0.6rem; margin-bottom: 0.5rem; }
-          .count-big { font-size: 1.6rem; }
+          .dash-header-banner p { font-size: 0.75rem; line-height: 1.4; max-width: 100%; margin: 0 auto; }
+          .header-date-pill { position: static; margin-top: 1.25rem; width: fit-content; margin-left: auto; margin-right: auto; font-size: 0.7rem; padding: 0.4rem 1rem; }
+          
+          .premium-stat-box { text-align: center; align-items: center; padding: 1.5rem; }
+          .stat-top-meta { flex-direction: column; align-items: center; gap: 8px; width: 100%; }
+          .icon-wrapper { margin-left: auto; margin-right: auto; }
+          .stat-main { flex-direction: column; align-items: center; gap: 4px; }
+          .count-big { font-size: 2rem; }
+          .viz-mini { margin-top: 5px; }
+
           .history-table-container { padding: 0.75rem 0; margin-top: 1rem; }
-          .table-header-premium { padding: 0 1rem 0.75rem; gap: 8px; }
-          .btn-clear-history { font-size: 0.7rem; padding: 0.4rem 1rem; }
-          .header-date-pill { font-size: 0.7rem; padding: 0.4rem 1rem; margin-top: 1rem; }
+          .table-header-premium { padding: 0 1rem 0.75rem; text-align: center; flex-direction: column; align-items: center; gap: 10px; }
+          .header-title-group { flex-direction: column; align-items: center; text-align: center; }
+          .btn-clear-history { font-size: 0.7rem; padding: 0.4rem 1rem; width: 100%; justify-content: center; }
         }
 
         @media (max-width: 480px) {
           .dash-header-banner { border-radius: 12px; }
           .dash-header-banner h1 { font-size: 1.15rem; }
-          .premium-stat-box { padding: 1rem; border-radius: 16px; gap: 0.75rem; }
+          .premium-stat-box { padding: 1.25rem; border-radius: 16px; }
           .avatar-letter { width: 22px; height: 22px; font-size: 0.6rem; }
         }
       ` }} />
