@@ -56,12 +56,8 @@ const Layout = ({ children }) => {
       user: 'Manajemen User',
       settings: 'Pengaturan',
       about: 'Tentang Aplikasi',
-      logout: 'Keluar',
-      profile: 'Profil Saya',
-      security: 'Keamanan',
-      device: 'Perangkat',
-      online: 'AKTIF',
-      offline: 'OFFLINE'
+      offline: 'OFFLINE',
+      inventaris: 'Inventaris Kantor'
     },
     en: {
       dashboard: 'Dashboard',
@@ -74,12 +70,8 @@ const Layout = ({ children }) => {
       user: 'User Management',
       settings: 'Settings',
       about: 'About App',
-      logout: 'Logout',
-      profile: 'My Profile',
-      security: 'Security',
-      device: 'Device',
-      online: 'ONLINE',
-      offline: 'OFFLINE'
+      offline: 'OFFLINE',
+      inventaris: 'Office Inventory'
     }
   }[language || 'id'];
 
@@ -128,6 +120,7 @@ const Layout = ({ children }) => {
         { title: 'Arsip Kegiatan', path: '/admin/kegiatan/arsip' }
       ]
     },
+    { title: t.inventaris, icon: <Library size={20} />, path: '/inventaris', roles: ['Admin', 'Petugas', 'Verifikator'] },
     { title: t.pustaka, icon: <Library size={20} />, path: '/pustaka', roles: ['Admin', 'Petugas'] },
     { title: t.user, icon: <UserCog size={20} />, path: '/users', roles: ['Admin'] },
     { title: t.settings, icon: <Settings size={20} />, path: '/settings', roles: ['Admin', 'Petugas'] },
