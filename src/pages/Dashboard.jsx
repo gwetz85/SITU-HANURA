@@ -315,8 +315,23 @@ const Dashboard = () => {
           .dash-header-banner { padding: 1.5rem; }
           .header-date-pill { position: static; margin-top: 1.25rem; width: fit-content; }
         }
+
         @media (max-width: 640px) {
           .stats-row-grid { grid-template-columns: 1fr; }
+          .dash-header-banner { padding: 1.25rem 1.5rem; }
+          .dash-header-banner h1 { font-size: 1.5rem; }
+          .dash-header-banner p { font-size: 0.8rem; }
+          .header-badge-premium { font-size: 0.55rem; padding: 0.25rem 0.75rem; }
+          .count-big { font-size: 1.8rem; }
+          .history-table-container { padding: 1rem 0; }
+          .table-header-premium { padding: 0 1rem 1rem; flex-direction: column; align-items: flex-start; gap: 10px; }
+          .btn-clear-history { width: 100%; justify-content: center; }
+        }
+
+        @media (max-width: 480px) {
+          .dash-header-banner { border-radius: 16px; }
+          .premium-stat-box { padding: 1.25rem; border-radius: 20px; }
+          .avatar-letter { width: 24px; height: 24px; font-size: 0.6rem; }
         }
       ` }} />
     </div>

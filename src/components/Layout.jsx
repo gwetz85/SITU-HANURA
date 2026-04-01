@@ -603,6 +603,21 @@ const Layout = ({ children }) => {
           .sidebar.active { transform: translateX(0); }
           .main-container { margin-left: 0 !important; }
         }
+
+        @media (max-width: 640px) {
+          .top-navbar { padding: 0 1rem; }
+          .period-selector-container { margin-left: 0.5rem; padding: 0.3rem 0.6rem; }
+          .period-badge { display: none; }
+          .working-month-select { font-size: 0.75rem; }
+          .content-viewport { padding: 1rem; }
+        }
+
+        @media (max-width: 480px) {
+          .period-selector-container { max-width: 140px; }
+          .time-display { display: none; }
+          .sidebar-footer { flex-direction: column; gap: 10px; align-items: flex-start; }
+          .clock-container { margin-bottom: 5px; }
+        }
       ` }} />
     </div>
   );
