@@ -9,13 +9,17 @@ import {
   Clock,
   TrendingUp,
   FileText,
-  Calendar
+  Calendar,
+  Archive,
+  AlertTriangle,
+  ArrowRight,
+  Info,
+  MapPin
 } from 'lucide-react';
 import { db } from '../firebase';
 import { ref, onValue, query, limitToLast } from 'firebase/database';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Archive, AlertTriangle, ArrowRight } from 'lucide-react';
 
 const Dashboard = () => {
   const { user, workingMonth } = useAuth();
