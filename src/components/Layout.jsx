@@ -21,8 +21,7 @@ import {
   Shield,
   ChevronRight,
   Clock,
-  Calendar,
-  Info
+  Calendar
 } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import Modal from './Modal';
