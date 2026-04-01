@@ -605,17 +605,17 @@ const Layout = ({ children }) => {
             z-index: 2000; 
           }
           .sidebar.active { transform: translateX(0); }
-          .main-container { margin-left: 0 !important; }
+          .main-container { margin-left: 0 !important; width: 100% !important; }
           .sidebar-overlay { z-index: 1900; }
         }
 
         @media (max-width: 640px) {
-          .top-navbar { height: 64px; padding: 0 0.75rem; }
-          .navbar-inner { gap: 0.5rem; }
+          .top-navbar { height: 64px; padding: 0 0.75rem; width: 100vw !important; }
+          .navbar-inner { gap: 0.5rem; width: 100%; }
           .period-selector-container { margin-left: 0; padding: 0.25rem 0.5rem; gap: 4px; border-radius: 8px; }
           .period-badge { display: none; }
           .working-month-select { font-size: 0.7rem; max-width: 110px; }
-          .content-viewport { padding: 1rem 0.75rem; }
+          .content-viewport { padding: 0.75rem !important; margin: 0 !important; max-width: 100% !important; width: 100% !important; }
           .sidebar-header { padding: 1rem; }
           .brand-name { font-size: 0.95rem; }
         }
