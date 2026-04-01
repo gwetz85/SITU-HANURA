@@ -11,6 +11,10 @@ export const AuthProvider = ({ children }) => {
   const [configError, setConfigError] = useState(false);
   const [theme, setTheme] = useState(localStorage.getItem('situ_hanura_theme') || 'light');
   const [language, setLanguage] = useState(localStorage.getItem('situ_hanura_language') || 'id');
+  const [workingMonth, setWorkingMonthState] = useState(localStorage.getItem('situ_hanura_working_month') || (() => {
+    const now = new Date();
+    return `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
+  })());
 
   // Generate or get unique device ID
   const getDeviceId = () => {
@@ -71,8 +75,13 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('situ_hanura_language', language);
   }, [language]);
 
+  useEffect(() => {
+    localStorage.setItem('situ_hanura_working_month', workingMonth);
+  }, [workingMonth]);
+
   const toggleTheme = () => setTheme(prev => prev === 'light' ? 'dark' : 'light');
   const updateLanguage = (lang) => setLanguage(lang);
+  const setWorkingMonth = (month) => setWorkingMonthState(month);
 
   const login = async (username, password) => {
     if (!db) return false;
@@ -252,7 +261,8 @@ export const AuthProvider = ({ children }) => {
   return (
     <AuthContext.Provider value={{ 
       user, login, register, updateProfile, updateUserRole, logout, 
-      loading, error, setError, theme, toggleTheme, language, updateLanguage 
+      loading, error, setError, theme, toggleTheme, language, updateLanguage,
+      workingMonth, setWorkingMonth
     }}>
       {loading ? (
         <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0f172a', color: 'white', fontFamily: 'sans-serif' }}>

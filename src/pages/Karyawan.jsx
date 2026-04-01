@@ -30,8 +30,11 @@ import { ref, onValue, push, remove, update } from 'firebase/database';
 import Modal from '../components/Modal';
 import { formatTerbilang } from '../utils/terbilang';
 import SlipGaji from '../components/SlipGaji';
+import { useAuth } from '../context/AuthContext';
+import { get, set } from 'firebase/database';
 
 const Karyawan = () => {
+  const { user, workingMonth, setWorkingMonth } = useAuth();
   const [activeTab, setActiveTab] = useState('data');
   const [employees, setEmployees] = useState([]);
   const [kasbonList, setKasbonList] = useState([]);
@@ -183,6 +186,57 @@ const Karyawan = () => {
 
   const getOutstandingKasbon = (empId) => {
     return kasbonList.filter(k => k.employeeId === empId).reduce((a, b) => a + b.jumlah, 0);
+  };
+
+  const handleTutupBuku = async () => {
+    if (user?.role !== 'Admin') return alert('Hanya Admin yang dapat melakukan Tutup Buku!');
+    
+    const [year, month] = workingMonth.split('-');
+    const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+    const monthLabel = `${monthNames[parseInt(month) - 1]} ${year}`;
+
+    if (!window.confirm(`Lakukan Tutup Buku untuk periode ${monthLabel}?\n\nSemua data kasbon akan dihapus dan dipindahkan ke dalam arsip rekapan.`)) return;
+
+    try {
+      setLoading(true);
+      const empArchiveData = {};
+      
+      employees.forEach(emp => {
+        const empKasbonList = kasbonList.filter(k => k.employeeId === emp.id);
+        const totalKasbon = empKasbonList.reduce((sum, k) => sum + (parseInt(k.jumlah) || 0), 0);
+        const totalPenghasilan = (parseInt(emp.gaji) || 0) + (parseInt(emp.tunjangan_jabatan) || 0) + (parseInt(emp.tunjangan_makan) || 0) + (parseInt(emp.bonus_kinerja) || 0);
+        const totalPotongan = totalKasbon + (parseInt(emp.bpjs_kesehatan) || 0) + (parseInt(emp.bpjs_ketenagakerjaan) || 0) + (parseInt(emp.iuran_koperasi) || 0);
+        const sisaGaji = totalPenghasilan - totalPotongan;
+
+        empArchiveData[emp.id] = {
+          nama: emp.nama,
+          jabatan: emp.jabatan,
+          nik: emp.nik,
+          bulan_gaji: monthLabel,
+          kasbon_total: totalKasbon,
+          kasbon_dates: empKasbonList.map(k => k.tanggal).join(', '),
+          sisa_gaji: sisaGaji,
+          timestamp: new Date().toISOString()
+        };
+      });
+
+      await set(ref(db, `employee_archives/${workingMonth}`), empArchiveData);
+      await remove(ref(db, 'kasbon'));
+      
+      // Advance to next month
+      const current = new Date(`${workingMonth}-01`);
+      current.setMonth(current.getMonth() + 1);
+      const nextMonth = `${current.getFullYear()}-${(current.getMonth() + 1).toString().padStart(2, '0')}`;
+      setWorkingMonth(nextMonth);
+
+      alert(`Tutup Buku ${monthLabel} Berhasil!\nPeriode aktif sekarang: ${current.toLocaleString('id-ID', { month: 'long', year: 'numeric' })}`);
+      setActiveTab('rekapan');
+    } catch (err) {
+      console.error(err);
+      alert('Gagal melakukan Tutup Buku.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const formatCurrency = (val) => {
@@ -520,6 +574,15 @@ const Karyawan = () => {
                 >
                   <Printer size={18} /> Cetak
                 </button>
+                {user?.role === 'Admin' && (
+                  <button 
+                    className="btn btn-primary" 
+                    onClick={handleTutupBuku}
+                    title="Arsipkan data bulan ini dan bersihkan kasbon"
+                  >
+                    <Save size={18} /> Tutup Buku
+                  </button>
+                )}
               </div>
             </div>
 

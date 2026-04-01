@@ -26,7 +26,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import Modal from './Modal';
 
 const Layout = ({ children }) => {
-  const { user, logout, language } = useAuth();
+  const { user, logout, language, workingMonth, setWorkingMonth } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth > 1024);
   const [isSuratOpen, setIsSuratOpen] = useState(false);
   const [isKasOpen, setIsKasOpen] = useState(false);
@@ -40,82 +40,7 @@ const Layout = ({ children }) => {
     return () => clearInterval(timer);
   }, []);
 
-  // Automated Monthly Reset Logic for Kas Office
-  // Automated Monthly Reset Logic for Kas Office & Employees
-  useEffect(() => {
-    const performMonthlyReset = async () => {
-      if (!db || !user) return;
-      
-      const now = new Date();
-      const currentMonthId = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
-      const dayOfMonth = now.getDate();
-      
-      try {
-        const resetRef = ref(db, 'stats/last_reset_month');
-        const snapshot = await get(resetRef);
-        const lastResetMonth = snapshot.val();
-        
-        // Trigger if today is >= 1st and we haven't reset this month yet
-        if (dayOfMonth >= 1 && lastResetMonth !== currentMonthId) {
-          const lastMonth = new Date();
-          lastMonth.setMonth(now.getMonth() - 1);
-          const archiveId = `${lastMonth.getFullYear()}-${(lastMonth.getMonth() + 1).toString().padStart(2, '0')}`;
-          const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-          const monthLabel = `${monthNames[lastMonth.getMonth()]} ${lastMonth.getFullYear()}`;
-
-          // --- 1. Archive Kas Office (Cashbook) ---
-          const cashRef = ref(db, 'cashbook');
-          const cashSnapshot = await get(cashRef);
-          
-          if (cashSnapshot.exists()) {
-            await set(ref(db, `archives/${archiveId}`), cashSnapshot.val());
-            await remove(cashRef);
-          }
-
-          // --- 2. Archive Employees (Kasbon & Salary Summary) ---
-          const empRef = ref(db, 'employees');
-          const kasbonRef = ref(db, 'kasbon');
-          const [empSnapshot, kasbonSnapshot] = await Promise.all([get(empRef), get(kasbonRef)]);
-
-          if (empSnapshot.exists()) {
-            const employees = empSnapshot.val();
-            const allKasbon = kasbonSnapshot.exists() ? Object.values(kasbonSnapshot.val()) : [];
-            const empArchiveData = {};
-
-            Object.entries(employees).forEach(([id, emp]) => {
-              const empKasbonList = allKasbon.filter(k => k.employeeId === id);
-              const totalKasbon = empKasbonList.reduce((sum, k) => sum + (parseInt(k.jumlah) || 0), 0);
-              const totalPenghasilan = (parseInt(emp.gaji) || 0) + (parseInt(emp.tunjangan_jabatan) || 0) + (parseInt(emp.tunjangan_makan) || 0) + (parseInt(emp.bonus_kinerja) || 0);
-              const totalPotongan = totalKasbon + (parseInt(emp.bpjs_kesehatan) || 0) + (parseInt(emp.bpjs_ketenagakerjaan) || 0) + (parseInt(emp.iuran_koperasi) || 0);
-              const sisaGaji = totalPenghasilan - totalPotongan;
-
-              empArchiveData[id] = {
-                nama: emp.nama,
-                jabatan: emp.jabatan,
-                nik: emp.nik,
-                bulan_gaji: monthLabel,
-                kasbon_total: totalKasbon,
-                kasbon_dates: empKasbonList.map(k => k.tanggal).join(', '),
-                sisa_gaji: sisaGaji,
-                timestamp: now.toISOString()
-              };
-            });
-
-            await set(ref(db, `employee_archives/${archiveId}`), empArchiveData);
-            if (kasbonSnapshot.exists()) await remove(kasbonRef);
-          }
-          
-          // 3. Mark as Reset
-          await set(resetRef, currentMonthId);
-          console.log(`Monthly reset performed. Data moved to archives/${archiveId} & employee_archives/${archiveId}`);
-        }
-      } catch (err) {
-        console.error("Monthly Reset Error:", err);
-      }
-    };
-
-    if (user?.role === 'Admin') performMonthlyReset();
-  }, [user]);
+  // Working period is now managed globally via AuthContext and manual 'Tutup Buku' action.
 
   const t = {
     id: {
@@ -191,6 +116,7 @@ const Layout = ({ children }) => {
       ]
     },
     { title: t.karyawan, icon: <Users size={20} />, path: '/karyawan', roles: ['Admin', 'Petugas'] },
+    { title: 'Manajemen Kegiatan', icon: <Calendar size={20} />, path: '/admin/kegiatan', roles: ['Admin'] },
     { title: t.pustaka, icon: <Library size={20} />, path: '/pustaka', roles: ['Admin', 'Petugas'] },
     { title: t.user, icon: <UserCog size={20} />, path: '/users', roles: ['Admin'] },
     { title: t.settings, icon: <Settings size={20} />, path: '/settings', roles: ['Admin', 'Petugas'] },
@@ -221,6 +147,10 @@ const Layout = ({ children }) => {
 
         <nav className="sidebar-nav">
           <ul>
+            <div className="mobile-period-info">
+              <Calendar size={14} />
+              <span>PERIODE: <strong>{new Date(`${workingMonth}-01`).toLocaleString('id-ID', { month: 'long', year: 'numeric' })}</strong></span>
+            </div>
             {menuItems.map((item, idx) => {
               if (item.submenu) {
                 const isOpen = item.path === '/surat' ? isSuratOpen : isKasOpen;
@@ -295,7 +225,24 @@ const Layout = ({ children }) => {
             <button className="toggle-btn" onClick={toggleSidebar}>
               <Menu size={24} />
             </button>
-            <h2 className="page-title">SISTEM INFORMASI TERPADU</h2>
+            <div className="period-selector-container">
+              <Calendar size={16} className="text-primary" />
+              <select 
+                value={workingMonth} 
+                onChange={(e) => setWorkingMonth(e.target.value)}
+                className="working-month-select"
+              >
+                {/* Generate 6 months back and 6 months forward for selection */}
+                {Array.from({ length: 13 }, (_, i) => {
+                  const d = new Date();
+                  d.setMonth(d.getMonth() - 6 + i);
+                  const val = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}`;
+                  const label = d.toLocaleString('id-ID', { month: 'long', year: 'numeric' });
+                  return <option key={val} value={val}>{label}</option>;
+                })}
+              </select>
+              <span className="period-badge">PERIODE AKTIF</span>
+            </div>
           </div>
           <div className="header-right">
             <div className="user-dropdown-container">
@@ -719,6 +666,56 @@ const Layout = ({ children }) => {
 
         .ms-auto { margin-left: auto; }
         .opacity-50 { opacity: 0.5; }
+
+        /* Period Selector Styles */
+        .period-selector-container {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          background: var(--background);
+          padding: 0.4rem 0.8rem;
+          border-radius: 100px;
+          border: 1px solid var(--border);
+          margin-left: 1rem;
+        }
+        .working-month-select {
+          background: transparent;
+          border: none;
+          color: var(--text-main);
+          font-weight: 800;
+          font-size: 0.85rem;
+          cursor: pointer;
+          outline: none;
+          padding-right: 0.5rem;
+          text-transform: uppercase;
+        }
+        .period-badge {
+          font-size: 0.6rem;
+          font-weight: 800;
+          background: var(--primary);
+          color: white;
+          padding: 2px 6px;
+          border-radius: 4px;
+          letter-spacing: 0.5px;
+        }
+
+        .mobile-period-info {
+          display: none;
+          padding: 0.75rem 1.25rem;
+          margin-bottom: 1rem;
+          background: rgba(37, 99, 235, 0.05);
+          border-radius: 12px;
+          align-items: center;
+          gap: 8px;
+          font-size: 0.75rem;
+          color: var(--text-muted);
+          border: 1px solid rgba(37, 99, 235, 0.1);
+        }
+
+        @media (max-width: 640px) {
+          .period-selector-container { display: none; }
+          .mobile-period-info { display: flex; }
+        }
       ` }} />
     </div>
   );

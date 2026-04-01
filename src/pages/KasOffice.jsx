@@ -21,10 +21,13 @@ import {
   Wallet
 } from 'lucide-react';
 import { db } from '../firebase';
-import { ref, onValue, push, remove, update } from 'firebase/database';
+import { ref, onValue, push, remove, update, get, set } from 'firebase/database';
 import Modal from '../components/Modal';
+import { useAuth } from '../context/AuthContext';
+import { Archive, Download } from 'lucide-react';
 
 const KasOffice = () => {
+  const { user, workingMonth, setWorkingMonth } = useAuth();
   const [filterType, setFilterType] = useState('semua');
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -154,6 +157,46 @@ const KasOffice = () => {
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val);
   };
 
+  const handleTutupBuku = async () => {
+    if (user?.role !== 'Admin') return alert('Hanya Admin yang dapat melakukan Tutup Buku!');
+    
+    const [year, month] = workingMonth.split('-');
+    const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+    const monthLabel = `${monthNames[parseInt(month) - 1]} ${year}`;
+
+    if (!window.confirm(`Lakukan Tutup Buku Kas Office untuk periode ${monthLabel}?\n\nSemua transaksi aktif akan dipindahkan ke arsip dan buku kas akan dikosongkan.`)) return;
+
+    try {
+      setLoading(true);
+      const cashRef = ref(db, 'cashbook');
+      const cashSnapshot = await get(cashRef);
+      
+      if (cashSnapshot.exists()) {
+        await set(ref(db, `archives/${workingMonth}`), cashSnapshot.val());
+        await remove(cashRef);
+      }
+
+      // Advance to next month if not already done by Karyawan closing
+      // (Usually they close together, but we'll check)
+      const current = new Date(`${workingMonth}-01`);
+      current.setMonth(current.getMonth() + 1);
+      const nextMonth = `${current.getFullYear()}-${(current.getMonth() + 1).toString().padStart(2, '0')}`;
+      
+      // We don't necessarily want to force the next month if they haven't closed Karyawan yet,
+      // but usually Tutup Buku is a monthly ritual. 
+      // For now, we just inform them and clear the current view.
+      
+      alert(`Tutup Buku Kas Office ${monthLabel} Berhasil!`);
+      // No need to manually change workingMonth here if it's shared, 
+      // but it helps if they only use Kas Office.
+    } catch (err) {
+      console.error(err);
+      alert('Gagal melakukan Tutup Buku Kas.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="kas-page fadeIn">
       <div className="page-header">
@@ -161,9 +204,15 @@ const KasOffice = () => {
           <h1>Kas Office Cloud</h1>
           <p>Catat dan pantau arus kas di database cloud secara realtime.</p>
         </div>
-        <div className="header-actions">
+        <div className="header-actions" style={{ display: 'flex', gap: '0.75rem' }}>
+          {user?.role === 'Admin' && transactions.length > 0 && (
+            <button className="btn btn-secondary" onClick={handleTutupBuku}>
+              <Archive size={18} />
+              <span>Tutup Buku</span>
+            </button>
+          )}
           <button 
-            className={`btn ${showAddForm ? 'btn-secondary' : 'btn-primary'}`} 
+            className={`btn ${showAddForm ? 'btn-ghost' : 'btn-primary'}`} 
             onClick={toggleAddForm}
           >
             {showAddForm ? <X size={18} /> : <Plus size={18} />}

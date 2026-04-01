@@ -13,14 +13,20 @@ import {
 } from 'lucide-react';
 import { db } from '../firebase';
 import { ref, onValue, query, limitToLast } from 'firebase/database';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { Archive, AlertTriangle, ArrowRight } from 'lucide-react';
 
 const Dashboard = () => {
+  const { user, workingMonth } = useAuth();
+  const navigate = useNavigate();
   const [counts, setCounts] = useState({
     suratMasuk: 0,
     suratKeluar: 0,
-    saldoKas: 0,
-    karyawan: 0
+    pustaka: 0
   });
+  const [activities, setActivities] = useState([]);
+  const [selectedActivity, setSelectedActivity] = useState(null);
   const [recentActivity, setRecentActivity] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -39,22 +45,20 @@ const Dashboard = () => {
       setCounts(prev => ({ ...prev, suratKeluar: snapshot.size || 0 }));
     });
 
-    // Listen to Karyawan count
-    const empRef = ref(db, 'employees');
-    const unsubscribeEmp = onValue(empRef, (snapshot) => {
-      setCounts(prev => ({ ...prev, karyawan: snapshot.size || 0 }));
+    // Listen to Pustaka count
+    const pustakaRef = ref(db, 'pustaka');
+    const unsubscribePustaka = onValue(pustakaRef, (snapshot) => {
+      setCounts(prev => ({ ...prev, pustaka: snapshot.size || 0 }));
     });
 
-    // Listen to Cashbook and calculate balance
-    const kasRef = ref(db, 'cashbook');
-    const unsubscribeKas = onValue(kasRef, (snapshot) => {
-      let balance = 0;
+    // Listen to Activities (Latest 4)
+    const actQuery = query(ref(db, 'activities'), limitToLast(4));
+    const unsubscribeActs = onValue(actQuery, (snapshot) => {
+      const items = [];
       snapshot.forEach((child) => {
-        const trans = child.val();
-        if (trans.tipe === 'masuk') balance += trans.jumlah;
-        else balance -= trans.jumlah;
+        items.push({ id: child.key, ...child.val() });
       });
-      setCounts(prev => ({ ...prev, saldoKas: balance }));
+      setActivities(items.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal)));
     });
 
     // Listen to Recent Activity (Latest 4 Mails)
@@ -71,8 +75,8 @@ const Dashboard = () => {
     return () => {
       unsubscribeSM();
       unsubscribeSK();
-      unsubscribeEmp();
-      unsubscribeKas();
+      unsubscribePustaka();
+      unsubscribeActs();
       unsubscribeRecent();
     };
   }, []);
@@ -84,8 +88,7 @@ const Dashboard = () => {
   const stats = [
     { title: 'Surat Masuk', value: counts.suratMasuk, change: '+ Aktif', icon: <Mail size={24} />, color: '#3b82f6', trend: 'up' },
     { title: 'Surat Keluar', value: counts.suratKeluar, change: '+ Aktif', icon: <FileText size={24} />, color: '#10b981', trend: 'up' },
-    { title: 'Saldo Kas', value: formatCurrency(counts.saldoKas), change: 'Realtime', icon: <Wallet size={24} />, color: '#f59e0b', trend: counts.saldoKas >= 0 ? 'up' : 'down' },
-    { title: 'Karyawan', value: counts.karyawan, change: 'Aktif', icon: <Users size={24} />, color: '#8b5cf6', trend: 'neutral' },
+    { title: 'Pustaka Hanura', value: counts.pustaka, change: 'Arsip Digital', icon: <Library size={24} />, color: '#f59e0b', trend: 'neutral' },
   ];
 
   return (
@@ -93,7 +96,7 @@ const Dashboard = () => {
       <div className="dashboard-hero glass-premium">
         <div className="hero-content">
           <div className="welcome-tag">SISTEM INFORMASI TERPADU</div>
-          <h1>Halo, Admin SITU HANURA! 👋</h1>
+          <h1>Halo, {user?.name || user?.username}! 👋</h1>
           <p>Selamat datang di pusat kendali operasional digital Anda hari ini.</p>
         </div>
         <div className="date-badge-premium">
@@ -104,6 +107,91 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Closing Notification */}
+      {(() => {
+        const now = new Date();
+        const currentMonthId = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
+        const isBehind = workingMonth < currentMonthId;
+
+        if (isBehind && user?.role === 'Admin') {
+          return (
+            <div className="closing-alert-card animate-pulse-soft">
+              <div className="alert-icon-wrapper">
+                <AlertTriangle size={24} />
+              </div>
+              <div className="alert-content">
+                <h3>Waktunya Tutup Buku! 📊</h3>
+                <p>Periode aktif saat ini adalah <strong>{new Date(`${workingMonth}-01`).toLocaleString('id-ID', { month: 'long', year: 'numeric' })}</strong>. Harap lakukan Tutup Buku untuk mengarsipkan data dan memulai periode baru.</p>
+              </div>
+              <div className="alert-actions">
+                <button className="btn btn-primary btn-sm" onClick={() => navigate('/karyawan')}>
+                  Tutup Buku Sekarang <ArrowRight size={16} />
+                </button>
+              </div>
+            </div>
+          );
+        }
+        return null;
+      })()}
+
+      <div className="upcoming-activities-section" style={{ marginBottom: '1.5rem' }}>
+        <div className="section-header" style={{ marginBottom: '1rem' }}>
+          <div className="title-with-icon">
+             <Calendar size={20} className="text-primary" />
+             <h3>Kegiatan Mendatang</h3>
+          </div>
+          {user?.role === 'Admin' && (
+            <button className="btn-link" onClick={() => navigate('/admin/kegiatan')}>Kelola Kegiatan</button>
+          )}
+        </div>
+        <div className="activity-grid">
+          {activities.length > 0 ? activities.map(act => (
+            <div key={act.id} className="activity-card glass-card cursor-pointer" onClick={() => setSelectedActivity(act)}>
+              <div className="act-header">
+                <span className="act-type">{act.tipe}</span>
+                <span className="act-date"><Clock size={12} /> {new Date(act.tanggal).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}</span>
+              </div>
+              <h4 className="act-title">{act.judul}</h4>
+              <div className="act-loc"><MapPin size={12} /> {act.lokasi}</div>
+              <p className="act-desc">{act.deskripsi}</p>
+              <div className="act-footer">
+                <span className="act-author">Oleh: {act.author}</span>
+                <span className="read-more">Lihat Detail →</span>
+              </div>
+            </div>
+          )) : (
+            <div className="glass-card" style={{ gridColumn: '1/-1', padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+              <Info size={40} style={{ marginBottom: '1rem', opacity: 0.3 }} />
+              <p>Belum ada jadwal kegiatan mendatang.</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <Modal
+        isOpen={!!selectedActivity}
+        onClose={() => setSelectedActivity(null)}
+        title={selectedActivity?.tipe || 'Detail Kegiatan'}
+        icon={<Calendar size={24} />}
+        footer={<button className="btn btn-primary" onClick={() => setSelectedActivity(null)}>Tutup</button>}
+      >
+        {selectedActivity && (
+          <div className="activity-detail-modal">
+            <div className="detail-hero">
+              <h2 className="detail-title">{selectedActivity.judul}</h2>
+              <div className="detail-meta">
+                <div className="meta-item"><Calendar size={16} /> {new Date(selectedActivity.tanggal).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</div>
+                <div className="meta-item"><MapPin size={16} /> {selectedActivity.lokasi}</div>
+                <div className="meta-item"><Clock size={16} /> Diposting oleh {selectedActivity.author}</div>
+              </div>
+            </div>
+            <div className="detail-body">
+              <p>{selectedActivity.deskripsi}</p>
+            </div>
+          </div>
+        )}
+      </Modal>
 
       <div className="vibrant-stats-grid">
         {stats.map((stat, idx) => (
@@ -287,10 +375,71 @@ const Dashboard = () => {
         .legend-note { font-size: 0.7rem; color: var(--text-muted); line-height: 1.5; }
 
         @keyframes growBar { from { height: 0; opacity: 0; } to { opacity: 1; } }
+        
+        .closing-alert-card { 
+          display: flex; align-items: center; gap: 1.5rem; 
+          padding: 1.25rem 2rem; background: #fffbeb; border: 1px solid #fef3c7; 
+          border-radius: 16px; margin-bottom: 1rem; color: #92400e;
+        }
+        .alert-icon-wrapper { 
+          width: 50px; height: 50px; border-radius: 12px; 
+          background: #fef3c7; color: #f59e0b; 
+          display: flex; align-items: center; justify-content: center; 
+        }
+        .alert-content { flex: 1; }
+        .alert-content h3 { font-size: 1.1rem; font-weight: 800; margin-bottom: 0.25rem; }
+        .alert-content p { font-size: 0.85rem; opacity: 0.9; }
+        .btn-sm { padding: 0.5rem 1rem; font-size: 0.8rem; border-radius: 10px; display: flex; align-items: center; gap: 0.5rem; }
+        
+        @keyframes pulse-soft {
+          0% { transform: scale(1); }
+          50% { transform: scale(1.01); }
+          100% { transform: scale(1); }
+        }
+        .animate-pulse-soft { animation: pulse-soft 3s infinite ease-in-out; }
+
         @media (max-width: 1024px) { 
           .dashboard-layout-grids { grid-template-columns: 1fr; }
           .dashboard-hero { flex-direction: column; text-align: center; gap: 1.5rem; }
+          .closing-alert-card { flex-direction: column; text-align: center; padding: 1.5rem; }
         }
+
+        .activity-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+          gap: 1.25rem;
+          margin-top: 1.5rem;
+        }
+
+        .activity-card {
+          padding: 1.5rem;
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
+          border-left: 4px solid var(--primary);
+          transition: all 0.3s ease;
+        }
+
+        .activity-card:hover { font-weight: inherit; transform: translateY(-3px); border-left-width: 8px; }
+        .act-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem; }
+        .act-type { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: var(--primary); background: rgba(37,99,235,0.08); padding: 2px 8px; border-radius: 4px; }
+        .act-date { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; display: flex; align-items: center; gap: 4px; }
+        .act-title { font-size: 1.05rem; font-weight: 800; color: var(--text-main); }
+        .act-loc { font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
+        .act-desc { font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .act-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem; }
+        .act-author { font-size: 0.7rem; color: var(--primary); font-weight: 700; }
+        .read-more { font-size: 0.7rem; font-weight: 800; color: var(--primary); opacity: 0; transition: all 0.2s; }
+        .activity-card:hover .read-more { opacity: 1; }
+        .cursor-pointer { cursor: pointer; }
+
+        /* Detail Modal Styles */
+        .activity-detail-modal { display: flex; flex-direction: column; gap: 1.5rem; }
+        .detail-hero { padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+        .detail-title { font-size: 1.4rem; font-weight: 900; color: var(--primary); margin-bottom: 1rem; line-height: 1.3; }
+        .detail-meta { display: flex; flex-direction: column; gap: 0.75rem; }
+        .meta-item { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-muted); font-weight: 600; }
+        .detail-body { font-size: 1rem; color: var(--text-main); line-height: 1.7; white-space: pre-wrap; }
       ` }} />
     </div>
   );
