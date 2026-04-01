@@ -26,10 +26,8 @@ const PelayananMasyarakat = () => {
   });
 
   useEffect(() => {
-    // Real-time counts from Firebase
     const nibRef = ref(db, 'pelayanan/nib');
     const halalRef = ref(db, 'pelayanan/halal');
-    // Others can be added when data is available
     
     const unsubNib = onValue(nibRef, (snapshot) => {
       setCounts(prev => ({ ...prev, nib: snapshot.exists() ? Object.keys(snapshot.val()).length : 0 }));
@@ -48,8 +46,7 @@ const PelayananMasyarakat = () => {
     {
       id: 'nib',
       title: 'Registrasi NIB',
-      description: 'Pendaftaran Nomor Induk Berusaha',
-      icon: <Fingerprint size={28} />,
+      icon: <Fingerprint size={22} />,
       color: '#3b82f6',
       path: '/pelayanan/nib',
       count: counts.nib
@@ -57,8 +54,7 @@ const PelayananMasyarakat = () => {
     {
       id: 'halal',
       title: 'Registrasi Halal',
-      description: 'Sertifikasi produk UMKM',
-      icon: <ShieldCheck size={28} />,
+      icon: <ShieldCheck size={22} />,
       color: '#10b981',
       path: '/pelayanan/halal',
       count: counts.halal
@@ -66,26 +62,23 @@ const PelayananMasyarakat = () => {
     {
       id: 'bpjs-apbd',
       title: 'BPJS APBD',
-      description: 'Jaminan kesehatan daerah',
-      icon: <HeartPulse size={28} />,
+      icon: <HeartPulse size={22} />,
       color: '#ef4444',
       path: '/pelayanan/bpjs-apbd',
       count: counts.bpjsApbd
     },
     {
       id: 'bpjs-tk',
-      title: 'BPJS Ketenagakerjaan',
-      description: 'Perlindungan jaminan sosial',
-      icon: <Briefcase size={28} />,
+      title: 'BPJS TK',
+      icon: <Briefcase size={22} />,
       color: '#f59e0b',
       path: '/pelayanan/bpjs-tk',
       count: counts.bpjsTk
     },
     {
       id: 'kependudukan',
-      title: 'Data Kependudukan',
-      description: 'Perubahan KK, KTP & Dokumen',
-      icon: <UserPlus size={28} />,
+      title: 'Data Penduduk',
+      icon: <UserPlus size={22} />,
       color: '#8b5cf6',
       path: '/pelayanan/kependudukan',
       count: counts.kependudukan
@@ -98,46 +91,46 @@ const PelayananMasyarakat = () => {
         <div className="header-info">
           <div className="badge-premium">
             <Zap size={14} className="icon-bolt" /> 
-            LAYANAN PUBLIK TERPADU
+            LAYANAN PUBLIK
           </div>
           <h1>Pelayanan Masyarakat</h1>
-          <p>Pilih jenis layanan yang Anda butuhkan. Kami siap melayani dengan sepenuh hati.</p>
+          <p>Sistem Pelayanan Terpadu & Profesional.</p>
         </div>
       </div>
 
-      <div className="services-grid">
+      <div className="services-container horizontal-scroll">
         {services.map((service, index) => (
           <div 
             key={index} 
-            className="service-card-v2 slideUp" 
+            className="service-card-mini slideUp" 
             style={{ '--delay': `${index * 0.1}s` }}
             onClick={() => service.path && navigate(service.path)}
           >
             <div className="card-top">
-              <div className="icon-box" style={{ background: `${service.color}10`, color: service.color }}>
+              <div className="icon-box-mini" style={{ background: `${service.color}10`, color: service.color }}>
                 {service.icon}
               </div>
-              <div className="status-badge">
-                <TrendingUp size={12} /> + Aktif
+              <div className="status-badge-mini">
+                <TrendingUp size={10} /> Aktif
               </div>
             </div>
 
-            <div className="card-middle">
-              <span className="service-label">{service.title}</span>
-              <div className="stat-row">
-                <h2 className="stat-number">{service.count}</h2>
-                <div className="mini-chart" style={{ color: service.color }}>
-                  <BarChart3 size={24} />
+            <div className="card-middle-mini">
+              <span className="service-label-mini">{service.title}</span>
+              <div className="stat-row-mini">
+                <h2 className="stat-number-mini">{service.count}</h2>
+                <div className="mini-chart-decoration" style={{ color: service.color }}>
+                  <BarChart3 size={18} />
                 </div>
               </div>
             </div>
 
-            <div className="card-footer-v2">
-              <div className="progress-bar">
-                <div className="progress-fill" style={{ background: service.color, width: '65%' }}></div>
+            <div className="card-footer-mini">
+              <div className="progress-bar-mini">
+                <div className="progress-fill" style={{ background: service.color, width: '60%' }}></div>
               </div>
-              <span className="action-link" style={{ color: service.color }}>
-                Buka Layanan <ArrowRight size={14} />
+              <span className="action-link-mini" style={{ color: service.color }}>
+                Buka <ArrowRight size={12} />
               </span>
             </div>
           </div>
@@ -148,198 +141,142 @@ const PelayananMasyarakat = () => {
         .pelayanan-page {
           display: flex;
           flex-direction: column;
-          gap: 2.5rem;
+          gap: 1.5rem;
           padding-bottom: 2rem;
         }
 
         .pelayanan-header {
-           padding: 2.5rem;
+           padding: 1.5rem 2rem;
            background: linear-gradient(135deg, var(--primary) 0%, #4f46e5 100%);
-           border-radius: 32px;
+           border-radius: 24px;
            color: white;
            position: relative;
            overflow: hidden;
-           box-shadow: 0 20px 40px rgba(79, 70, 229, 0.15);
-        }
-
-        .pelayanan-header::before {
-           content: '';
-           position: absolute;
-           top: -50px;
-           right: -50px;
-           width: 200px;
-           height: 200px;
-           background: rgba(255,255,255,0.1);
-           border-radius: 50%;
-           filter: blur(40px);
+           box-shadow: 0 15px 30px rgba(79, 70, 229, 0.1);
         }
 
         .badge-premium {
           background: rgba(255,255,255,0.2);
           backdrop-filter: blur(8px);
-          padding: 0.5rem 1.25rem;
+          padding: 0.3rem 0.8rem;
           border-radius: 100px;
-          font-size: 0.7rem;
+          font-size: 0.6rem;
           font-weight: 800;
-          letter-spacing: 1px;
+          letter-spacing: 0.5px;
           display: flex;
           align-items: center;
-          gap: 8px;
-          width: fit-content;
-          margin-bottom: 1rem;
+          gap: 6px;
+          margin-bottom: 0.5rem;
           border: 1px solid rgba(255,255,255,0.3);
         }
 
         .pelayanan-header h1 {
-          font-size: 2.5rem;
+          font-size: 1.8rem;
           font-weight: 900;
-          margin-bottom: 0.5rem;
-          letter-spacing: -0.03em;
+          margin-bottom: 0.25rem;
         }
 
-        .services-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-          gap: 2rem;
+        .pelayanan-header p {
+          font-size: 0.85rem;
+          opacity: 0.9;
         }
 
-        .service-card-v2 {
+        .services-container {
+          display: flex;
+          gap: 1rem;
+          padding: 0.5rem 0.25rem 1.5rem;
+          overflow-x: auto;
+          scroll-snap-type: x mandatory;
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+
+        .services-container::-webkit-scrollbar { display: none; }
+
+        .service-card-mini {
+          flex: 0 0 240px;
+          scroll-snap-align: start;
           background: #ffffff;
-          border-radius: 32px;
-          padding: 2rem;
+          border-radius: 24px;
+          padding: 1.25rem;
           cursor: pointer;
-          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           display: flex;
           flex-direction: column;
-          gap: 1.5rem;
+          gap: 1rem;
           border: 1px solid rgba(0,0,0,0.03);
-          box-shadow: 0 10px 30px rgba(0,0,0,0.03);
-          position: relative;
+          box-shadow: 0 8px 20px rgba(0,0,0,0.02);
         }
 
-        .service-card-v2:hover {
-          transform: translateY(-10px);
-          box-shadow: 0 20px 50px rgba(0,0,0,0.08);
+        .service-card-mini:hover {
+          transform: translateY(-8px);
+          box-shadow: 0 15px 35px rgba(0,0,0,0.06);
           border-color: rgba(0,0,0,0.06);
         }
 
-        .card-top {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-        }
+        .card-top { display: flex; justify-content: space-between; align-items: flex-start; }
 
-        .icon-box {
-          width: 60px;
-          height: 60px;
-          border-radius: 20px;
+        .icon-box-mini {
+          width: 44px;
+          height: 44px;
+          border-radius: 14px;
           display: flex;
           align-items: center;
           justify-content: center;
-          transition: transform 0.3s;
         }
 
-        .service-card-v2:hover .icon-box {
-          transform: scale(1.1) rotate(5deg);
-        }
-
-        .status-badge {
+        .status-badge-mini {
           background: #ecfdf5;
           color: #10b981;
-          padding: 0.4rem 0.8rem;
+          padding: 0.25rem 0.6rem;
           border-radius: 100px;
-          font-size: 0.75rem;
+          font-size: 0.65rem;
           font-weight: 800;
           display: flex;
           align-items: center;
-          gap: 6px;
+          gap: 4px;
         }
 
-        .card-middle {
+        .card-middle-mini { display: flex; flex-direction: column; gap: 0.25rem; }
+        .service-label-mini { font-size: 0.8rem; font-weight: 700; color: #64748b; }
+        .stat-row-mini { display: flex; justify-content: space-between; align-items: flex-end; }
+        .stat-number-mini { font-size: 1.75rem; font-weight: 800; color: #1e293b; line-height: 1; }
+        .mini-chart-decoration { opacity: 0.25; }
+
+        .card-footer-mini {
+          margin-top: 0.5rem;
           display: flex;
           flex-direction: column;
-          gap: 0.5rem;
+          gap: 0.75rem;
         }
 
-        .service-label {
-          font-size: 1rem;
-          font-weight: 700;
-          color: #64748b;
-        }
-
-        .stat-row {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-end;
-        }
-
-        .stat-number {
-          font-size: 2.5rem;
-          font-weight: 800;
-          color: #1e293b;
-          line-height: 1;
-        }
-
-        .mini-chart {
-          opacity: 0.3;
-          padding-bottom: 4px;
-        }
-
-        .card-footer-v2 {
-          margin-top: 1rem;
-          display: flex;
-          flex-direction: column;
-          gap: 1.25rem;
-        }
-
-        .progress-bar {
-          height: 6px;
+        .progress-bar-mini {
+          height: 4px;
           background: #f1f5f9;
           border-radius: 100px;
           overflow: hidden;
         }
 
-        .progress-fill {
-          height: 100%;
-          border-radius: 100px;
-          transition: width 1s ease-out;
-        }
+        .progress-fill { height: 100%; border-radius: 100px; }
 
-        .action-link {
-          font-size: 0.85rem;
+        .action-link-mini {
+          font-size: 0.75rem;
           font-weight: 800;
           display: flex;
           align-items: center;
-          gap: 6px;
+          gap: 4px;
           justify-content: flex-end;
           opacity: 0.8;
-          transition: transform 0.2s;
         }
 
-        .service-card-v2:hover .action-link {
-          transform: translateX(5px);
-          opacity: 1;
-        }
-
-        /* Animations */
-        .fadeIn { animation: fadeIn 0.6s ease-out forwards; }
-        .slideUp { animation: slideUp 0.6s ease-out forwards; animation-delay: var(--delay); opacity: 0; }
-        .slideDown { animation: slideDown 0.6s ease-out forwards; }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { 
-          from { opacity: 0; transform: translateY(30px); } 
-          to { opacity: 1; transform: translateY(0); } 
-        }
-        @keyframes slideDown { 
-          from { opacity: 0; transform: translateY(-30px); } 
+          from { opacity: 0; transform: translateY(20px); } 
           to { opacity: 1; transform: translateY(0); } 
         }
 
         @media (max-width: 640px) {
-          .pelayanan-header { padding: 1.5rem; }
-          .pelayanan-header h1 { font-size: 1.8rem; }
-          .stat-number { font-size: 2rem; }
+          .service-card-mini { flex: 0 0 200px; }
+          .stat-number-mini { font-size: 1.5rem; }
         }
       ` }} />
     </div>

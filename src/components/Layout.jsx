@@ -23,7 +23,7 @@ import {
   Clock,
   Calendar
 } from 'lucide-react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import Modal from './Modal';
 
 const Layout = ({ children }) => {
@@ -37,6 +37,7 @@ const Layout = ({ children }) => {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -175,8 +176,11 @@ const Layout = ({ children }) => {
                 return (
                   <li key={idx} className="menu-item-group">
                     <button
-                      className={`menu-link ${isOpen ? 'active' : ''}`}
-                      onClick={() => setIsOpen(!isOpen)}
+                      className={`menu-link ${isOpen || location.pathname.startsWith(item.path) ? 'active' : ''}`}
+                      onClick={() => {
+                        setIsOpen(!isOpen);
+                        if (item.path) navigate(item.path);
+                      }}
                     >
                       <span className="link-content">
                         {item.icon}
