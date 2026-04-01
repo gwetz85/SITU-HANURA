@@ -213,7 +213,15 @@ const Karyawan = () => {
           jabatan: emp.jabatan,
           nik: emp.nik,
           bulan_gaji: monthLabel,
-          kasbon_total: totalKasbon,
+          // Financial Details
+          gaji: parseInt(emp.gaji) || 0,
+          tunjangan_jabatan: parseInt(emp.tunjangan_jabatan) || 0,
+          tunjangan_makan: parseInt(emp.tunjangan_makan) || 0,
+          bonus_kinerja: parseInt(emp.bonus_kinerja) || 0,
+          totalKasbon: totalKasbon, // Changed field name to match SlipGaji
+          bpjs_kesehatan: parseInt(emp.bpjs_kesehatan) || 0,
+          bpjs_ketenagakerjaan: parseInt(emp.bpjs_ketenagakerjaan) || 0,
+          iuran_koperasi: parseInt(emp.iuran_koperasi) || 0,
           kasbon_dates: empKasbonList.map(k => k.tanggal).join(', '),
           sisa_gaji: sisaGaji,
           timestamp: new Date().toISOString()
@@ -619,6 +627,18 @@ const Karyawan = () => {
                         <td className="text-red font-bold">-{formatCurrency(a.kasbon_total)}</td>
                         <td className="text-right">
                           <span className="font-bold text-primary" style={{ fontSize: '1rem' }}>{formatCurrency(a.sisa_gaji)}</span>
+                          <button 
+                            className="icon-btn-ghost ml-2" 
+                            title="Cetak Slip Historis"
+                            onClick={() => setPrintingEmployee({
+                              ...a,
+                              totalKasbon: a.totalKasbon || a.kasbon_total || 0,
+                              penerimaanBersih: a.sisa_gaji,
+                              terbilang: formatTerbilang(a.sisa_gaji)
+                            })}
+                          >
+                            <Printer size={16} />
+                          </button>
                         </td>
                       </tr>
                     ))}

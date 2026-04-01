@@ -13,7 +13,7 @@ const SlipGaji = ({ data }) => {
     return new Intl.NumberFormat('id-ID').format(val || 0);
   };
 
-  const periodLong = new Date().toLocaleString('id-ID', { month: 'long', year: 'numeric' });
+  const periodLong = data.bulan_gaji || new Date().toLocaleString('id-ID', { month: 'long', year: 'numeric' });
   const timestamp = new Date().toLocaleString('id-ID');
   
   // Calculations
