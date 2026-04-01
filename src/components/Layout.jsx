@@ -57,7 +57,8 @@ const Layout = ({ children }) => {
       settings: 'Pengaturan',
       about: 'Tentang Aplikasi',
       offline: 'OFFLINE',
-      inventaris: 'Inventaris Kantor'
+      inventaris: 'Inventaris Kantor',
+      pelayanan: 'PELAYANAN MASYARAKAT'
     },
     en: {
       dashboard: 'Dashboard',
@@ -71,7 +72,8 @@ const Layout = ({ children }) => {
       settings: 'Settings',
       about: 'About App',
       offline: 'OFFLINE',
-      inventaris: 'Office Inventory'
+      inventaris: 'Office Inventory',
+      pelayanan: 'PUBLIC SERVICE'
     }
   }[language || 'id'];
 
@@ -89,6 +91,7 @@ const Layout = ({ children }) => {
 
   const menuItems = [
     { title: t.dashboard, icon: <LayoutDashboard size={20} />, path: '/', roles: ['Admin', 'Petugas'] },
+    { title: t.pelayanan, icon: <Users size={20} />, path: '/pelayanan', roles: ['Admin', 'Petugas'] },
     {
       title: t.surat,
       icon: <Mail size={20} />,
