@@ -507,7 +507,7 @@ const Layout = ({ children }) => {
         /* Centered Nav Inner */
         .navbar-inner {
           width: 100%;
-          max-width: 1400px;
+          max-width: 1280px;
           margin: 0 auto;
           display: flex;
           justify-content: space-between;
@@ -577,7 +577,7 @@ const Layout = ({ children }) => {
           background: var(--background); 
           flex: 1; 
           width: 100%;
-          max-width: 1400px;
+          max-width: 1280px;
           margin: 0 auto;
           animation: pageFadeIn 0.5s ease-out;
         }
