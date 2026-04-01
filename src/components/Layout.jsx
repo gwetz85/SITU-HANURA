@@ -176,7 +176,7 @@ const Layout = ({ children }) => {
                 return (
                   <li key={idx} className="menu-item-group">
                     <button
-                      className={`menu-link ${isOpen || location.pathname.startsWith(item.path) ? 'active' : ''}`}
+                      className={`menu-link ${(isOpen || (item.path !== '/' && location.pathname.startsWith(item.path)) || (item.path === '/' && location.pathname === '/')) ? 'active' : ''}`}
                       onClick={() => {
                         setIsOpen(!isOpen);
                         if (item.path) navigate(item.path);
@@ -203,7 +203,7 @@ const Layout = ({ children }) => {
 
               return (
                 <li key={idx}>
-                  <NavLink to={item.path} className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}>
+                  <NavLink to={item.path} className={({ isActive }) => `menu-link ${(isActive || (item.path !== '/' && location.pathname.startsWith(item.path))) ? 'active' : ''}`}>
                     <span className="link-content">
                       {item.icon}
                       <span className="link-text">{item.title}</span>
