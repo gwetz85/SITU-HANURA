@@ -87,13 +87,13 @@ const Layout = ({ children }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isUserMenuOpen]);
 
-  // Sync Submenu Open state with Current Path
+  // Sync Submenu Open state with Current Path (ONLY on initial mount or when entering a module)
   useEffect(() => {
-    if (location.pathname.startsWith('/surat')) setIsSuratOpen(true);
-    if (location.pathname.startsWith('/kas')) setIsKasOpen(true);
-    if (location.pathname.startsWith('/pelayanan')) setIsPelayananOpen(true);
-    if (location.pathname.startsWith('/admin/kegiatan')) setIsKegiatanOpen(true);
-  }, [location.pathname]);
+    if (location.pathname.startsWith('/surat') && !isSuratOpen) setIsSuratOpen(true);
+    if (location.pathname.startsWith('/kas') && !isKasOpen) setIsKasOpen(true);
+    if (location.pathname.startsWith('/pelayanan') && !isPelayananOpen) setIsPelayananOpen(true);
+    if (location.pathname.startsWith('/admin/kegiatan') && !isKegiatanOpen) setIsKegiatanOpen(true);
+  }, []); // Only run ONCE on mount to avoid overriding manual toggle
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
@@ -187,7 +187,10 @@ const Layout = ({ children }) => {
                       className={`menu-link ${(isOpen || (item.path !== '/' && location.pathname.startsWith(item.path)) || (item.path === '/' && location.pathname === '/')) ? 'active' : ''}`}
                       onClick={() => {
                         setIsOpen(!isOpen);
-                        if (item.path) navigate(item.path);
+                        // Only navigate if we are opening it and NOT already within that path
+                        if (!isOpen && item.path && !location.pathname.startsWith(item.path)) {
+                          navigate(item.path);
+                        }
                       }}
                     >
                       <span className="link-content">
