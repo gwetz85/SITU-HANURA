@@ -20,7 +20,8 @@ import {
   Circle,
   Shield,
   ChevronRight,
-  Clock
+  Clock,
+  Calendar
 } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import Modal from './Modal';
