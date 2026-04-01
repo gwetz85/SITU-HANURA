@@ -318,20 +318,22 @@ const Dashboard = () => {
 
         @media (max-width: 640px) {
           .stats-row-grid { grid-template-columns: 1fr; }
-          .dash-header-banner { padding: 1.25rem 1.5rem; }
-          .dash-header-banner h1 { font-size: 1.5rem; }
-          .dash-header-banner p { font-size: 0.8rem; }
-          .header-badge-premium { font-size: 0.55rem; padding: 0.25rem 0.75rem; }
-          .count-big { font-size: 1.8rem; }
-          .history-table-container { padding: 1rem 0; }
-          .table-header-premium { padding: 0 1rem 1rem; flex-direction: column; align-items: flex-start; gap: 10px; }
-          .btn-clear-history { width: 100%; justify-content: center; }
+          .dash-header-banner { padding: 1rem 1.25rem; }
+          .dash-header-banner h1 { font-size: 1.25rem; line-height: 1.3; }
+          .dash-header-banner p { font-size: 0.75rem; line-height: 1.4; max-width: 100%; }
+          .header-badge-premium { font-size: 0.5rem; padding: 0.2rem 0.6rem; margin-bottom: 0.5rem; }
+          .count-big { font-size: 1.6rem; }
+          .history-table-container { padding: 0.75rem 0; margin-top: 1rem; }
+          .table-header-premium { padding: 0 1rem 0.75rem; gap: 8px; }
+          .btn-clear-history { font-size: 0.7rem; padding: 0.4rem 1rem; }
+          .header-date-pill { font-size: 0.7rem; padding: 0.4rem 1rem; margin-top: 1rem; }
         }
 
         @media (max-width: 480px) {
-          .dash-header-banner { border-radius: 16px; }
-          .premium-stat-box { padding: 1.25rem; border-radius: 20px; }
-          .avatar-letter { width: 24px; height: 24px; font-size: 0.6rem; }
+          .dash-header-banner { border-radius: 12px; }
+          .dash-header-banner h1 { font-size: 1.15rem; }
+          .premium-stat-box { padding: 1rem; border-radius: 16px; gap: 0.75rem; }
+          .avatar-letter { width: 22px; height: 22px; font-size: 0.6rem; }
         }
       ` }} />
     </div>

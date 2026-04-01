@@ -599,24 +599,33 @@ const Layout = ({ children }) => {
         }
 
         @media (max-width: 1024px) {
-          .sidebar { transform: translateX(-100%); }
+          .sidebar { 
+            transform: translateX(-100%); 
+            width: 280px; 
+            z-index: 2000; 
+          }
           .sidebar.active { transform: translateX(0); }
           .main-container { margin-left: 0 !important; }
+          .sidebar-overlay { z-index: 1900; }
         }
 
         @media (max-width: 640px) {
-          .top-navbar { padding: 0 1rem; }
-          .period-selector-container { margin-left: 0.5rem; padding: 0.3rem 0.6rem; }
+          .top-navbar { height: 64px; padding: 0 0.75rem; }
+          .navbar-inner { gap: 0.5rem; }
+          .period-selector-container { margin-left: 0; padding: 0.25rem 0.5rem; gap: 4px; border-radius: 8px; }
           .period-badge { display: none; }
-          .working-month-select { font-size: 0.75rem; }
-          .content-viewport { padding: 1rem; }
+          .working-month-select { font-size: 0.7rem; max-width: 110px; }
+          .content-viewport { padding: 1rem 0.75rem; }
+          .sidebar-header { padding: 1rem; }
+          .brand-name { font-size: 0.95rem; }
         }
 
         @media (max-width: 480px) {
-          .period-selector-container { max-width: 140px; }
+          .header-right { display: none; } /* Hide user badge on very small screens to save space */
+          .period-selector-container { background: transparent; border: none; }
           .time-display { display: none; }
-          .sidebar-footer { flex-direction: column; gap: 10px; align-items: flex-start; }
-          .clock-container { margin-bottom: 5px; }
+          .sidebar-footer { padding: 0.75rem; flex-direction: column; gap: 8px; align-items: flex-start; }
+          .clock-container { gap: 0.5rem; }
         }
       ` }} />
     </div>
