@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
 import { 
   Users, 
   Wallet, 
@@ -630,7 +631,7 @@ const Karyawan = () => {
                         </td>
                         <td>{a.nik || '-'}</td>
                         <td><span className="status-badge success" style={{ background: 'rgba(37, 99, 235, 0.1)', color: 'var(--primary)' }}>{a.bulan_gaji}</span></td>
-                        <td className="text-red font-bold">-{formatCurrency(a.kasbon_total)}</td>
+                        <td className="text-red font-bold">-{formatCurrency(a.totalKasbon || a.kasbon_total || 0)}</td>
                         <td className="text-right">
                           <span className="font-bold text-primary" style={{ fontSize: '1rem' }}>{formatCurrency(a.sisa_gaji)}</span>
                           <button 
