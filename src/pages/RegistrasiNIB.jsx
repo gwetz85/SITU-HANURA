@@ -24,6 +24,7 @@ const RegistrasiNIB = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [locationLoading, setLocationLoading] = useState(false);
 
   // Pelaku Usaha State
   const [pelakuUsaha, setPelakuUsaha] = useState({
@@ -92,19 +93,19 @@ const RegistrasiNIB = () => {
       return;
     }
 
-    setLoading(true);
+    setLocationLoading(true);
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
         setPelakuUsaha(prev => ({ ...prev, koordinat: `${latitude}, ${longitude}` }));
-        setLoading(false);
+        setLocationLoading(false);
       },
       (error) => {
-        setLoading(false);
+        setLocationLoading(false);
         console.error('Error getting location:', error);
         alert('Gagal mengambil lokasi. Pastikan izin lokasi diberikan.');
       },
-      { enableHighAccuracy: true }
+      { enableHighAccuracy: true, timeout: 10000 }
     );
   };
 
@@ -267,8 +268,12 @@ const RegistrasiNIB = () => {
                     value={pelakuUsaha.koordinat} 
                     placeholder="Contoh: -5.412, 105.257"
                   />
-                  <button type="button" className="btn-get-location" onClick={handleGetLocation}>
-                    <MapPin size={18} /> Ambil Titik Koordinat
+                  <button type="button" className="btn-get-location" onClick={handleGetLocation} disabled={locationLoading}>
+                    {locationLoading ? (
+                      <>Memproses...</>
+                    ) : (
+                      <><MapPin size={18} /> Ambil Titik Koordinat</>
+                    )}
                   </button>
                </div>
                <span className="input-tip">Pastikan GPS aktif dan berikan izin akses lokasi pada browser.</span>

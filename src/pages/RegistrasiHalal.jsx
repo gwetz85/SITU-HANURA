@@ -28,6 +28,7 @@ const RegistrasiHalal = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [locationLoading, setLocationLoading] = useState(false);
 
   // Pelaku Usaha State
   const [pelakuUsaha, setPelakuUsaha] = useState({
@@ -100,19 +101,19 @@ const RegistrasiHalal = () => {
       return;
     }
 
-    setLoading(true);
+    setLocationLoading(true);
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
         setPelakuUsaha(prev => ({ ...prev, koordinat: `${latitude}, ${longitude}` }));
-        setLoading(false);
+        setLocationLoading(false);
       },
       (error) => {
-        setLoading(false);
+        setLocationLoading(false);
         console.error('Error getting location:', error);
         alert('Gagal mengambil lokasi. Pastikan izin lokasi diberikan.');
       },
-      { enableHighAccuracy: true }
+      { enableHighAccuracy: true, timeout: 10000 }
     );
   };
 
@@ -219,8 +220,12 @@ const RegistrasiHalal = () => {
                <label>Titik Koordinat Lokasi (Real-time)</label>
                <div className="location-input-group">
                   <input readOnly name="koordinat" value={pelakuUsaha.koordinat} placeholder="Kilk tombol di samping..." />
-                  <button type="button" className="btn-get-location" onClick={handleGetLocation}>
-                    <MapPin size={18} /> Ambil Titik Koordinat
+                  <button type="button" className="btn-get-location" onClick={handleGetLocation} disabled={locationLoading}>
+                    {locationLoading ? (
+                      <>Memproses...</>
+                    ) : (
+                      <><MapPin size={18} /> Ambil Titik Koordinat</>
+                    )}
                   </button>
                </div>
             </div>
