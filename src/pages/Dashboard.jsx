@@ -14,10 +14,11 @@ import {
   AlertTriangle,
   ArrowRight,
   Info,
-  MapPin
+  MapPin,
+  Trash2
 } from 'lucide-react';
 import { db } from '../firebase';
-import { ref, onValue, query, limitToLast } from 'firebase/database';
+import { ref, onValue, query, limitToLast, remove } from 'firebase/database';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
@@ -88,6 +89,29 @@ const Dashboard = () => {
       unsubscribeLogs();
     };
   }, []);
+
+  const handleDeleteLog = async (id) => {
+    if (user?.role !== 'Admin') return;
+    if (window.confirm('Hapus entri riwayat ini?')) {
+      try {
+        await remove(ref(db, `logs/${id}`));
+      } catch (err) {
+        alert('Gagal menghapus log');
+      }
+    }
+  };
+
+  const handleClearLogs = async () => {
+    if (user?.role !== 'Admin') return;
+    if (window.confirm('PERINGATAN: Hapus SEMUA riwayat pekerjaan secara permanen?')) {
+      try {
+        await remove(ref(db, 'logs'));
+        alert('Riwayat berhasil dibersihkan');
+      } catch (err) {
+        alert('Gagal membersihkan riwayat');
+      }
+    }
+  };
 
   const formatCurrency = (val) => {
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val);
@@ -231,6 +255,12 @@ const Dashboard = () => {
             </div>
           </div>
           <div className="history-badge">LIVE MONITORING</div>
+          {user?.role === 'Admin' && logs.length > 0 && (
+            <button className="btn-clear-history" onClick={handleClearLogs} style={{ marginLeft: 'auto' }}>
+              <Trash2 size={14} />
+              <span>Bersihkan Riwayat</span>
+            </button>
+          )}
         </div>
         <div className="table-responsive-compact">
           <table className="history-table">
@@ -240,6 +270,7 @@ const Dashboard = () => {
                 <th><Archive size={12} /> Menu Input</th>
                 <th><Info size={12} /> Keterangan Aktivitas</th>
                 <th><Users size={12} /> Petugas</th>
+                {user?.role === 'Admin' && <th style={{ textAlign: 'right' }}>Aksi</th>}
               </tr>
             </thead>
             <tbody>
@@ -257,6 +288,13 @@ const Dashboard = () => {
                     <div className="user-avatar-mini">{log.petugas?.charAt(0).toUpperCase()}</div>
                     <span>{log.petugas}</span>
                   </td>
+                  {user?.role === 'Admin' && (
+                    <td style={{ textAlign: 'right' }}>
+                      <button className="btn-delete-log" onClick={() => handleDeleteLog(log.id)} title="Hapus Log">
+                        <Trash2 size={14} />
+                      </button>
+                    </td>
+                  )}
                 </tr>
               )) : (
                 <tr>
@@ -509,7 +547,17 @@ const Dashboard = () => {
         .fadeIn { animation: fadeIn 0.8s ease-out; }
         .slideUp { animation: slideUp 0.8s ease-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { opacity: 0, transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Delete Buttons */
+        .btn-clear-history {
+          background: rgba(239, 68, 68, 0.08); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2);
+          padding: 0.4rem 0.8rem; border-radius: 8px; font-size: 0.7rem; font-weight: 800;
+          display: flex; align-items: center; gap: 6px; cursor: pointer; transition: all 0.2s;
+        }
+        .btn-clear-history:hover { background: #ef4444; color: white; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2); }
+        .btn-delete-log { background: transparent; border: none; color: #94a3b8; cursor: pointer; padding: 4px; border-radius: 4px; transition: all 0.2s; }
+        .btn-delete-log:hover { color: #ef4444; background: rgba(239, 68, 68, 0.05); transform: scale(1.1); }
       ` }} />
     </div>
   );
