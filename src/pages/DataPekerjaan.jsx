@@ -17,7 +17,8 @@ import {
   MoreVertical,
   Fingerprint,
   Archive,
-  Fingerprint as FingerIcon
+  Fingerprint as FingerIcon,
+  MapPin
 } from 'lucide-react';
 import { db } from '../firebase';
 import { ref, onValue, update } from 'firebase/database';
@@ -233,22 +234,6 @@ const DataPekerjaan = () => {
                       <div className="info-item"><span className="label">HP</span><span className="value">{showDetail.pelakuUsaha?.ponsel}</span></div>
                       <div className="info-item"><span className="label">Email</span><span className="value">{showDetail.pelakuUsaha?.email || '-'}</span></div>
                       <div className="info-item"><span className="label">Alamat</span><span className="value">{showDetail.pelakuUsaha?.alamat}, Kel. {showDetail.pelakuUsaha?.kelurahan}</span></div>
-                      <div className="info-item full">
-                        <span className="label">Titik Koordinat</span>
-                        <span className="value" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          {showDetail.pelakuUsaha?.koordinat || '-'}
-                          {showDetail.pelakuUsaha?.koordinat && (
-                            <a 
-                              href={`https://www.google.com/maps/search/?api=1&query=${showDetail.pelakuUsaha.koordinat}`} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="map-link-btn"
-                            >
-                              <MapPin size={12} /> Buka Peta
-                            </a>
-                          )}
-                        </span>
-                      </div>
                    </div>
                 </div>
 
@@ -261,6 +246,22 @@ const DataPekerjaan = () => {
                            <div className="info-item"><span className="label">Bidang</span><span className="value">{u.bidangUsaha}</span></div>
                            <div className="info-item"><span className="label">Modal</span><span className="value">{u.modalUsaha}</span></div>
                            <div className="info-item"><span className="label">Alamat</span><span className="value">{u.alamatUsaha}</span></div>
+                           <div className="info-item">
+                             <span className="label">Koordinat</span>
+                             <span className="value" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                               {u.koordinat || '-'}
+                               {u.koordinat && (
+                                 <a 
+                                   href={`https://www.google.com/maps/search/?api=1&query=${u.koordinat}`} 
+                                   target="_blank" 
+                                   rel="noopener noreferrer"
+                                   className="map-link-btn"
+                                 >
+                                   <MapPin size={12} /> Buka Peta
+                                 </a>
+                               )}
+                             </span>
+                           </div>
                         </div>
                      </div>
                    ))}

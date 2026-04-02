@@ -37,8 +37,7 @@ const RegistrasiNIB = () => {
     tanggalLahir: '',
     alamat: '',
     rtRw: '',
-    kelurahan: '',
-    koordinat: ''
+    kelurahan: ''
   });
 
   // Usaha List State (Support multiple businesses)
@@ -50,7 +49,8 @@ const RegistrasiNIB = () => {
       modalUsaha: '',
       lamaUsaha: '',
       luasLokasi: '',
-      alamatUsaha: ''
+      alamatUsaha: '',
+      koordinat: ''
     }
   ]);
 
@@ -76,7 +76,8 @@ const RegistrasiNIB = () => {
         modalUsaha: '',
         lamaUsaha: '',
         luasLokasi: '',
-        alamatUsaha: ''
+        alamatUsaha: '',
+        koordinat: ''
       }
     ]);
   };
@@ -87,17 +88,19 @@ const RegistrasiNIB = () => {
     setUsahaList(newList);
   };
 
-  const handleGetLocation = () => {
+  const handleGetLocation = (index) => {
     if (!navigator.geolocation) {
       alert('Geolocation tidak didukung oleh browser Anda.');
       return;
     }
 
-    setLocationLoading(true);
+    setLocationLoading(index);
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
-        setPelakuUsaha(prev => ({ ...prev, koordinat: `${latitude}, ${longitude}` }));
+        const newList = [...usahaList];
+        newList[index].koordinat = `${latitude}, ${longitude}`;
+        setUsahaList(newList);
         setLocationLoading(false);
       },
       (error) => {
@@ -259,25 +262,6 @@ const RegistrasiNIB = () => {
                 placeholder="Nama Kelurahan"
               />
             </div>
-            <div className="form-group full">
-               <label>Titik Koordinat Lokasi (Real-time)</label>
-               <div className="location-input-group">
-                  <input 
-                    readOnly 
-                    name="koordinat" 
-                    value={pelakuUsaha.koordinat} 
-                    placeholder="Contoh: -5.412, 105.257"
-                  />
-                  <button type="button" className="btn-get-location" onClick={handleGetLocation} disabled={locationLoading}>
-                    {locationLoading ? (
-                      <>Memproses...</>
-                    ) : (
-                      <><MapPin size={18} /> Ambil Titik Koordinat</>
-                    )}
-                  </button>
-               </div>
-               <span className="input-tip">Pastikan GPS aktif dan berikan izin akses lokasi pada browser.</span>
-            </div>
           </div>
         </div>
 
@@ -365,6 +349,30 @@ const RegistrasiNIB = () => {
                     onChange={(e) => handleUsahaChange(index, e)} 
                     placeholder="Alamat lengkap lokasi usaha"
                   />
+                </div>
+                <div className="form-group full">
+                   <label>Titik Koordinat Lokasi Usaha</label>
+                   <div className="location-input-group">
+                      <input 
+                        name="koordinat" 
+                        value={usaha.koordinat} 
+                        onChange={(e) => handleUsahaChange(index, e)}
+                        placeholder="Contoh: -5.412, 105.257"
+                      />
+                      <button 
+                        type="button" 
+                        className="btn-get-location" 
+                        onClick={() => handleGetLocation(index)} 
+                        disabled={locationLoading === index}
+                      >
+                        {locationLoading === index ? (
+                          <>Memproses...</>
+                        ) : (
+                          <><MapPin size={18} /> Ambil Lokasi</>
+                        )}
+                      </button>
+                   </div>
+                   <span className="input-tip">Bisa otomatis ambil lokasi atau ketik manual koordinat (Latitude, Longitude).</span>
                 </div>
               </div>
             </div>

@@ -41,8 +41,7 @@ const RegistrasiHalal = () => {
     tanggalLahir: '',
     alamat: '',
     rtRw: '',
-    kelurahan: '',
-    koordinat: ''
+    kelurahan: ''
   });
 
   // Usaha List State
@@ -54,7 +53,8 @@ const RegistrasiHalal = () => {
       modalUsaha: '',
       lamaUsaha: '',
       luasLokasi: '',
-      alamatUsaha: ''
+      alamatUsaha: '',
+      koordinat: ''
     }
   ]);
 
@@ -95,17 +95,19 @@ const RegistrasiHalal = () => {
     setList(newList);
   };
 
-  const handleGetLocation = () => {
+  const handleGetLocation = (index) => {
     if (!navigator.geolocation) {
       alert('Geolocation tidak didukung oleh browser Anda.');
       return;
     }
 
-    setLocationLoading(true);
+    setLocationLoading(index);
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
-        setPelakuUsaha(prev => ({ ...prev, koordinat: `${latitude}, ${longitude}` }));
+        const newList = [...usahaList];
+        newList[index].koordinat = `${latitude}, ${longitude}`;
+        setUsahaList(newList);
         setLocationLoading(false);
       },
       (error) => {
@@ -216,19 +218,6 @@ const RegistrasiHalal = () => {
               <label>Kelurahan</label>
               <input required name="kelurahan" value={pelakuUsaha.kelurahan} onChange={handlePelakuChange} />
             </div>
-            <div className="form-group full">
-               <label>Titik Koordinat Lokasi (Real-time)</label>
-               <div className="location-input-group">
-                  <input readOnly name="koordinat" value={pelakuUsaha.koordinat} placeholder="Kilk tombol di samping..." />
-                  <button type="button" className="btn-get-location" onClick={handleGetLocation} disabled={locationLoading}>
-                    {locationLoading ? (
-                      <>Memproses...</>
-                    ) : (
-                      <><MapPin size={18} /> Ambil Titik Koordinat</>
-                    )}
-                  </button>
-               </div>
-            </div>
           </div>
         </div>
 
@@ -248,6 +237,29 @@ const RegistrasiHalal = () => {
                 <div className="form-group"><label>Lama Usaha</label><input required name="lamaUsaha" value={usaha.lamaUsaha} onChange={(e) => handleUsahaChange(index, e)} /></div>
                 <div className="form-group"><label>Luas Lokasi (m²)</label><input required name="luasLokasi" value={usaha.luasLokasi} onChange={(e) => handleUsahaChange(index, e)} /></div>
                 <div className="form-group full"><label>Alamat Usaha</label><textarea required name="alamatUsaha" value={usaha.alamatUsaha} onChange={(e) => handleUsahaChange(index, e)} /></div>
+                <div className="form-group full">
+                   <label>Titik Koordinat Lokasi Usaha</label>
+                   <div className="location-input-group">
+                      <input 
+                        name="koordinat" 
+                        value={usaha.koordinat} 
+                        onChange={(e) => handleUsahaChange(index, e)}
+                        placeholder="Contoh: -5.412, 105.257"
+                      />
+                      <button 
+                        type="button" 
+                        className="btn-get-location" 
+                        onClick={() => handleGetLocation(index)} 
+                        disabled={locationLoading === index}
+                      >
+                        {locationLoading === index ? (
+                          <>Memproses...</>
+                        ) : (
+                          <><MapPin size={18} /> Ambil Lokasi</>
+                        )}
+                      </button>
+                   </div>
+                </div>
               </div>
             </div>
           ))}
