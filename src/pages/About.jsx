@@ -4,8 +4,8 @@ import {
 } from 'lucide-react';
 
 const About = () => {
-  const version = "2.1.5-stable";
-  const buildDate = "31 Maret 2026";
+  const version = "4.0.1-stable";
+  const buildDate = "03 April 2026";
 
   return (
     <div className="about-page fadeIn">
@@ -30,9 +30,19 @@ const About = () => {
             </p>
           </div>
 
+          <div className="about-section info-update-section">
+            <h3 className="section-title"><Zap size={18} /> INFO UPDATE :</h3>
+            <ul className="update-list">
+              <li><div className="dot-update"></div> Penambahan Fitur Chat</li>
+              <li><div className="dot-update"></div> Penambahan Menu Pelayanan Masyarakat</li>
+              <li><div className="dot-update"></div> Penambahan Menu Keanggotaan Hanura</li>
+              <li><div className="dot-update"></div> Penambahan Menu Inventaris Kantor</li>
+            </ul>
+          </div>
+
           <div className="features-highlight">
             <div className="feature-chip"><Smartphone size={14} /> 1 User 1 Perangkat</div>
-            <div className="feature-chip"><Zap size={14} /> Role-Based Access</div>
+            <div className="feature-chip"><ShieldCheck size={14} /> Role-Based Access</div>
             <div className="feature-chip"><Globe size={14} /> Mobile Responsive</div>
           </div>
 
@@ -112,6 +122,10 @@ const About = () => {
           transition: all 0.3s ease;
         }
         .feature-chip:hover { border-color: var(--primary); transform: translateY(-2px); }
+
+        .update-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+        .update-list li { display: flex; align-items: center; gap: 12px; font-size: 0.95rem; font-weight: 600; color: var(--text-main); }
+        .dot-update { width: 8px; height: 8px; background: var(--primary); border-radius: 50%; box-shadow: 0 0 10px rgba(37,99,235,0.4); }
 
         .developer-card { padding: 1.5rem; border: 1px solid var(--border); }
         .dev-main { display: flex; align-items: center; gap: 1.25rem; margin-bottom: 1.5rem; }
