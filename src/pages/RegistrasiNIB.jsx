@@ -392,7 +392,10 @@ const RegistrasiNIB = () => {
           <button 
             type="button" 
             className="btn-print-outline" 
-            onClick={() => generateRegistrationPDF({ pelakuUsaha, usahaList, category: 'NIB' })}
+            onClick={() => {
+              console.log('Cetak NIB Clicked');
+              generateRegistrationPDF({ pelakuUsaha, usahaList, category: 'NIB' });
+            }}
           >
             <Printer size={18} /> Cetak Data (PDF)
           </button>
