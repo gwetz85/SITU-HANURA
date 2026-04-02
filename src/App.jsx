@@ -56,7 +56,7 @@ function App() {
       <Route path="/users" element={<ProtectedRoute allowedRoles={['Admin']}><ManajemenUser /></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute allowedRoles={['Admin', 'Petugas']}><Pengaturan /></ProtectedRoute>} />
       <Route path="/about" element={<ProtectedRoute allowedRoles={['Admin', 'Petugas']}><About /></ProtectedRoute>} />
-      <Route path="/chat" element={<ProtectedRoute allowedRoles={['Admin']}><Chat /></ProtectedRoute>} />
+      <Route path="/chat" element={<ProtectedRoute allowedRoles={['Admin', 'Petugas', 'Verifikator']}><Chat /></ProtectedRoute>} />
       
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

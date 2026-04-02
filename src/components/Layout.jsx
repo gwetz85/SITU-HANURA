@@ -143,7 +143,7 @@ const Layout = ({ children }) => {
       ]
     },
     { title: t.pustaka, icon: <Library size={20} />, path: '/pustaka', roles: ['Admin', 'Petugas'] },
-    { title: 'Chat SITU', icon: <MessageSquare size={20} />, path: '/chat', roles: ['Admin'] },
+    { title: 'Chat SITU', icon: <MessageSquare size={20} />, path: '/chat', roles: ['Admin', 'Petugas', 'Verifikator'] },
     { title: t.user, icon: <UserCog size={20} />, path: '/users', roles: ['Admin'] },
     { title: t.settings, icon: <Settings size={20} />, path: '/settings', roles: ['Admin', 'Petugas'] },
     { title: t.about, icon: <Info size={20} />, path: '/about', roles: ['Admin', 'Petugas'] },
