@@ -201,11 +201,23 @@ const Pengaturan = () => {
         const normalizedData = rawData.map(row => {
           // Helper to find value regardless of case
           const getValue = (keys) => {
-            const foundKey = Object.keys(row).find(k => {
-              if (!k) return false;
-              const upperK = k.toString().toUpperCase();
-              return keys.some(key => upperK.includes(key));
-            });
+            const rowKeys = Object.keys(row);
+            // First pass: try exact matches
+            let foundKey = rowKeys.find(k => k && keys.includes(k.toString().toUpperCase()));
+            
+            // Second pass: try partial matches but with protection against common collisions
+            if (!foundKey) {
+              foundKey = rowKeys.find(k => {
+                if (!k) return false;
+                const upperK = k.toString().toUpperCase();
+                // Special protection: 'KEL' shouldn't match 'KELAMIN'
+                if (keys.includes('KELURAHAN') || keys.includes('KEL')) {
+                  if (upperK.includes('KELAMIN')) return false;
+                }
+                return keys.some(key => upperK.includes(key));
+              });
+            }
+
             const val = foundKey !== undefined ? row[foundKey] : '';
             return (val === undefined || val === null) ? '' : val.toString().trim();
           };
@@ -218,8 +230,8 @@ const Pengaturan = () => {
             tempatLahir: getValue(['TEMPAT LAHIR', 'TEMPAT']),
             tanggalLahir: getValue(['TANGGAL LAHIR', 'TGL LAHIR']),
             alamat: getValue(['ALAMAT', 'ALAMAT LENGKAP']),
-            kecamatan: getValue(['KECAMATAN', 'KEC']),
-            kelurahan: getValue(['KELURAHAN', 'KEL', 'DESA'])
+            kecamatan: getValue(['KECAMATAN', 'KEC']).replace(/^(KECAMATAN|KEC\.?)\s+/i, ''),
+            kelurahan: getValue(['KELURAHAN', 'KEL', 'DESA']).replace(/^(KELURAHAN|KEL\.?|DESA)\s+/i, '')
           };
         });
 
