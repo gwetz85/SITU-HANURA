@@ -7,7 +7,7 @@ import {
 import * as XLSX from 'xlsx';
 import { useAuth } from '../context/AuthContext';
 import { db } from '../firebase';
-import { ref, remove, push, set } from 'firebase/database';
+import { ref, remove, push, set, update } from 'firebase/database';
 import Modal from '../components/Modal';
 
 const Pengaturan = () => {
@@ -200,14 +200,19 @@ const Pengaturan = () => {
         const normalizedData = rawData.map(row => {
           // Helper to find value regardless of case
           const getValue = (keys) => {
-            const foundKey = Object.keys(row).find(k => keys.includes(k.toUpperCase()));
-            return foundKey ? row[foundKey] : '';
+            const foundKey = Object.keys(row).find(k => {
+              if (!k) return false;
+              const upperK = k.toString().toUpperCase();
+              return keys.some(key => upperK.includes(key));
+            });
+            const val = foundKey !== undefined ? row[foundKey] : '';
+            return (val === undefined || val === null) ? '' : val.toString().trim();
           };
 
           return {
             namaLengkap: getValue(['NAMA LENGKAP', 'NAMA']),
             kta: getValue(['NOMOR KTA', 'KTA', 'NO KTA']),
-            nik: getValue(['NIK', 'NOMOR INDUK KEPENDUDUKAN']),
+            nik: getValue(['NIK', 'NOMOR INDUK KEPENDUDUKAN', 'IDENTITAS']),
             jenisKelamin: getValue(['JENIS KELAMIN', 'JK', 'GENDER']),
             tempatLahir: getValue(['TEMPAT LAHIR', 'TEMPAT']),
             tanggalLahir: getValue(['TANGGAL LAHIR', 'TGL LAHIR']),
@@ -228,16 +233,28 @@ const Pengaturan = () => {
         // The user said "Menu ini menampilkan data... di export tabel anggotanya... data ini bisa di hapus secara menyeluruh"
         // I will just append, and they can use the "Hapus Data" button in membership page or here.
 
-        for (let i = 0; i < normalizedData.length; i++) {
-          const newMemberRef = push(keanggotaanRef);
-          await set(newMemberRef, {
-            ...normalizedData[i],
-            importedAt: new Date().toISOString()
+        // Batch upload in chunks to avoid large request errors while maintaining speed
+        const CHUNK_SIZE = 50;
+        for (let i = 0; i < normalizedData.length; i += CHUNK_SIZE) {
+          const chunk = normalizedData.slice(i, i + CHUNK_SIZE);
+          const updates = {};
+          
+          chunk.forEach((member) => {
+            const newKey = push(ref(db, 'keanggotaan')).key;
+            updates[`/keanggotaan/${newKey}`] = {
+              ...member,
+              importedAt: new Date().toISOString()
+            };
           });
-          setImportProgress(60 + Math.floor((i / normalizedData.length) * 35));
+
+          await update(ref(db), updates);
+          
+          const progress = 60 + Math.floor(((i + chunk.length) / normalizedData.length) * 35);
+          setImportProgress(progress);
+          setImportStatus(`Mengunggah ke database... (${i + chunk.length}/${normalizedData.length})`);
         }
 
-        await logActivity(db, 'Sistem', `Berhasil mengimport ${normalizedData.length} data anggota Hanura`, user);
+        await logActivity(db, 'Sistem', `Berhasil mengimport ${normalizedData.length} data anggota Hanura secara massal`, user);
         
         setImportStatus('Selesai!');
         setImportProgress(100);
@@ -250,7 +267,7 @@ const Pengaturan = () => {
 
       } catch (error) {
         console.error('Import error:', error);
-        alert('Gagal mengimport data. Pastikan format file benar.');
+        alert(`Gagal mengimport data: ${error.message || 'Pastikan format file benar.'}`);
         setIsImporting(false);
       }
     };
