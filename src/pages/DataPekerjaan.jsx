@@ -64,6 +64,7 @@ const DataPekerjaan = () => {
         setData(combined);
         setLoading(false);
         setIsRefreshing(false);
+        setError(null); // Clear any timeout errors when data arrives
       };
 
       unsubscribeNib = onValue(nibRef, (snapshot) => {
@@ -97,13 +98,20 @@ const DataPekerjaan = () => {
 
     fetchAllData();
 
-    // Auto-timeout for loading
+    // Auto-timeout for loading (increased to 25s for better resilience)
     const timer = setTimeout(() => {
-      if (loading) {
-        setLoading(false);
-        if (data.length === 0) setError("Sinkronisasi cloud melambat. Silakan Refresh jika data tidak nampil.");
-      }
-    }, 8000);
+      setLoading(currentLoading => {
+        if (currentLoading) {
+          setData(currentData => {
+            if (currentData.length === 0) {
+              setError("Sinkronisasi cloud melambat. Silakan Refresh jika data tidak nampil.");
+            }
+            return currentData;
+          });
+        }
+        return false;
+      });
+    }, 25000);
 
     return () => {
       if (unsubscribeNib) unsubscribeNib();
