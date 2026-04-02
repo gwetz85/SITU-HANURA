@@ -73,7 +73,7 @@ const Layout = ({ children }) => {
       offline: 'OFFLINE',
       inventaris: 'Inventaris Kantor',
       pelayanan: 'Pelayanan Masyarakat',
-      keanggotaan: 'KEANGGOTAAN HANURA'
+      keanggotaan: 'Keanggotaan Hanura'
     },
     en: {
       dashboard: 'Dashboard',

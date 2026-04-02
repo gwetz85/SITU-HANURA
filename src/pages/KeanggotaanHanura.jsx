@@ -12,7 +12,12 @@ import {
   Calendar,
   CreditCard,
   Filter,
-  ChevronDown
+  ChevronDown,
+  Eye,
+  LogOut,
+  Map,
+  Home,
+  Info
 } from 'lucide-react';
 import { db } from '../firebase';
 import { ref, onValue, remove } from 'firebase/database';
@@ -26,6 +31,7 @@ const KeanggotaanHanura = () => {
   const [data, setData] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [showDetail, setShowDetail] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
@@ -42,7 +48,11 @@ const KeanggotaanHanura = () => {
       snapshot.forEach((child) => {
         items.push({ id: child.key, ...child.val() });
       });
-      setData(items);
+      // Sort A-Z by namaLengkap
+      const sorted = items.sort((a, b) => 
+        (a.namaLengkap || '').localeCompare(b.namaLengkap || '')
+      );
+      setData(sorted);
       setLoading(false);
       setIsRefreshing(false);
     }, (error) => {
@@ -102,7 +112,7 @@ const KeanggotaanHanura = () => {
     <div className="keanggotaan-page fadeIn">
       <div className="page-header">
         <div className="header-info">
-          <h1>KEANGGOTAAN HANURA</h1>
+          <h1>Keanggotaan Hanura</h1>
           <p>Daftar data anggota Hanura yang telah diimport ke sistem.</p>
         </div>
         {isAdmin && (
@@ -180,6 +190,7 @@ const KeanggotaanHanura = () => {
                 <th>Tempat, Tgl Lahir</th>
                 <th>Wilayah (Kec/Kel)</th>
                 <th>Alamat</th>
+                <th>Aksi</th>
               </tr>
             </thead>
             <tbody>
@@ -216,6 +227,11 @@ const KeanggotaanHanura = () => {
                   </td>
                   <td className="address-cell">
                     <p className="truncated-text" title={item.alamat}>{item.alamat}</p>
+                  </td>
+                  <td>
+                    <button className="btn-icon-view" onClick={() => setShowDetail(item)} title="Lihat Detail Profil">
+                      <Eye size={16} />
+                    </button>
                   </td>
                 </tr>
               )) : (
@@ -271,6 +287,74 @@ const KeanggotaanHanura = () => {
             </button>
           </div>
         </div>
+      </Modal>
+
+      {/* Detail Member Modal */}
+      <Modal
+        isOpen={!!showDetail}
+        onClose={() => setShowDetail(null)}
+        title="Detail Profil Anggota Hanura"
+        icon={<User className="text-primary" size={24} />}
+        maxWidth="650px"
+      >
+        {showDetail && (
+          <div className="member-detail-container fadeIn">
+             <div className="member-hero">
+                <div className="member-avatar">
+                   {showDetail.namaLengkap?.charAt(0) || 'U'}
+                </div>
+                <div className="member-primary-info">
+                   <h3>{showDetail.namaLengkap}</h3>
+                   <div className="kta-badge">
+                      <CreditCard size={14} />
+                      <span>{showDetail.kta || 'Tidak Ada KTA'}</span>
+                   </div>
+                </div>
+             </div>
+
+             <div className="detail-sections">
+                <div className="detail-row">
+                   <div className="detail-data">
+                      <span className="label"><User size={14} /> NIK</span>
+                      <span className="value">{showDetail.nik || '-'}</span>
+                   </div>
+                   <div className="detail-data">
+                      <span className="label"><Info size={14} /> Jenis Kelamin</span>
+                      <span className="value">{showDetail.jenisKelamin || '-'}</span>
+                   </div>
+                </div>
+
+                <div className="detail-row">
+                   <div className="detail-data">
+                      <span className="label"><Calendar size={14} /> TTL</span>
+                      <span className="value">
+                        {showDetail.tempatLahir}, {showDetail.tanggalLahir}
+                      </span>
+                   </div>
+                </div>
+
+                <div className="detail-row full">
+                   <div className="detail-data">
+                      <span className="label"><MapPin size={14} /> Wilayah Administratif</span>
+                      <span className="value">
+                        Kecamatan {showDetail.kecamatan}, Kelurahan {showDetail.kelurahan}
+                      </span>
+                   </div>
+                </div>
+
+                <div className="detail-row full">
+                   <div className="detail-data">
+                      <span className="label"><Home size={14} /> Alamat Lengkap</span>
+                      <span className="value address-block">{showDetail.alamat}</span>
+                   </div>
+                </div>
+             </div>
+
+             <div className="modal-footer-single">
+                <button className="btn btn-primary-full" onClick={() => setShowDetail(null)}>Tutup Detail</button>
+             </div>
+          </div>
+        )}
       </Modal>
 
       <style dangerouslySetInnerHTML={{ __html: `
@@ -330,6 +414,28 @@ const KeanggotaanHanura = () => {
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         
         .spinner-center { width: 40px; height: 40px; border: 4px solid rgba(37,99,235,0.1); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1.5rem; }
+
+        .btn-icon-view { width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--border); background: white; display: flex; align-items: center; justify-content: center; color: var(--text-muted); cursor: pointer; transition: all 0.2s; }
+        .btn-icon-view:hover { color: var(--primary); border-color: var(--primary); background: rgba(37,99,235,0.05); transform: translateY(-2px); }
+
+        /* Detail Modal Styles */
+        .member-detail-container { padding: 0.5rem; }
+        .member-hero { display: flex; align-items: center; gap: 1.5rem; margin-bottom: 2rem; background: rgba(37,99,235,0.04); padding: 1.5rem; border-radius: 16px; border: 1px solid rgba(37,99,235,0.1); }
+        .member-avatar { width: 70px; height: 70px; background: var(--primary); color: white; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 800; box-shadow: 0 8px 16px rgba(37,99,235,0.2); }
+        .member-primary-info h3 { font-size: 1.4rem; font-weight: 950; color: var(--text-main); margin-bottom: 0.25rem; letter-spacing: -0.5px; }
+        .kta-badge { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 700; color: var(--primary); background: white; padding: 4px 10px; border-radius: 8px; border: 1px solid rgba(37,99,235,0.1); }
+        
+        .detail-sections { display: flex; flex-direction: column; gap: 1.5rem; margin-bottom: 2rem; }
+        .detail-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+        .detail-row.full { grid-template-columns: 1fr; }
+        .detail-data { display: flex; flex-direction: column; gap: 6px; }
+        .detail-data .label { font-size: 0.75rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; }
+        .detail-data .value { font-size: 1rem; font-weight: 700; color: var(--text-main); }
+        .address-block { background: var(--background); padding: 1.25rem; border-radius: 12px; border: 1px solid var(--border); line-height: 1.6; font-size: 0.9rem !important; }
+
+        .modal-footer-single { margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1.5rem; }
+        .btn-primary-full { width: 100%; padding: 1rem; border-radius: 12px; background: var(--primary); color: white; border: none; font-weight: 800; font-size: 0.95rem; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(37,99,235,0.2); }
+        .btn-primary-full:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(37,99,235,0.3); }
 
         .btn-refresh { display: flex; align-items: center; gap: 8px; padding: 0.5rem 1rem; background: white; border: 1px solid var(--border); border-radius: 10px; font-size: 0.85rem; font-weight: 700; color: var(--text-muted); cursor: pointer; transition: all 0.2s; }
         .btn-refresh:hover { color: var(--primary); border-color: var(--primary); }
