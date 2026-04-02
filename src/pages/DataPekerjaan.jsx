@@ -40,32 +40,22 @@ const DataPekerjaan = () => {
   const [filterType, setFilterType] = useState('Semua');
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState(null);
+  const [error, setError] = useState(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
+    let unsubscribeNib = null;
+    let unsubscribeHalal = null;
+
     const fetchAllData = () => {
+      setError(null);
+      setLoading(true);
+
       const nibRef = ref(db, 'pelayanan/nib');
       const halalRef = ref(db, 'pelayanan/halal');
       
       let nibData = [];
       let halalData = [];
-
-      const unsubscribeNib = onValue(nibRef, (snapshot) => {
-        const items = [];
-        snapshot.forEach((child) => {
-          items.push({ id: child.key, ...child.val(), category: 'NIB' });
-        });
-        nibData = items;
-        combineData();
-      });
-
-      const unsubscribeHalal = onValue(halalRef, (snapshot) => {
-        const items = [];
-        snapshot.forEach((child) => {
-          items.push({ id: child.key, ...child.val(), category: 'Halal' });
-        });
-        halalData = items;
-        combineData();
-      });
 
       const combineData = () => {
         const combined = [...nibData, ...halalData].sort((a, b) => 
@@ -73,16 +63,62 @@ const DataPekerjaan = () => {
         );
         setData(combined);
         setLoading(false);
+        setIsRefreshing(false);
       };
 
-      return () => {
-        unsubscribeNib();
-        unsubscribeHalal();
-      };
+      unsubscribeNib = onValue(nibRef, (snapshot) => {
+        const items = [];
+        snapshot.forEach((child) => {
+          items.push({ id: child.key, ...child.val(), category: 'NIB' });
+        });
+        nibData = items;
+        combineData();
+      }, (err) => {
+        console.error("Firebase NIB Listener Error:", err);
+        setError("Gagal memuat data NIB. Periksa izin akses cloud.");
+        setLoading(false);
+        setIsRefreshing(false);
+      });
+
+      unsubscribeHalal = onValue(halalRef, (snapshot) => {
+        const items = [];
+        snapshot.forEach((child) => {
+          items.push({ id: child.key, ...child.val(), category: 'Halal' });
+        });
+        halalData = items;
+        combineData();
+      }, (err) => {
+        console.error("Firebase Halal Listener Error:", err);
+        setError("Gagal memuat data Halal. Periksa izin akses cloud.");
+        setLoading(false);
+        setIsRefreshing(false);
+      });
     };
 
     fetchAllData();
+
+    // Auto-timeout for loading
+    const timer = setTimeout(() => {
+      if (loading) {
+        setLoading(false);
+        if (data.length === 0) setError("Sinkronisasi cloud melambat. Silakan Refresh jika data tidak nampil.");
+      }
+    }, 8000);
+
+    return () => {
+      if (unsubscribeNib) unsubscribeNib();
+      if (unsubscribeHalal) unsubscribeHalal();
+      clearTimeout(timer);
+    };
   }, []);
+
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    // Component will re-fetch data through the existing listeners or we can force a re-mount
+    // In this case, simply setting isRefreshing will trigger any UI needs
+    // To literally re-run fetchAllData we would need to lift it out of useEffect or use a trigger state
+    window.location.reload(); // Hard refresh as a quick fix for "must exit app" issue
+  };
 
   const handleEditClick = () => {
     setEditData({ ...showDetail });
@@ -237,13 +273,25 @@ const DataPekerjaan = () => {
               <option value="Halal">Registrasi Halal</option>
             </select>
           </div>
+          <button className={`btn-refresh ${isRefreshing ? 'spinning' : ''}`} onClick={handleRefresh}>
+            <Clock size={16} /> <span>Refresh Data</span>
+          </button>
           <span className="count-badge">{filteredData.length} Data</span>
         </div>
       </div>
 
       <div className="table-responsive glass-card-premium">
         {loading ? (
-          <div className="p-10 text-center text-muted">Memuat data pekerjaan...</div>
+          <div className="p-10 text-center text-muted fadeIn">
+             <div className="spinner-center"></div>
+             <p>Sinkronisasi data cloud...</p>
+          </div>
+        ) : error ? (
+          <div className="p-10 text-center text-danger fadeIn">
+             <AlertCircle size={40} style={{ marginBottom: '1rem', opacity: 0.5 }} />
+             <p>{error}</p>
+             <button className="btn btn-ghost mt-4" onClick={handleRefresh}>Coba Segarkan Halaman</button>
+          </div>
         ) : (
           <table className="modern-table">
             <thead>
@@ -672,6 +720,23 @@ const DataPekerjaan = () => {
           .edit-grid { grid-template-columns: 1fr; }
           .edit-group.full { grid-column: span 1; }
         }
+
+        .spinner-center {
+          width: 40px; height: 40px; border: 4px solid rgba(37,99,235,0.1); border-top-color: var(--primary);
+          border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1rem;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .btn-refresh {
+          display: flex; align-items: center; gap: 8px; padding: 0.5rem 1rem;
+          background: white; border: 1px solid var(--border); border-radius: 10px;
+          font-size: 0.8rem; font-weight: 700; color: var(--text-muted); cursor: pointer; transition: all 0.2s;
+        }
+        .btn-refresh:hover { color: var(--primary); border-color: var(--primary); transform: translateY(-2px); }
+        .btn-refresh.spinning svg { animation: spin 1s linear infinite; }
+        
+        .mt-4 { margin-top: 1rem; }
       ` }} />
     </div>
   );
