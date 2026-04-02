@@ -9,6 +9,7 @@ import { useAuth } from '../context/AuthContext';
 import { db } from '../firebase';
 import { ref, remove, push, set, update } from 'firebase/database';
 import Modal from '../components/Modal';
+import { logActivity } from '../utils/logging';
 
 const Pengaturan = () => {
   const { user, updateProfile, theme, toggleTheme, language, updateLanguage } = useAuth();
