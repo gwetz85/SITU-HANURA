@@ -30,6 +30,7 @@ import Modal from './Modal';
 const Layout = ({ children }) => {
   const { user, logout, language, workingMonth, setWorkingMonth } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth > 1024);
+  const [chatNotifications, setChatNotifications] = useState({});
   const [isSuratOpen, setIsSuratOpen] = useState(false);
   const [isKasOpen, setIsKasOpen] = useState(false);
   const [isKegiatanOpen, setIsKegiatanOpen] = useState(false);
@@ -44,6 +45,18 @@ const Layout = ({ children }) => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
+
+  // Listen for chat notifications
+  useEffect(() => {
+    if (!user?.id) return;
+    const notifRef = ref(db, `users/${user.id}/chatNotifications`);
+    const unsubscribe = onValue(notifRef, (snapshot) => {
+      setChatNotifications(snapshot.val() || {});
+    });
+    return () => unsubscribe();
+  }, [user?.id]);
+
+  const unreadChatCount = Object.values(chatNotifications).filter(v => v === true).length;
 
   const t = {
     id: {
@@ -110,6 +123,7 @@ const Layout = ({ children }) => {
         { title: 'Data Pekerjaan', path: '/pelayanan/data' }
       ]
     },
+    { title: 'Chat SITU', icon: <MessageSquare size={20} />, path: '/chat', roles: ['Admin', 'Petugas', 'Verifikator'], badge: unreadChatCount },
     {
       title: t.surat,
       icon: <Mail size={20} />,
@@ -143,7 +157,6 @@ const Layout = ({ children }) => {
       ]
     },
     { title: t.pustaka, icon: <Library size={20} />, path: '/pustaka', roles: ['Admin', 'Petugas'] },
-    { title: 'Chat SITU', icon: <MessageSquare size={20} />, path: '/chat', roles: ['Admin', 'Petugas', 'Verifikator'] },
     { title: t.user, icon: <UserCog size={20} />, path: '/users', roles: ['Admin'] },
     { title: t.settings, icon: <Settings size={20} />, path: '/settings', roles: ['Admin', 'Petugas'] },
     { title: t.about, icon: <Info size={20} />, path: '/about', roles: ['Admin', 'Petugas'] },
@@ -198,6 +211,7 @@ const Layout = ({ children }) => {
                       <span className="link-content">
                         {item.icon}
                         <span className="link-text">{item.title}</span>
+                        {item.badge > 0 && <span className="menu-badge-notif">{item.badge}</span>}
                       </span>
                       <ChevronDown size={16} className={`chevron ${isOpen ? 'rotate' : ''}`} />
                     </button>
@@ -220,6 +234,7 @@ const Layout = ({ children }) => {
                     <span className="link-content">
                       {item.icon}
                       <span className="link-text">{item.title}</span>
+                      {item.badge > 0 && <span className="menu-badge-notif">{item.badge}</span>}
                     </span>
                   </NavLink>
                 </li>
@@ -433,6 +448,13 @@ const Layout = ({ children }) => {
           background: var(--background);
           color: var(--primary);
           transform: translateX(4px);
+        }
+
+        .menu-badge-notif {
+          background: #ef4444; color: white; border-radius: 50%;
+          width: 18px; height: 18px; display: flex; align-items: center; justify-content: center;
+          font-size: 0.65rem; font-weight: 800; border: 2px solid white;
+          box-shadow: 0 0 0 1px rgba(255,255,255,1); margin-left: 4px;
         }
 
         .menu-link.active {

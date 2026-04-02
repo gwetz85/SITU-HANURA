@@ -16,7 +16,7 @@ import {
   Users
 } from 'lucide-react';
 import { db, storage } from '../firebase';
-import { ref, onValue, push, set, serverTimestamp, remove } from 'firebase/database';
+import { ref, onValue, push, set, serverTimestamp, remove, update } from 'firebase/database';
 import { ref as sRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useAuth } from '../context/AuthContext';
 
@@ -80,6 +80,11 @@ const Chat = () => {
       }
     });
 
+    // Clear notification for me when I open the chat
+    if (selectedContact) {
+       update(ref(db, `users/${user.id}/chatNotifications`), { [selectedContact.id]: false });
+    }
+
     return () => unsubscribe();
   }, [currentChatId]);
 
@@ -142,6 +147,9 @@ const Chat = () => {
 
       await push(chatRef, newMessage);
       
+      // Set notification for recipient
+      await update(ref(db, `users/${selectedContact.id}/chatNotifications`), { [user.id]: true });
+
       setInputText('');
       clearAttachment();
       setIsUploading(false);
