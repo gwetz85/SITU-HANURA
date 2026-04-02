@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Settings, Lock, Palette, Smartphone, Globe, Bell, Save, ChevronRight, User, 
-  Trash2, AlertTriangle, RefreshCw, CheckCircle2, Loader2, ShieldCheck, Zap
+  Trash2, AlertTriangle, RefreshCw, CheckCircle2, Loader2, ShieldCheck, Zap,
+  Upload, FileSpreadsheet
 } from 'lucide-react';
+import * as XLSX from 'xlsx';
 import { useAuth } from '../context/AuthContext';
 import { db } from '../firebase';
-import { ref, remove } from 'firebase/database';
+import { ref, remove, push, set } from 'firebase/database';
 import Modal from '../components/Modal';
 
 const Pengaturan = () => {
@@ -148,7 +150,7 @@ const Pengaturan = () => {
     
     setIsResetting(true);
     try {
-      const nodes = ['surat', 'cashbook', 'employees', 'pustaka', 'stats'];
+      const nodes = ['surat', 'cashbook', 'employees', 'pustaka', 'stats', 'keanggotaan'];
       await Promise.all(nodes.map(node => remove(ref(db, node))));
       
       setResetSuccess(true);
@@ -162,6 +164,97 @@ const Pengaturan = () => {
     } finally {
       setIsResetting(false);
     }
+  };
+
+  const [isImporting, setIsImporting] = useState(false);
+  const [importProgress, setImportProgress] = useState(0);
+  const [importStatus, setImportStatus] = useState('');
+
+  const handleImportAnggota = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setIsImporting(true);
+    setImportStatus('Membaca file Excel...');
+    setImportProgress(10);
+
+    const reader = new FileReader();
+    reader.onload = async (evt) => {
+      try {
+        const bstr = evt.target.result;
+        const wb = XLSX.read(bstr, { type: 'binary' });
+        const wsname = wb.SheetNames[0];
+        const ws = wb.Sheets[wsname];
+        const rawData = XLSX.utils.sheet_to_json(ws);
+
+        if (rawData.length === 0) {
+          alert('File Excel kosong atau tidak valid.');
+          setIsImporting(false);
+          return;
+        }
+
+        setImportStatus(`Mengolah ${rawData.length} data anggota...`);
+        setImportProgress(30);
+
+        // Normalize data keys (mapping Excel columns to our DB schema)
+        const normalizedData = rawData.map(row => {
+          // Helper to find value regardless of case
+          const getValue = (keys) => {
+            const foundKey = Object.keys(row).find(k => keys.includes(k.toUpperCase()));
+            return foundKey ? row[foundKey] : '';
+          };
+
+          return {
+            namaLengkap: getValue(['NAMA LENGKAP', 'NAMA']),
+            kta: getValue(['NOMOR KTA', 'KTA', 'NO KTA']),
+            nik: getValue(['NIK', 'NOMOR INDUK KEPENDUDUKAN']),
+            jenisKelamin: getValue(['JENIS KELAMIN', 'JK', 'GENDER']),
+            tempatLahir: getValue(['TEMPAT LAHIR', 'TEMPAT']),
+            tanggalLahir: getValue(['TANGGAL LAHIR', 'TGL LAHIR']),
+            alamat: getValue(['ALAMAT', 'ALAMAT LENGKAP']),
+            kecamatan: getValue(['KECAMATAN', 'KEC']),
+            kelurahan: getValue(['KELURAHAN', 'KEL', 'DESA'])
+          };
+        });
+
+        setImportStatus('Mengunggah ke database...');
+        setImportProgress(60);
+
+        // Save to Firebase (using a simple loop for now, batch update is better for very large data)
+        const keanggotaanRef = ref(db, 'keanggotaan');
+        
+        // We wipe old data first based on user requirements "Hapus data anggota" 
+        // but here we just append or let user wipe manually. 
+        // The user said "Menu ini menampilkan data... di export tabel anggotanya... data ini bisa di hapus secara menyeluruh"
+        // I will just append, and they can use the "Hapus Data" button in membership page or here.
+
+        for (let i = 0; i < normalizedData.length; i++) {
+          const newMemberRef = push(keanggotaanRef);
+          await set(newMemberRef, {
+            ...normalizedData[i],
+            importedAt: new Date().toISOString()
+          });
+          setImportProgress(60 + Math.floor((i / normalizedData.length) * 35));
+        }
+
+        await logActivity(db, 'Sistem', `Berhasil mengimport ${normalizedData.length} data anggota Hanura`, user);
+        
+        setImportStatus('Selesai!');
+        setImportProgress(100);
+        setTimeout(() => {
+          setIsImporting(false);
+          setImportProgress(0);
+          setImportStatus('');
+          alert(`Berhasil mengimport ${rawData.length} data anggota.`);
+        }, 1500);
+
+      } catch (error) {
+        console.error('Import error:', error);
+        alert('Gagal mengimport data. Pastikan format file benar.');
+        setIsImporting(false);
+      }
+    };
+    reader.readAsBinaryString(file);
   };
 
   return (
@@ -363,6 +456,40 @@ const Pengaturan = () => {
                     <Trash2 size={18} /> <span>Mulai Pembersihan Data</span>
                   </button>
                 </div>
+
+                <div className="danger-card mt-4" style={{ background: 'rgba(37, 99, 235, 0.05)', borderColor: 'var(--primary)', borderStyle: 'solid' }}>
+                   <div className="danger-info">
+                    <div className="danger-header">
+                       <FileSpreadsheet color="var(--primary)" size={24} />
+                       <h4 style={{ color: 'var(--primary)' }}>Import Data Anggota Hanura</h4>
+                    </div>
+                    <p style={{ color: 'var(--text-main)' }}>
+                       Unggah file Excel (.xlsx) yang berisi data keanggotaan Hanura. Sistem akan memproses dan menyimpannya secara otomatis.
+                    </p>
+                    {isImporting && (
+                      <div className="import-progress-container mt-4">
+                         <div className="progress-bar-bg">
+                            <div className="progress-bar-fill" style={{ width: `${importProgress}%` }}></div>
+                         </div>
+                         <p className="progress-text">{importStatus} ({importProgress}%)</p>
+                      </div>
+                    )}
+                   </div>
+                   <div className="import-action">
+                      <input 
+                        type="file" 
+                        id="excel-upload" 
+                        accept=".xlsx, .xls" 
+                        style={{ display: 'none' }} 
+                        onChange={handleImportAnggota}
+                        disabled={isImporting}
+                      />
+                      <label htmlFor="excel-upload" className={`btn btn-primary ${isImporting ? 'disabled' : ''}`}>
+                        {isImporting ? <Loader2 size={18} className="spinner" /> : <Upload size={18} />}
+                        <span>{isImporting ? 'Memproses...' : 'Upload Excel'}</span>
+                      </label>
+                   </div>
+                </div>
               </div>
             </div>
           )}
@@ -493,6 +620,12 @@ const Pengaturan = () => {
         .btn-danger { background: #ef4444; color: white; border: none; padding: 0.8rem 1.25rem; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.2s; }
         .btn-danger:hover { background: #dc2626; }
         .btn-danger:disabled { background: #94a3b8; opacity: 0.6; cursor: not-allowed; }
+
+        .mt-4 { margin-top: 1rem; }
+        .progress-bar-bg { width: 100%; height: 8px; background: var(--border); border-radius: 100px; overflow: hidden; margin-bottom: 0.5rem; }
+        .progress-bar-fill { height: 100%; background: var(--primary); transition: width 0.3s ease; }
+        .progress-text { font-size: 0.75rem; font-weight: 700; color: var(--primary); }
+        .disabled { opacity: 0.6; pointer-events: none; }
 
         /* Modal Styles */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }

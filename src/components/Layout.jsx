@@ -72,7 +72,8 @@ const Layout = ({ children }) => {
       about: 'Tentang Aplikasi',
       offline: 'OFFLINE',
       inventaris: 'Inventaris Kantor',
-      pelayanan: 'Pelayanan Masyarakat'
+      pelayanan: 'Pelayanan Masyarakat',
+      keanggotaan: 'KEANGGOTAAN HANURA'
     },
     en: {
       dashboard: 'Dashboard',
@@ -87,7 +88,8 @@ const Layout = ({ children }) => {
       about: 'About App',
       offline: 'OFFLINE',
       inventaris: 'Office Inventory',
-      pelayanan: 'PUBLIC SERVICE'
+      pelayanan: 'PUBLIC SERVICE',
+      keanggotaan: 'HANURA MEMBERSHIP'
     }
   }[language || 'id'];
 
@@ -134,6 +136,7 @@ const Layout = ({ children }) => {
         { title: t.suratKeluar, path: '/surat/keluar' }
       ]
     },
+    { title: t.keanggotaan, icon: <Users size={20} />, path: '/keanggotaan', roles: ['Admin', 'Petugas'] },
     {
       title: t.kas,
       icon: <Wallet size={20} />,

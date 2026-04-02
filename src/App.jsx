@@ -19,6 +19,7 @@ import PelayananMasyarakat from './pages/PelayananMasyarakat';
 import RegistrasiNIB from './pages/RegistrasiNIB';
 import RegistrasiHalal from './pages/RegistrasiHalal';
 import DataPekerjaan from './pages/DataPekerjaan';
+import KeanggotaanHanura from './pages/KeanggotaanHanura';
 import Chat from './pages/Chat';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -46,6 +47,7 @@ function App() {
       <Route path="/surat" element={<Navigate to="/surat/masuk" replace />} />
       <Route path="/surat/masuk" element={<ProtectedRoute allowedRoles={['Admin', 'Petugas']}><SuratMenyurat type="masuk" /></ProtectedRoute>} />
       <Route path="/surat/keluar" element={<ProtectedRoute allowedRoles={['Admin', 'Petugas']}><SuratMenyurat type="keluar" /></ProtectedRoute>} />
+      <Route path="/keanggotaan" element={<ProtectedRoute allowedRoles={['Admin', 'Petugas']}><KeanggotaanHanura /></ProtectedRoute>} />
       <Route path="/kas" element={<ProtectedRoute allowedRoles={['Admin', 'Petugas']}><KasOffice /></ProtectedRoute>} />
       <Route path="/kas/rekapan" element={<ProtectedRoute allowedRoles={['Admin', 'Petugas']}><RekapanKas /></ProtectedRoute>} />
       <Route path="/admin/kegiatan" element={<ProtectedRoute allowedRoles={['Admin']}><ManajemenKegiatan /></ProtectedRoute>} />
