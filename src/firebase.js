@@ -1,5 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getDatabase } from "firebase/database";
+import { getStorage } from "firebase/storage";
 
 // Firebase configuration with resilience for Vercel
 const firebaseConfig = {
@@ -15,6 +16,7 @@ const firebaseConfig = {
 // Fail-safe initialization
 let app;
 let db;
+let storage;
 
 try {
   if (!firebaseConfig.apiKey || firebaseConfig.apiKey === "YOUR_API_KEY") {
@@ -22,9 +24,10 @@ try {
   } else {
     app = initializeApp(firebaseConfig);
     db = getDatabase(app);
+    storage = getStorage(app);
   }
 } catch (error) {
   console.error("Firebase Initialization Error:", error);
 }
 
-export { db };
+export { db, storage };

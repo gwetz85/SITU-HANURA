@@ -19,6 +19,7 @@ import PelayananMasyarakat from './pages/PelayananMasyarakat';
 import RegistrasiNIB from './pages/RegistrasiNIB';
 import RegistrasiHalal from './pages/RegistrasiHalal';
 import DataPekerjaan from './pages/DataPekerjaan';
+import Chat from './pages/Chat';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user } = useAuth();
@@ -55,6 +56,7 @@ function App() {
       <Route path="/users" element={<ProtectedRoute allowedRoles={['Admin']}><ManajemenUser /></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute allowedRoles={['Admin', 'Petugas']}><Pengaturan /></ProtectedRoute>} />
       <Route path="/about" element={<ProtectedRoute allowedRoles={['Admin', 'Petugas']}><About /></ProtectedRoute>} />
+      <Route path="/chat" element={<ProtectedRoute allowedRoles={['Admin']}><Chat /></ProtectedRoute>} />
       
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
