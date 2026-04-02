@@ -12,13 +12,15 @@ import {
   Mail,
   Fingerprint,
   Calendar,
-  Building
+  Building,
+  Printer
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
 import { ref, push } from 'firebase/database';
 import { useAuth } from '../context/AuthContext';
 import { logActivity } from '../utils/logging';
+import { generateRegistrationPDF } from '../utils/pdfGenerator';
 
 const RegistrasiNIB = () => {
   const { user } = useAuth();
@@ -387,6 +389,13 @@ const RegistrasiNIB = () => {
           <button type="button" className="btn-cancel" onClick={() => navigate('/pelayanan')}>
             Batal
           </button>
+          <button 
+            type="button" 
+            className="btn-print-outline" 
+            onClick={() => generateRegistrationPDF({ pelakuUsaha, usahaList, category: 'NIB' })}
+          >
+            <Printer size={18} /> Cetak Data (PDF)
+          </button>
           <button type="submit" className="btn-submit-premium" disabled={loading}>
             {loading ? 'Menyimpan...' : (
               <>
@@ -629,6 +638,18 @@ const RegistrasiNIB = () => {
           box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
           transition: all 0.2s;
         }
+        
+        .btn-print-outline {
+          background: white;
+          color: var(--primary);
+          border: 2px solid var(--primary);
+          padding: 0.75rem 2rem;
+          border-radius: 12px;
+          font-weight: 800;
+          font-size: 1rem;
+          display: flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s;
+        }
+        .btn-print-outline:hover { background: rgba(37, 99, 235, 0.05); transform: translateY(-2px); }
 
         .btn-submit-premium:hover {
           transform: translateY(-2px);

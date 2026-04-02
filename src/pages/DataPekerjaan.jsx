@@ -23,13 +23,15 @@ import {
   Save,
   X,
   Plus,
-  Trash2
+  Trash2,
+  Printer
 } from 'lucide-react';
 import { db } from '../firebase';
 import { ref, onValue, update } from 'firebase/database';
 import Modal from '../components/Modal';
 import { logActivity } from '../utils/logging';
 import { useAuth } from '../context/AuthContext';
+import { generateRegistrationPDF } from '../utils/pdfGenerator';
 
 const DataPekerjaan = () => {
   const { user } = useAuth();
@@ -371,6 +373,12 @@ const DataPekerjaan = () => {
             ) : (
               <>
                 <button className="btn btn-ghost" onClick={() => setShowDetail(null)}>Tutup</button>
+                <button 
+                  className="btn btn-secondary" 
+                  onClick={() => generateRegistrationPDF(showDetail)}
+                >
+                  <Printer size={18} /> Cetak PDF
+                </button>
                 <button className="btn btn-accent" onClick={handleEditClick}>
                   <Edit2 size={18} /> Edit Data
                 </button>

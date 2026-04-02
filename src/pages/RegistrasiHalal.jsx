@@ -16,13 +16,15 @@ import {
   Package,
   Droplets,
   FileText,
-  ShieldCheck
+  ShieldCheck,
+  Printer
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
 import { ref, push } from 'firebase/database';
 import { useAuth } from '../context/AuthContext';
 import { logActivity } from '../utils/logging';
+import { generateRegistrationPDF } from '../utils/pdfGenerator';
 
 const RegistrasiHalal = () => {
   const { user } = useAuth();
@@ -326,6 +328,18 @@ const RegistrasiHalal = () => {
 
         <div className="form-footer-actions">
           <button type="button" className="btn-cancel" onClick={() => navigate('/pelayanan')}>Batal</button>
+          <button 
+            type="button" 
+            className="btn-print-outline" 
+            onClick={() => generateRegistrationPDF({ 
+              pelakuUsaha, 
+              usahaList, 
+              halalDetails: { bahan: bahanList, kemasan: kemasanList, pembersih: pembersihList, tataCara }, 
+              category: 'Halal' 
+            })}
+          >
+            <Printer size={18} /> Cetak Data (PDF)
+          </button>
           <button type="submit" className="btn-submit-premium" disabled={loading}>
             {loading ? 'Menyimpan...' : <><Save size={18} /> Simpan Registrasi Halal</>}
           </button>
@@ -362,6 +376,18 @@ const RegistrasiHalal = () => {
         .form-footer-actions { display: flex; justify-content: flex-end; gap: 1.5rem; padding-bottom: 3rem; }
         .btn-cancel { background: none; border: 1px solid var(--border); padding: 0.75rem 2rem; border-radius: 12px; font-weight: 700; color: var(--text-muted); cursor: pointer; }
         .btn-submit-premium { background: var(--primary); color: white; border: none; padding: 0.75rem 2.5rem; border-radius: 12px; font-weight: 800; box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3); cursor: pointer; display: flex; align-items: center; gap: 10px; }
+        
+        .btn-print-outline {
+          background: white;
+          color: var(--primary);
+          border: 2px solid var(--primary);
+          padding: 0.75rem 2rem;
+          border-radius: 12px;
+          font-weight: 800;
+          font-size: 1rem;
+          display: flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s;
+        }
+        .btn-print-outline:hover { background: rgba(37, 99, 235, 0.05); transform: translateY(-2px); }
         
         .location-input-group { display: flex; gap: 1rem; }
         .location-input-group input { flex: 1; background: #f8fafc !important; color: #64748b; font-family: monospace; font-weight: 700; }
