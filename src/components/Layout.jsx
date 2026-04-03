@@ -297,7 +297,7 @@ const Layout = ({ children }) => {
             <div className="header-right">
               <NavLink to="/about" className="header-about-link">
                 <Info size={18} />
-                <span>About</span>
+                <span>INFO APLIKASI</span>
               </NavLink>
               <div className="user-dropdown-container">
                 <div
