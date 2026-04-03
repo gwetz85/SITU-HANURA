@@ -162,7 +162,6 @@ const Layout = ({ children }) => {
     { title: t.pustaka, icon: <Library size={20} />, path: '/pustaka', roles: ['Admin', 'Petugas'] },
     { title: t.user, icon: <UserCog size={20} />, path: '/users', roles: ['Admin'] },
     { title: t.settings, icon: <Settings size={20} />, path: '/settings', roles: ['Admin', 'Petugas'] },
-    { title: t.about, icon: <Info size={20} />, path: '/about', roles: ['Admin', 'Petugas'] },
   ].filter(item => !item.roles || item.roles.includes(user?.role));
 
   return (
@@ -296,6 +295,10 @@ const Layout = ({ children }) => {
               </div>
             </div>
             <div className="header-right">
+              <NavLink to="/about" className="header-about-link">
+                <Info size={18} />
+                <span>About</span>
+              </NavLink>
               <div className="user-dropdown-container">
                 <div
                   className={`header-user-badge ${isUserMenuOpen ? 'active' : ''}`}
@@ -582,6 +585,26 @@ const Layout = ({ children }) => {
           color: white;
           padding: 2px 6px;
           border-radius: 4px;
+        }
+
+        .header-about-link {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          padding: 0.5rem 1rem;
+          border-radius: 100px;
+          color: var(--text-muted);
+          font-weight: 800;
+          font-size: 0.85rem;
+          text-decoration: none;
+          transition: all 0.2s;
+          border: 1px solid transparent;
+        }
+
+        .header-about-link:hover, .header-about-link.active {
+          background: var(--background);
+          color: var(--primary);
+          border-color: var(--border);
         }
 
         .header-user-badge { 
