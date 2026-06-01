@@ -268,10 +268,9 @@ const SlipGaji = ({ data }) => {
           .a4-slip-document * { visibility: visible !important; }
           @page { size: A4 portrait; margin: 0; }
         }
-      \` }} />
+      ` }} />
     </div>
   );
 };
 
 export default SlipGaji;
-
